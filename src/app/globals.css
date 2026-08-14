@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Rajdhani', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-stone-950 text-parchment-100;
+  min-height: 100vh;
+}
+
+/* RTL-aware direction is set via the `dir` attribute on <html>, Tailwind's
+   logical utilities (ps-, pe-, ms-, me-, text-start, text-end) are used
+   throughout components instead of left/right so the layout mirrors
+   automatically for Arabic. */
+
+::selection {
+  background: rgba(77, 132, 168, 0.35);
+}
+
+.focus-ring {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(77, 132, 168, 0.35);
+  border-radius: 8px;
+}
+
+.dashboard-card {
+  @apply rounded-md border border-stone-700 bg-stone-900;
+}
+
+.chip {
+  @apply inline-flex items-center gap-1 rounded border border-gold-700/50 bg-stone-900 px-2 py-0.5 text-xs font-medium text-gold-300 tabular-nums;
+}
