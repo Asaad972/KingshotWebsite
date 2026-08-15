@@ -16,6 +16,8 @@ export default function AdminGiftCodesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
 
   const loadCodes = () => {
     setLoading(true);
@@ -65,6 +67,37 @@ export default function AdminGiftCodesPage() {
     }
   };
 
+  const handleSyncNow = async () => {
+    setSyncing(true);
+    setSyncFeedback(null);
+    try {
+      const res = await fetch('/api/gift-codes/sync', { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setSyncFeedback({
+          kind: 'error',
+          text: data.reason === 'community_api_unreachable' ? "Couldn't reach the community code list -- try again shortly." : 'Sync failed.',
+        });
+        return;
+      }
+
+      const added = (data.newlyAdded ?? []) as { code: string; redeemed: number; total: number }[];
+      setSyncFeedback({
+        kind: 'success',
+        text:
+          added.length === 0
+            ? `Checked ${data.checked} community codes -- nothing new.`
+            : `Found ${added.length} new code${added.length === 1 ? '' : 's'}: ${added.map((a) => a.code).join(', ')}.`,
+      });
+      loadCodes();
+    } catch {
+      setSyncFeedback({ kind: 'error', text: 'Network error -- try again.' });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const handleToggle = async (c: GiftCode) => {
     setTogglingId(c.id);
     try {
@@ -85,6 +118,30 @@ export default function AdminGiftCodesPage() {
   return (
     <div className="flex flex-col gap-4" dir="ltr">
       <h1 className="text-lg font-semibold text-parchment-100">Gift Codes</h1>
+
+      <div className="dashboard-card p-4 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-parchment-100">Community Code Sync</p>
+            <p className="text-xs text-parchment-400">
+              A GitHub Action checks for new codes automatically every ~15 minutes. Use this to check right now.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSyncNow}
+            disabled={syncing}
+            className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-2 text-xs font-semibold text-parchment-200 hover:border-gold-600 transition-colors disabled:opacity-50"
+          >
+            {syncing ? 'Checking…' : 'Sync Now'}
+          </button>
+        </div>
+        {syncFeedback && (
+          <p className={`text-xs ${syncFeedback.kind === 'success' ? 'text-moss-500' : 'text-ember-500'}`}>
+            {syncFeedback.text}
+          </p>
+        )}
+      </div>
 
       <form onSubmit={handleAdd} className="dashboard-card p-4 flex flex-col gap-3">
         <label className="flex flex-col gap-1">

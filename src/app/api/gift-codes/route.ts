@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { redeemGiftCode, jitteredDelay, type RedeemStatus } from '@/lib/kingshotRedeem';
+import { redeemCodeForAllEnrolled } from '@/lib/redeemAllEnrolled';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -45,20 +45,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, reason }, { status: 400 });
   }
 
-  const { data: enrollments } = await supabase.from('redeem_enrollments').select('id, fid, kid');
-
-  const results: { fid: string; status: RedeemStatus }[] = [];
-  for (const enrollment of enrollments ?? []) {
-    const status = await redeemGiftCode(enrollment.fid, enrollment.kid, newCode.code);
-    results.push({ fid: enrollment.fid, status });
-    await supabase
-      .from('gift_redemptions')
-      .upsert(
-        { enrollment_id: enrollment.id, code_id: newCode.id, status, attempted_at: new Date().toISOString() },
-        { onConflict: 'enrollment_id,code_id' }
-      );
-    await jitteredDelay();
-  }
+  const results = await redeemCodeForAllEnrolled(supabase, newCode.id, newCode.code);
 
   return NextResponse.json({ success: true, code: newCode, redeemed: results });
 }

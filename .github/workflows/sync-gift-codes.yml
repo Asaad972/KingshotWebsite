@@ -1,0 +1,17 @@
+name: Sync KingShot Gift Codes
+
+on:
+  schedule:
+    # Every 15 minutes. GitHub may delay this somewhat under load -- it's
+    # best-effort, not a real-time guarantee.
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger gift code sync
+        run: |
+          curl -sf -X POST "https://kingshot-website.vercel.app/api/gift-codes/sync" \
+            -H "x-sync-secret: ${{ secrets.GIFT_CODE_SYNC_SECRET }}"
