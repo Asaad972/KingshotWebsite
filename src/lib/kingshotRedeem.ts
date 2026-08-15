@@ -4,7 +4,6 @@ import crypto from 'crypto';
 // cogs/gift_operations.py). Talks directly to KingShot's own gift-code API --
 // server-only, never import this from a Client Component.
 
-const PLAYER_INFO_URL = 'https://kingshot-giftcode.centurygame.com/api/player';
 const GIFT_CODE_URL = 'https://kingshot-giftcode.centurygame.com/api/gift_code';
 
 function getSecret(): string {
@@ -41,26 +40,6 @@ async function postSigned(url: string, data: Record<string, string>): Promise<{ 
     json = null;
   }
   return { status: res.status, json };
-}
-
-export interface PlayerInfo {
-  ok: boolean;
-  nickname: string | null;
-  stoveLevel: string | null;
-}
-
-/** Validates an fid exists and fetches its display nickname. */
-export async function getPlayerInfo(fid: string): Promise<PlayerInfo> {
-  const { json } = await postSigned(PLAYER_INFO_URL, {
-    fid,
-    time: String(Math.floor(Date.now() / 1000)),
-  });
-  const ok = json?.msg === 'success';
-  return {
-    ok,
-    nickname: ok ? json?.data?.nickname ?? null : null,
-    stoveLevel: ok ? json?.data?.stove_lv ?? null : null,
-  };
 }
 
 export type RedeemStatus =
@@ -121,6 +100,34 @@ export async function redeemGiftCode(fid: string, kid: string, code: string): Pr
     return 'TOO_POOR_SPEND_MORE';
 
   return 'UNKNOWN_API_RESPONSE';
+}
+
+/** A code that can never be real, so probing with it never redeems anything.
+ * Mirrors the bot's state-resolver `_probe_code()`. */
+function probeCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let suffix = '';
+  for (let i = 0; i < 14; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
+  return `ZZ${suffix}`;
+}
+
+export type VerifyResult = 'valid' | 'role_not_exist' | 'wrong_kingdom' | 'unknown';
+
+/**
+ * KingShot's own player-lookup endpoint (`/api/player`) has been retired by
+ * the game (returns 404) -- there is no longer any way to look up a player
+ * without also knowing their kingdom. Instead, mirror the bot's own
+ * state-resolver trick: the redeem endpoint validates fid+kid *before* it
+ * even looks at the code, so probing it with a code that can't possibly be
+ * real reveals whether this fid+kid combination is legitimate, with zero
+ * risk of actually redeeming anything.
+ */
+export async function verifyPlayerAndKingdom(fid: string, kid: string): Promise<VerifyResult> {
+  const status = await redeemGiftCode(fid, kid, probeCode());
+  if (status === 'CDK_NOT_FOUND') return 'valid';
+  if (status === 'ROLE_NOT_EXIST') return 'role_not_exist';
+  if (status === 'STATE_MISMATCH') return 'wrong_kingdom';
+  return 'unknown';
 }
 
 /** Jittered delay between consecutive calls, mirroring the bot's own pacing

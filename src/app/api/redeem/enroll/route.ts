@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getPlayerInfo, redeemGiftCode, jitteredDelay, type RedeemStatus } from '@/lib/kingshotRedeem';
+import { verifyPlayerAndKingdom, redeemGiftCode, jitteredDelay, type RedeemStatus } from '@/lib/kingshotRedeem';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -19,20 +19,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, reason: 'fid_and_kid_must_be_numeric' }, { status: 400 });
   }
 
-  const playerInfo = await getPlayerInfo(fid);
-  if (!playerInfo.ok) {
+  const verification = await verifyPlayerAndKingdom(fid, kid);
+  if (verification === 'role_not_exist') {
     return NextResponse.json({ success: false, reason: 'player_not_found' }, { status: 404 });
+  }
+  if (verification === 'wrong_kingdom') {
+    return NextResponse.json({ success: false, reason: 'wrong_kingdom' }, { status: 404 });
+  }
+  if (verification === 'unknown') {
+    return NextResponse.json({ success: false, reason: 'verification_failed' }, { status: 502 });
   }
 
   const supabase = createAdminClient();
 
   const { data: enrollment, error: upsertError } = await supabase
     .from('redeem_enrollments')
-    .upsert(
-      { fid, kid, nickname: playerInfo.nickname },
-      { onConflict: 'fid' }
-    )
-    .select('id, fid, kid, nickname')
+    .upsert({ fid, kid }, { onConflict: 'fid' })
+    .select('id, fid, kid')
     .single();
 
   if (upsertError || !enrollment) {
@@ -54,5 +57,5 @@ export async function POST(request: Request) {
     await jitteredDelay();
   }
 
-  return NextResponse.json({ success: true, nickname: playerInfo.nickname, results });
+  return NextResponse.json({ success: true, results });
 }

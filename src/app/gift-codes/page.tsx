@@ -53,6 +53,8 @@ export default function GiftCodesPage() {
         const message =
           data.reason === 'player_not_found'
             ? "Couldn't find that Player ID -- double-check it and try again."
+            : data.reason === 'wrong_kingdom'
+            ? "That Kingdom ID doesn't match this Player ID -- double-check your kingdom number."
             : data.reason === 'fid_and_kid_required'
             ? 'Enter both your Player ID and Kingdom ID.'
             : data.reason === 'fid_and_kid_must_be_numeric'
@@ -65,14 +67,13 @@ export default function GiftCodesPage() {
       const results: RedeemResult[] = data.results ?? [];
       const redeemed = results.filter((r) => r.status === 'SUCCESS').length;
       const already = results.filter((r) => r.status !== 'SUCCESS' && SUCCESS_LIKE.has(r.status)).length;
-      const name = data.nickname ? ` as ${data.nickname}` : '';
 
       setFeedback({
         kind: 'success',
         text:
           results.length === 0
-            ? `Enrolled${name}. No active codes right now -- you'll get the next one automatically.`
-            : `Enrolled${name}. ${redeemed} code${redeemed === 1 ? '' : 's'} redeemed, ${already} already claimed.`,
+            ? "Enrolled. No active codes right now -- you'll get the next one automatically."
+            : `Enrolled. ${redeemed} code${redeemed === 1 ? '' : 's'} redeemed, ${already} already claimed.`,
       });
       setFid('');
       setKid('');
