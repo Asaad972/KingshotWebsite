@@ -123,11 +123,24 @@ export type VerifyResult = 'valid' | 'role_not_exist' | 'wrong_kingdom' | 'unkno
  * risk of actually redeeming anything.
  */
 export async function verifyPlayerAndKingdom(fid: string, kid: string): Promise<VerifyResult> {
-  const status = await redeemGiftCode(fid, kid, probeCode());
-  if (status === 'CDK_NOT_FOUND') return 'valid';
-  if (status === 'ROLE_NOT_EXIST') return 'role_not_exist';
-  if (status === 'STATE_MISMATCH') return 'wrong_kingdom';
-  return 'unknown';
+  const classify = (status: RedeemStatus): VerifyResult => {
+    if (status === 'CDK_NOT_FOUND') return 'valid';
+    if (status === 'ROLE_NOT_EXIST') return 'role_not_exist';
+    if (status === 'STATE_MISMATCH') return 'wrong_kingdom';
+    return 'unknown';
+  };
+
+  const first = classify(await redeemGiftCode(fid, kid, probeCode()));
+  if (first === 'valid') return 'valid';
+
+  // A single non-"valid" result could just be a transient blip in this
+  // unofficial API (rate limiting, a dropped request, etc.) -- confirm with
+  // one retry before concluding the player/kingdom really is invalid.
+  await jitteredDelay();
+  const second = classify(await redeemGiftCode(fid, kid, probeCode()));
+  if (second === 'valid') return 'valid';
+
+  return first === second ? first : 'unknown';
 }
 
 /** Jittered delay between consecutive calls, mirroring the bot's own pacing
