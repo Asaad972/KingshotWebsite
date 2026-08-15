@@ -23,6 +23,7 @@ function formatFoundDate(iso: string): string {
 
 export default function GiftCodesPage() {
   const [codes, setCodes] = useState<GiftCode[]>([]);
+  const [stats, setStats] = useState({ enrolledPlayers: 0, codesRedeemed: 0 });
   const [loading, setLoading] = useState(true);
   const [fid, setFid] = useState('');
   const [kid, setKid] = useState('');
@@ -33,7 +34,10 @@ export default function GiftCodesPage() {
   useEffect(() => {
     fetch('/api/gift-codes')
       .then((r) => r.json())
-      .then((data) => setCodes(data.codes ?? []))
+      .then((data) => {
+        setCodes(data.codes ?? []);
+        if (data.stats) setStats(data.stats);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -98,11 +102,26 @@ export default function GiftCodesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-5 pb-8" dir="ltr">
-      <h1 className="text-lg font-semibold text-parchment-100 mb-1">Gift Codes</h1>
-      <p className="text-sm text-parchment-400 mb-4">
-        Add your Player ID once and every active code gets redeemed for you automatically -- new codes too, as soon
-        as they're added.
-      </p>
+      <div className="rounded-md overflow-hidden border border-stone-700 mb-4">
+        <div className="bg-gradient-primary px-4 py-4">
+          <h1 className="text-lg font-bold text-white">Active Gift Codes</h1>
+          <p className="text-sm text-white/90 mt-1">
+            Add your Player ID once and every active code gets redeemed for you automatically -- new codes too, as
+            soon as they're added.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="dashboard-card p-3 text-center">
+          <p className="text-2xl font-bold text-gradient">{stats.enrolledPlayers.toLocaleString()}</p>
+          <p className="text-[10px] uppercase tracking-wide text-parchment-400 mt-0.5">Auto-Redeeming</p>
+        </div>
+        <div className="dashboard-card p-3 text-center">
+          <p className="text-2xl font-bold text-gradient">{stats.codesRedeemed.toLocaleString()}</p>
+          <p className="text-[10px] uppercase tracking-wide text-parchment-400 mt-0.5">Codes Redeemed</p>
+        </div>
+      </div>
 
       <form onSubmit={handleEnroll} className="dashboard-card p-4 flex flex-col gap-3 mb-6">
         <div className="grid grid-cols-2 gap-2">
@@ -132,7 +151,7 @@ export default function GiftCodesPage() {
         <button
           type="submit"
           disabled={submitting || !fid.trim() || !kid.trim()}
-          className="focus-ring rounded-md bg-gold-500 py-2.5 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors disabled:opacity-50"
+          className="btn-gradient focus-ring rounded-md py-2.5 text-sm disabled:opacity-50"
         >
           {submitting ? 'Adding…' : 'Add to Auto-Redeem'}
         </button>

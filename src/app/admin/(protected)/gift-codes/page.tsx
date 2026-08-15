@@ -157,7 +157,7 @@ export default function AdminGiftCodesPage() {
         <button
           type="submit"
           disabled={submitting || !newCode.trim()}
-          className="focus-ring rounded-md bg-gold-500 py-2.5 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors disabled:opacity-50"
+          className="btn-gradient focus-ring rounded-md py-2.5 text-sm disabled:opacity-50"
         >
           {submitting ? 'Adding & redeeming…' : 'Add & Redeem to All Enrolled'}
         </button>

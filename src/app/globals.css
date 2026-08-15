@@ -22,7 +22,7 @@ body {
    automatically for Arabic. */
 
 ::selection {
-  background: rgba(77, 132, 168, 0.35);
+  background: rgba(236, 72, 153, 0.35);
 }
 
 .focus-ring {
@@ -42,7 +42,7 @@ body {
   height: 8px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(77, 132, 168, 0.35);
+  background: rgba(236, 72, 153, 0.35);
   border-radius: 8px;
 }
 
@@ -52,4 +52,18 @@ body {
 
 .chip {
   @apply inline-flex items-center gap-1 rounded border border-gold-700/50 bg-stone-900 px-2 py-0.5 text-xs font-medium text-gold-300 tabular-nums;
+}
+
+/* Gradient accents -- used sparingly on primary CTAs, hero sections, and
+   card/header top bars for visual "pop" against the dark neutral base. */
+.text-gradient {
+  @apply bg-gradient-primary bg-clip-text text-transparent;
+}
+
+.btn-gradient {
+  @apply bg-gradient-primary text-white font-semibold transition-opacity hover:opacity-90;
+}
+
+.gradient-bar {
+  @apply h-1 w-full bg-gradient-primary;
 }

@@ -24,7 +24,7 @@ export default function HomePage() {
 
       <div className="text-center">
         <p className="text-gold-400 tracking-widest text-xs font-semibold uppercase mb-2">KingShot</p>
-        <h1 className="font-display text-2xl sm:text-3xl text-parchment-100 leading-tight">{t('home.title')}</h1>
+        <h1 className="font-display text-gradient text-3xl sm:text-4xl font-bold leading-tight">{t('home.title')}</h1>
         <p className="mt-2 text-parchment-300 text-sm">{t('home.tagline')}</p>
       </div>
 
@@ -35,7 +35,7 @@ export default function HomePage() {
       <div className="mt-6 flex flex-col items-center gap-2">
         <Link
           href="/book"
-          className="focus-ring w-full sm:w-auto text-center rounded-md bg-gold-500 px-6 py-2.5 font-semibold text-sm text-stone-950 hover:bg-gold-400 transition-colors"
+          className="btn-gradient focus-ring w-full sm:w-auto text-center rounded-md px-6 py-2.5 text-sm shadow-[0_0_20px_-4px_rgba(236,72,153,0.5)]"
         >
           {t('home.bookButton')}
         </Link>

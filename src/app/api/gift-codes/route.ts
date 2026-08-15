@@ -6,18 +6,23 @@ import { redeemCodeForAllEnrolled } from '@/lib/redeemAllEnrolled';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Public: list every known code (active + inactive) for display.
+// Public: list every known code (active + inactive) for display, plus a
+// couple of headline stats.
 export async function GET() {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from('gift_codes')
-    .select('id, code, status, created_at')
-    .order('created_at', { ascending: false });
+  const [{ data, error }, { count: enrolledCount }, { count: redeemedCount }] = await Promise.all([
+    supabase.from('gift_codes').select('id, code, status, created_at').order('created_at', { ascending: false }),
+    supabase.from('redeem_enrollments').select('*', { count: 'exact', head: true }),
+    supabase.from('gift_redemptions').select('*', { count: 'exact', head: true }).eq('status', 'SUCCESS'),
+  ]);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ codes: data ?? [] });
+  return NextResponse.json({
+    codes: data ?? [],
+    stats: { enrolledPlayers: enrolledCount ?? 0, codesRedeemed: redeemedCount ?? 0 },
+  });
 }
 
 // Admin: add a new code, then immediately attempt it against every currently

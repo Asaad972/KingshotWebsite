@@ -15,15 +15,24 @@ const config: Config = {
           600: '#2b384e',
           500: '#425065',
         },
-        // Steel blue accent family (key kept as "gold" to avoid renaming
-        // every class across the app -- it's just the accent token now).
+        // Vibrant pink/magenta accent family (key kept as "gold" to avoid
+        // renaming every class across the app -- it's just the primary
+        // accent token now, paired with `cyan` below for gradients).
         gold: {
-          200: '#d7e3ee',
-          300: '#b3cfe3',
-          400: '#82aecb',
-          500: '#4d84a8',
-          600: '#3c6a89',
-          700: '#2d5169',
+          200: '#fbcfe8',
+          300: '#f9a8d4',
+          400: '#f472b6',
+          500: '#ec4899',
+          600: '#db2777',
+          700: '#be185d',
+        },
+        // Cyan companion accent, used alongside `gold` in gradients and for
+        // secondary highlights.
+        cyan: {
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06b6d4',
+          600: '#0891b2',
         },
         // Cool slate text on dark
         parchment: {
@@ -46,6 +55,10 @@ const config: Config = {
           500: '#3b82f6',
           600: '#2563eb',
         },
+      },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #06b6d4 100%)',
+        'gradient-primary-soft': 'linear-gradient(135deg, rgba(236,72,153,0.15) 0%, rgba(6,182,212,0.15) 100%)',
       },
       fontFamily: {
         display: ['var(--font-display)', 'sans-serif'],
