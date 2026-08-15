@@ -26,11 +26,12 @@ export default function AdminSlotCell({
 
   let stateClasses = 'border-stone-800 bg-stone-900/40 text-parchment-500';
   if (status === 'booked') {
-    stateClasses = 'border-gold-600/50 bg-gold-500/10 text-gold-200';
+    stateClasses = 'border-gold-600/50 bg-gold-500/10 text-gold-200 shadow-[0_0_12px_-3px_rgba(77,132,168,0.4)]';
   } else if (status === 'past') {
     stateClasses = 'border-stone-800 bg-stone-900/20 text-parchment-500/40 opacity-60';
   } else if (requestCount > 0) {
-    stateClasses = 'border-sky-500/40 bg-sky-500/[0.08] text-parchment-100 hover:border-sky-400/70';
+    stateClasses =
+      'border-sky-500/40 bg-sky-500/[0.08] text-parchment-100 hover:border-sky-400/70 shadow-[0_0_10px_-3px_rgba(59,130,246,0.35)] hover:shadow-[0_0_14px_-2px_rgba(95,168,245,0.5)]';
   } else {
     stateClasses = 'border-stone-700 bg-stone-900/50 text-parchment-400 hover:border-gold-600/40';
   }

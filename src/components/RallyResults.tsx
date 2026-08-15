@@ -89,11 +89,21 @@ function CountdownBadge({ state }: { state: RallyCountdownState }) {
   }
   if (state.kind === 'waiting') {
     return (
-      <span className="text-[11px] font-mono text-sky-400 shrink-0">OPEN IN: {formatCountdown(state.secondsUntilOpen)}</span>
+      <span className="text-[11px] font-mono text-sky-400 shrink-0 drop-shadow-[0_0_6px_rgba(59,130,246,0.5)]">
+        OPEN IN: {formatCountdown(state.secondsUntilOpen)}
+      </span>
     );
   }
   if (state.kind === 'open-now') {
-    return <span className="text-[11px] font-semibold text-moss-500 shrink-0">OPEN NOW</span>;
+    return (
+      <span className="text-[11px] font-semibold text-moss-500 shrink-0 drop-shadow-[0_0_7px_rgba(63,174,114,0.65)]">
+        OPEN NOW
+      </span>
+    );
   }
-  return <span className="text-[11px] font-mono text-ember-500 shrink-0">LATE BY: {formatCountdown(state.secondsLate)}</span>;
+  return (
+    <span className="text-[11px] font-mono text-ember-500 shrink-0 drop-shadow-[0_0_6px_rgba(226,80,63,0.5)]">
+      LATE BY: {formatCountdown(state.secondsLate)}
+    </span>
+  );
 }

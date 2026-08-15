@@ -24,7 +24,7 @@ export default function SiteHeader() {
           <span className="font-display text-gold-300 text-xs sm:text-base tracking-wide whitespace-nowrap">K1781 By King Hero</span>
         </Link>
 
-        <nav className="hidden sm:flex items-center gap-5 text-sm text-parchment-300">
+        <nav className="hidden sm:flex items-center gap-4 text-sm text-parchment-300 whitespace-nowrap">
           <Link href="/" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
             {t('common.home')}
           </Link>
@@ -37,10 +37,13 @@ export default function SiteHeader() {
           <Link href="/rally-timer" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
             {t('home.rallyTimerNav')}
           </Link>
+          <Link href="/gift-codes" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
+            {t('home.giftCodesNav')}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <UTCClock variant="compact" />
           </div>
           <div className="relative">

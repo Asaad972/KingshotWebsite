@@ -31,6 +31,7 @@ const ar: typeof en = {
     viewSchedule: 'عرض جدول القلعة',
     viewTutorialAgain: 'عرض الشرح مرة أخرى',
     rallyTimerNav: 'مؤقت التجمع',
+    giftCodesNav: 'أكواد الهدايا',
     howItWorksTitle: 'كيف يعمل الأمر',
     step4Title: 'الحصول على التخصيص',
     step4Body: 'يراجع المشرف طلبك ويخصص لك موعدًا واحدًا في القلعة.',

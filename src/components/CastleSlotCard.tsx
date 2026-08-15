@@ -28,17 +28,20 @@ export default function CastleSlotCard({
 
   let stateClasses = 'border-stone-700 bg-stone-900 text-parchment-200 hover:border-gold-600 hover:bg-stone-800';
   if (selected) {
-    stateClasses = 'border-gold-400 bg-gold-500 text-stone-950 font-semibold';
+    stateClasses =
+      'border-gold-400 bg-gold-500 text-stone-950 font-semibold shadow-[0_0_14px_-2px_rgba(77,132,168,0.55)]';
   } else if (status === 'booked') {
-    stateClasses = 'border-ember-600/30 bg-ember-500/[0.07] text-parchment-400/60 cursor-not-allowed';
+    stateClasses =
+      'border-ember-600/30 bg-ember-500/[0.07] text-parchment-400/60 cursor-not-allowed shadow-[0_0_10px_-3px_rgba(226,80,63,0.3)]';
   } else if (status === 'past') {
     stateClasses = 'border-stone-800 bg-stone-900/30 text-parchment-500/50 cursor-not-allowed opacity-60';
   } else if (status === 'pending') {
-    stateClasses = 'border-sky-500/30 bg-sky-500/[0.06] text-parchment-200 hover:border-sky-400/60 hover:bg-sky-500/10';
+    stateClasses =
+      'border-sky-500/30 bg-sky-500/[0.06] text-parchment-200 hover:border-sky-400/60 hover:bg-sky-500/10 shadow-[0_0_10px_-3px_rgba(59,130,246,0.35)] hover:shadow-[0_0_14px_-2px_rgba(95,168,245,0.5)]';
   }
 
   if (active && !disabled) {
-    stateClasses += ' ring-2 ring-moss-500/70';
+    stateClasses += ' ring-2 ring-moss-500/70 shadow-[0_0_12px_-2px_rgba(63,174,114,0.5)]';
   }
 
   return (

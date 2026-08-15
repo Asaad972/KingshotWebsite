@@ -29,6 +29,7 @@ const en = {
     viewSchedule: 'View Castle Schedule',
     viewTutorialAgain: 'View tutorial again',
     rallyTimerNav: 'Rally Timer',
+    giftCodesNav: 'Gift Codes',
     howItWorksTitle: 'How It Works',
     step4Title: 'Get assigned',
     step4Body: 'The admin reviews your application and assigns you one castle appointment.',

@@ -15,6 +15,7 @@ export default function MobileNavigation() {
     { href: '/book', label: t('home.bookButton') },
     { href: '/schedule', label: t('home.viewSchedule') },
     { href: '/rally-timer', label: t('home.rallyTimerNav') },
+    { href: '/gift-codes', label: t('home.giftCodesNav') },
   ];
 
   return (
@@ -22,7 +23,7 @@ export default function MobileNavigation() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-700 bg-stone-950/95 sm:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {links.map((link) => {
           const active = pathname === link.href;
           return (

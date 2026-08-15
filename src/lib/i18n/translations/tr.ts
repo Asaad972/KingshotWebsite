@@ -31,6 +31,7 @@ const tr: typeof en = {
     viewSchedule: 'Kale Takvimini Görüntüle',
     viewTutorialAgain: 'Rehberi tekrar göster',
     rallyTimerNav: 'Rally Zamanlayıcı',
+    giftCodesNav: 'Hediye Kodları',
     howItWorksTitle: 'Nasıl Çalışır',
     step4Title: 'Atama yapılır',
     step4Body: 'Yönetici başvurunuzu inceler ve size bir kale randevusu atar.',

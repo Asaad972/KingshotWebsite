@@ -13,6 +13,7 @@ export default function AdminSidebar() {
   const links = [
     { href: '/admin/dashboard', label: t('admin.overviewTitle') },
     { href: '/admin/search', label: t('admin.playersNav') },
+    { href: '/admin/gift-codes', label: 'Gift Codes' },
     { href: '/admin/settings', label: t('admin.settings') },
   ];
 
