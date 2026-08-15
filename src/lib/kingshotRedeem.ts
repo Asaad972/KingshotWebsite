@@ -133,7 +133,13 @@ export type VerifyResult = 'valid' | 'role_not_exist' | 'wrong_kingdom' | 'unkno
  * real reveals whether this fid+kid combination is legitimate, with zero
  * risk of actually redeeming anything.
  */
-export async function verifyPlayerAndKingdom(fid: string, kid: string): Promise<VerifyResult> {
+export interface VerifyOutcome {
+  result: VerifyResult;
+  /** Raw per-attempt statuses, for surfacing to an admin when something looks wrong. */
+  attempts: RedeemStatus[];
+}
+
+export async function verifyPlayerAndKingdom(fid: string, kid: string): Promise<VerifyOutcome> {
   const classify = (status: RedeemStatus): VerifyResult => {
     if (status === 'CDK_NOT_FOUND') return 'valid';
     if (status === 'ROLE_NOT_EXIST') return 'role_not_exist';
@@ -147,18 +153,21 @@ export async function verifyPlayerAndKingdom(fid: string, kid: string): Promise<
   // immediately; a negative verdict only sticks if at least 2 of the 3
   // attempts agree on the SAME specific reason, so one bad probe can't
   // wrongly reject a real player.
+  const attempts: RedeemStatus[] = [];
   const seen: VerifyResult[] = [];
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) await jitteredDelay(attempt);
-    const result = classify(await redeemGiftCode(fid, kid, probeCode()));
-    if (result === 'valid') return 'valid';
+    const status = await redeemGiftCode(fid, kid, probeCode());
+    attempts.push(status);
+    const result = classify(status);
+    if (result === 'valid') return { result: 'valid', attempts };
     seen.push(result);
 
     const agreeing = seen.filter((r) => r === result).length;
-    if (agreeing >= 2) return result;
+    if (agreeing >= 2) return { result, attempts };
   }
 
-  return 'unknown';
+  return { result: 'unknown', attempts };
 }
 
 /** Jittered delay between consecutive calls, mirroring the bot's own pacing

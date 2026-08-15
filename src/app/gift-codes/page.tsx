@@ -60,7 +60,9 @@ export default function GiftCodesPage() {
             : data.reason === 'fid_and_kid_must_be_numeric'
             ? 'Player ID and Kingdom ID should be numbers only.'
             : 'Something went wrong -- try again in a moment.';
-        setFeedback({ kind: 'error', text: message });
+        const attempts: string[] = data.attempts ?? [];
+        const detail = attempts.length > 0 ? ` (server saw: ${attempts.join(', ')})` : '';
+        setFeedback({ kind: 'error', text: message + detail });
         return;
       }
 

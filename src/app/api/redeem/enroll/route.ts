@@ -20,14 +20,23 @@ export async function POST(request: Request) {
   }
 
   const verification = await verifyPlayerAndKingdom(fid, kid);
-  if (verification === 'role_not_exist') {
-    return NextResponse.json({ success: false, reason: 'player_not_found' }, { status: 404 });
+  if (verification.result === 'role_not_exist') {
+    return NextResponse.json(
+      { success: false, reason: 'player_not_found', attempts: verification.attempts },
+      { status: 404 }
+    );
   }
-  if (verification === 'wrong_kingdom') {
-    return NextResponse.json({ success: false, reason: 'wrong_kingdom' }, { status: 404 });
+  if (verification.result === 'wrong_kingdom') {
+    return NextResponse.json(
+      { success: false, reason: 'wrong_kingdom', attempts: verification.attempts },
+      { status: 404 }
+    );
   }
-  if (verification === 'unknown') {
-    return NextResponse.json({ success: false, reason: 'verification_failed' }, { status: 502 });
+  if (verification.result === 'unknown') {
+    return NextResponse.json(
+      { success: false, reason: 'verification_failed', attempts: verification.attempts },
+      { status: 502 }
+    );
   }
 
   const supabase = createAdminClient();
