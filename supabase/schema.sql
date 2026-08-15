@@ -192,6 +192,7 @@ set search_path = public
 as $$
 declare
   v_applications_open boolean;
+  v_lock_past_slots boolean;
   v_unavailable_ids uuid[];
   v_application_id uuid;
 begin
@@ -207,7 +208,9 @@ begin
     raise exception 'at least one slot must be selected';
   end if;
 
-  select applications_open into v_applications_open from event_settings where id = 1;
+  select applications_open, coalesce(lock_past_slots, true)
+    into v_applications_open, v_lock_past_slots
+    from event_settings where id = 1;
   if not coalesce(v_applications_open, false) then
     return jsonb_build_object('success', false, 'reason', 'applications_closed');
   end if;
@@ -216,11 +219,15 @@ begin
   -- between our availability check and our insert.
   perform 1 from castle_slots where slot_id = any(p_slot_ids) for update;
 
+  -- Past-time slots are only rejected when the admin has "lock past time
+  -- slots" turned on -- otherwise the event may intentionally be run a day
+  -- (or more) after its nominal date, and every slot would falsely look
+  -- expired.
   select coalesce(array_agg(slot_id), '{}')
     into v_unavailable_ids
     from castle_slots
    where slot_id = any(p_slot_ids)
-     and (status = 'booked' or start_time_utc <= now());
+     and (status = 'booked' or (v_lock_past_slots and start_time_utc <= now()));
 
   if array_length(v_unavailable_ids, 1) is not null then
     return jsonb_build_object(
