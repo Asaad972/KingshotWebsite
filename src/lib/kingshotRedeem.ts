@@ -26,11 +26,22 @@ function signPayload(data: Record<string, string>): Record<string, string> {
   return { sign, ...data };
 }
 
+// The bot sends browser-like headers on every call. Matching that here in
+// case the game's servers treat headerless server-to-server requests with
+// more suspicion (stricter rate limiting, odd error responses) under load.
+const BROWSER_HEADERS = {
+  Accept: '*/*',
+  Origin: 'https://kingshot-giftcode.centurygame.com',
+  Referer: 'https://kingshot-giftcode.centurygame.com/',
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+};
+
 async function postSigned(url: string, data: Record<string, string>): Promise<{ status: number; json: any }> {
   const body = new URLSearchParams(signPayload(data)).toString();
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...BROWSER_HEADERS },
     body,
   });
   let json: any = null;
@@ -130,23 +141,31 @@ export async function verifyPlayerAndKingdom(fid: string, kid: string): Promise<
     return 'unknown';
   };
 
-  const first = classify(await redeemGiftCode(fid, kid, probeCode()));
-  if (first === 'valid') return 'valid';
+  // This unofficial API has short windows of flakiness (rate limiting,
+  // dropped requests) that can span more than one quick retry -- take up to
+  // 3 probes with growing delays between them. Any single "valid" wins
+  // immediately; a negative verdict only sticks if at least 2 of the 3
+  // attempts agree on the SAME specific reason, so one bad probe can't
+  // wrongly reject a real player.
+  const seen: VerifyResult[] = [];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await jitteredDelay(attempt);
+    const result = classify(await redeemGiftCode(fid, kid, probeCode()));
+    if (result === 'valid') return 'valid';
+    seen.push(result);
 
-  // A single non-"valid" result could just be a transient blip in this
-  // unofficial API (rate limiting, a dropped request, etc.) -- confirm with
-  // one retry before concluding the player/kingdom really is invalid.
-  await jitteredDelay();
-  const second = classify(await redeemGiftCode(fid, kid, probeCode()));
-  if (second === 'valid') return 'valid';
+    const agreeing = seen.filter((r) => r === result).length;
+    if (agreeing >= 2) return result;
+  }
 
-  return first === second ? first : 'unknown';
+  return 'unknown';
 }
 
 /** Jittered delay between consecutive calls, mirroring the bot's own pacing
  * (0.7-1.3s between redemption attempts) so we don't trip the API's
- * per-fid rate limit when redeeming several codes/players in a row. */
-export function jitteredDelay(): Promise<void> {
-  const ms = 700 + Math.random() * 600;
+ * per-fid rate limit when redeeming several codes/players in a row.
+ * `multiplier` grows the base delay for backoff-style retries. */
+export function jitteredDelay(multiplier = 1): Promise<void> {
+  const ms = (700 + Math.random() * 600) * multiplier;
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
