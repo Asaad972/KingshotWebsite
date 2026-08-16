@@ -100,27 +100,28 @@ export default function GearCalculatorSection() {
             {renderSlot('staff')}
           </div>
 
-          {/* Desktop/tablet (>=640px): diamond layout around a center crown. */}
-          <div className="hidden sm:grid grid-cols-3 grid-rows-4 gap-4 place-items-center max-w-md mx-auto">
-            <div className="col-start-2 row-start-1 w-full">{renderSlot('cap')}</div>
-            <div className="col-start-1 row-start-2 w-full">{renderSlot('coat')}</div>
-            <div className="col-start-2 row-start-2 flex items-center justify-center text-gold-400/70">
+          {/* Desktop/tablet (>=640px): 3 slots per side around a center emblem, matching the in-game layout. */}
+          <div className="hidden sm:flex items-center justify-center gap-6 lg:gap-10 max-w-2xl mx-auto py-4">
+            <div className="flex flex-col gap-4 w-32">
+              {renderSlot('cap')}
+              {renderSlot('coat')}
+              {renderSlot('belt')}
+            </div>
+            <div className="h-20 w-20 shrink-0 text-gold-400/60 self-center">
               <CrownIcon />
             </div>
-            <div className="col-start-3 row-start-2 w-full">{renderSlot('watch')}</div>
-            <div className="col-start-1 row-start-3 w-full">{renderSlot('belt')}</div>
-            <div className="col-start-3 row-start-3 w-full">{renderSlot('pants')}</div>
-            <div className="col-start-2 row-start-4 w-full">{renderSlot('staff')}</div>
+            <div className="flex flex-col gap-4 w-32">
+              {renderSlot('watch')}
+              {renderSlot('pants')}
+              {renderSlot('staff')}
+            </div>
           </div>
         </div>
 
         {/* Calculations sidebar */}
         <div className="flex flex-col gap-3">
           <GearMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} />
-          <GearTroopStatsPanel
-            currentTotalAttrPercent={plan.currentTotalAttrPercent}
-            targetTotalAttrPercent={plan.targetTotalAttrPercent}
-          />
+          <GearTroopStatsPanel troopStats={plan.troopStats} />
         </div>
       </div>
 

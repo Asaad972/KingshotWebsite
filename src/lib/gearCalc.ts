@@ -1,4 +1,4 @@
-import { GEAR_LEVELS, getGearLevel, type GearSlotId } from './gearData';
+import { GEAR_LEVELS, GEAR_SLOTS, getGearLevel, type GearSlotId, type TroopType } from './gearData';
 
 export interface GearSlotSelection {
   currentId: string;
@@ -7,28 +7,41 @@ export interface GearSlotSelection {
 
 export type GearSelections = Record<GearSlotId, GearSlotSelection>;
 
+export interface TroopStatTotal {
+  /** Current cumulative %, summed across this troop type's 2 gear pieces. Applies equally to Attack and Defense. */
+  current: number;
+  /** Target cumulative %, summed across this troop type's 2 gear pieces. */
+  target: number;
+}
+
 export interface GearCalcResult {
   /** materialId -> total quantity required across all 6 slots. */
   materials: Record<string, number>;
-  /** Sum, across all 6 slots, of each slot's CURRENT cumulative %. */
-  currentTotalAttrPercent: number;
-  /** Sum, across all 6 slots, of each slot's TARGET cumulative %. */
-  targetTotalAttrPercent: number;
-  /** targetTotalAttrPercent - currentTotalAttrPercent. */
-  totalAttrPercent: number;
+  /** Attack/Defense % totals, per troop type (each piece only boosts its own troop type). */
+  troopStats: Record<TroopType, TroopStatTotal>;
   /** Slots where target is set below current -- nothing counted for these. */
   invalidSlots: GearSlotId[];
 }
 
+const SLOT_TROOP_TYPE: Record<GearSlotId, TroopType> = Object.fromEntries(
+  GEAR_SLOTS.map((s) => [s.id, s.troopType])
+) as Record<GearSlotId, TroopType>;
+
+function emptyTroopStats(): Record<TroopType, TroopStatTotal> {
+  return {
+    infantry: { current: 0, target: 0 },
+    cavalry: { current: 0, target: 0 },
+    archers: { current: 0, target: 0 },
+  };
+}
+
 /** Materials are summed from every level strictly after `current` up to and
  * including `target` (each level's cost is the incremental cost of that one
- * step). Attribute % totals are summed directly from each slot's cumulative
- * value (current and target separately), since the source data reports
- * attrPercent as a running total, not a per-level increment. */
+ * step). Each slot's Attack/Defense % is added only to its own troop type's
+ * total, since gear only boosts the troop type it belongs to. */
 export function calcGearPlan(selections: GearSelections): GearCalcResult {
   const materials: Record<string, number> = {};
-  let currentTotalAttrPercent = 0;
-  let targetTotalAttrPercent = 0;
+  const troopStats = emptyTroopStats();
   const invalidSlots: GearSlotId[] = [];
 
   for (const slotId of Object.keys(selections) as GearSlotId[]) {
@@ -37,11 +50,12 @@ export function calcGearPlan(selections: GearSelections): GearCalcResult {
     const target = getGearLevel(sel.targetId);
     if (!current || !target) continue;
 
-    currentTotalAttrPercent += current.attrPercent;
+    const troop = SLOT_TROOP_TYPE[slotId];
+    troopStats[troop].current += current.attrPercent;
 
     if (target.order < current.order) {
       invalidSlots.push(slotId);
-      targetTotalAttrPercent += current.attrPercent;
+      troopStats[troop].target += current.attrPercent;
       continue;
     }
 
@@ -51,14 +65,8 @@ export function calcGearPlan(selections: GearSelections): GearCalcResult {
       materials.gildedThreads = (materials.gildedThreads ?? 0) + step.cost.gildedThreads;
       materials.artisansVision = (materials.artisansVision ?? 0) + step.cost.artisansVision;
     }
-    targetTotalAttrPercent += target.attrPercent;
+    troopStats[troop].target += target.attrPercent;
   }
 
-  return {
-    materials,
-    currentTotalAttrPercent,
-    targetTotalAttrPercent,
-    totalAttrPercent: targetTotalAttrPercent - currentTotalAttrPercent,
-    invalidSlots,
-  };
+  return { materials, troopStats, invalidSlots };
 }

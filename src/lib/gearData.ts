@@ -1,26 +1,34 @@
 // Governor Gear Calculator -- REAL data sourced from
 // https://kingshotdata.com/database/governor-gear/ (fetched 2026-08-16).
 //
-// Per that source: "All six Governor Gear pieces (Head, Armor, Legs, Staff,
-// Ring, Accessory) use the same costs, power, and score at each level.
-// Attribute numbers match; each piece applies them to different troop
-// stats." The site does not specify exactly WHICH stat(s) each piece maps
-// to, so the one real "attrPercent" value per level is applied uniformly
-// across Attack/Defense/Lethality/Health in the troop stats panel -- the
-// magnitude is real, the even split across all 4 stats is a simplification
-// (documented in GearTroopStatsPanel.tsx too). `attrPercent` is the
-// CUMULATIVE total bonus at that level (not incremental); material costs
+// Per that source: all six Governor Gear pieces (Head, Armor, Legs, Staff,
+// Ring, Accessory) use the same costs, power, and score at each level, and
+// each level's "ATTRS" value applies identically to Attack AND Defense
+// (confirmed from the site's "+X% / +X%" pairs). `attrPercent` below is
+// that CUMULATIVE total at a given level (not incremental); material costs
 // ARE incremental (cost to go from the previous level to this one).
+//
+// Piece -> troop-type mapping confirmed directly from in-game screenshots
+// (2026-08-16): Cap+Watch -> Cavalry, Coat+Pants -> Infantry, Belt+Staff ->
+// Archers. Each piece boosts only its troop type's Attack + Defense (not
+// Lethality/Health, and not the other two troop types).
 
 export type GearSlotId = 'cap' | 'watch' | 'coat' | 'pants' | 'belt' | 'staff';
+export type TroopType = 'infantry' | 'cavalry' | 'archers';
 
-export const GEAR_SLOTS: { id: GearSlotId; label: string }[] = [
-  { id: 'cap', label: 'Cap' },
-  { id: 'watch', label: 'Watch' },
-  { id: 'coat', label: 'Coat' },
-  { id: 'pants', label: 'Pants' },
-  { id: 'belt', label: 'Belt' },
-  { id: 'staff', label: 'Staff' },
+export const TROOP_LABELS: Record<TroopType, string> = {
+  infantry: 'Infantry',
+  cavalry: 'Cavalry',
+  archers: 'Archers',
+};
+
+export const GEAR_SLOTS: { id: GearSlotId; label: string; troopType: TroopType }[] = [
+  { id: 'cap', label: 'Cap', troopType: 'cavalry' },
+  { id: 'watch', label: 'Watch', troopType: 'cavalry' },
+  { id: 'coat', label: 'Coat', troopType: 'infantry' },
+  { id: 'pants', label: 'Pants', troopType: 'infantry' },
+  { id: 'belt', label: 'Belt', troopType: 'archers' },
+  { id: 'staff', label: 'Staff', troopType: 'archers' },
 ];
 
 export type GearTier =

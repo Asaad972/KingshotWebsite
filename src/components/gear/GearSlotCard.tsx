@@ -23,12 +23,26 @@ export default function GearSlotCard({
   const target = getGearLevel(targetId);
   const currentMeta = current ? tierMeta(current.tier) : null;
   const targetMeta = target ? tierMeta(target.tier) : null;
+  const badgeMeta = current && current.tier !== 'base' ? currentMeta : null;
 
   return (
     <div className={`dashboard-card p-2.5 flex flex-col items-center gap-1.5 ${className}`}>
-      <div className="h-11 w-11 rounded bg-stone-800 border border-stone-700 flex items-center justify-center text-parchment-300">
+      <div
+        className={`h-14 w-14 rounded-lg p-2.5 flex items-center justify-center border-2 ${
+          badgeMeta ? `${badgeMeta.bg} ${badgeMeta.border} ${badgeMeta.text}` : 'bg-stone-800 border-stone-700 text-parchment-400'
+        }`}
+      >
         {icon}
       </div>
+      {current && current.stars > 0 && (
+        <div className={`flex gap-0.5 -mt-1 ${currentMeta?.text ?? ''}`} aria-hidden>
+          {Array.from({ length: current.stars }).map((_, i) => (
+            <span key={i} className="text-[10px] leading-none">
+              ★
+            </span>
+          ))}
+        </div>
+      )}
       <p className="text-xs font-semibold text-parchment-100">{label}</p>
       <div className="w-full flex flex-col gap-1">
         <button

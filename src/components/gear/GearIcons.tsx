@@ -1,70 +1,97 @@
-// Placeholder gear icons -- simple stroke SVGs, no external assets. Swap
-// these for real KingShot gear artwork later (e.g. replace the <svg> body
-// with an <img src="/gear/cap.png" /> once you have the real images).
-
-const ICON_PROPS = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6 } as const;
+// Custom filled icons -- no external/game assets (those are copyrighted),
+// just stylized shapes with a solid fill + light accent stroke to read as
+// "item art" rather than thin line-icons.
 
 export function CapIcon() {
   return (
-    <svg {...ICON_PROPS} className="h-6 w-6">
-      <path d="M4 15c0-4.5 3.5-8 8-8s8 3.5 8 8" strokeLinecap="round" />
-      <path d="M3 15h18v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2Z" strokeLinejoin="round" />
-      <path d="M12 7V4" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M4 15c0-4.5 3.5-8 8-8s8 3.5 8 8v1H4v-1Z" fill="currentColor" />
+      <rect x="3" y="15.5" width="18" height="3.5" rx="1.5" fill="currentColor" opacity="0.85" />
+      <circle cx="12" cy="7.2" r="1.4" fill="currentColor" opacity="0.6" />
     </svg>
   );
 }
 
 export function WatchIcon() {
   return (
-    <svg {...ICON_PROPS} className="h-6 w-6">
-      <circle cx="12" cy="12" r="6" />
-      <path d="M12 9v3l2 1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9.5 3h5M9.5 21h5" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M9.5 2.5h5l.6 3.2h-6.2l.6-3.2Z" fill="currentColor" opacity="0.7" />
+      <path d="M9.5 21.5h5l.6-3.2h-6.2l.6 3.2Z" fill="currentColor" opacity="0.7" />
+      <circle cx="12" cy="12" r="6.5" fill="currentColor" />
+      <path d="M12 8.5v3.8l2.6 1.6" stroke="#1c1917" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
 
 export function CoatIcon() {
   return (
-    <svg {...ICON_PROPS} className="h-6 w-6">
-      <path d="M9 4h6l1 2 4 3-2 3-3-1.5V20H9V10.5L6 12l-2-3 4-3 1-2Z" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M9 4h6l1 2 4 3-2 3-3-1.5V20H9V10.5L6 12l-2-3 4-3 1-2Z" fill="currentColor" />
+      <path d="M11 6h2v13h-2z" fill="#1c1917" opacity="0.25" />
     </svg>
   );
 }
 
 export function PantsIcon() {
   return (
-    <svg {...ICON_PROPS} className="h-6 w-6">
-      <path d="M6 3h12l1 8-2 10h-3l-2-9-2 9H7L5 11l1-8Z" strokeLinejoin="round" />
-      <path d="M6 3h12" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M6 3h12l1 8-2 10h-3l-2-9-2 9H7L5 11l1-8Z" fill="currentColor" />
+      <rect x="6" y="3" width="12" height="2.4" rx="0.6" fill="#1c1917" opacity="0.25" />
     </svg>
   );
 }
 
 export function BeltIcon() {
   return (
-    <svg {...ICON_PROPS} className="h-6 w-6">
-      <rect x="3" y="9" width="18" height="6" rx="1" strokeLinejoin="round" />
-      <rect x="9.5" y="10.5" width="5" height="3" rx="0.5" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="3.4" />
+      <circle cx="12" cy="7.2" r="2.1" fill="currentColor" />
     </svg>
   );
 }
 
 export function StaffIcon() {
   return (
-    <svg {...ICON_PROPS} className="h-6 w-6">
-      <path d="M12 4v16" strokeLinecap="round" />
-      <circle cx="12" cy="5.5" r="2.3" />
-      <path d="M8.5 20h7" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <rect x="10.9" y="4" width="2.2" height="16" rx="1.1" fill="currentColor" />
+      <circle cx="12" cy="5.3" r="2.6" fill="currentColor" />
+      <rect x="8" y="19" width="8" height="2" rx="1" fill="currentColor" opacity="0.85" />
     </svg>
   );
 }
 
 export function CrownIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-8 w-8">
-      <path d="M4 18h16l-1.5-9-4 3.5L12 6 9.5 12.5l-4-3.5L4 18Z" strokeLinejoin="round" strokeLinecap="round" />
-      <path d="M4 20h16" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M4 18h16l-1.5-9-4 3.5L12 6 9.5 12.5l-4-3.5L4 18Z" fill="currentColor" />
+      <rect x="4" y="19" width="16" height="2" rx="1" fill="currentColor" opacity="0.85" />
+    </svg>
+  );
+}
+
+export function SatinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <rect x="3" y="9" width="18" height="7" rx="2" fill="currentColor" />
+      <circle cx="6.3" cy="12.5" r="1.6" fill="#0e1116" opacity="0.35" />
+      <circle cx="17.7" cy="12.5" r="1.6" fill="#0e1116" opacity="0.35" />
+    </svg>
+  );
+}
+
+export function ThreadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <rect x="7" y="3" width="10" height="18" rx="3" fill="currentColor" />
+      <path d="M8 7h8M8 12h8M8 17h8" stroke="#0e1116" strokeWidth="1.3" strokeLinecap="round" opacity="0.35" />
+    </svg>
+  );
+}
+
+export function VisionIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5-2-6.5L3.5 11 10 9l2-6.5Z" fill="currentColor" />
     </svg>
   );
 }
