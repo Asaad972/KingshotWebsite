@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { GEAR_SLOTS, type GearSlotId } from '@/lib/gearData';
+import { GEAR_SLOTS, getGearLevel, type GearSlotId } from '@/lib/gearData';
 import { calcGearPlan, type GearSelections } from '@/lib/gearCalc';
 import GearSlotCard from './GearSlotCard';
+import GearLevelDropdown from './GearLevelDropdown';
 import GearMaterialsPanel from './GearMaterialsPanel';
 import GearTroopStatsPanel from './GearTroopStatsPanel';
 import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon, CrownIcon } from './GearIcons';
@@ -37,10 +38,45 @@ export default function GearCalculatorSection() {
   const plan = useMemo(() => calcGearPlan(selections), [selections]);
 
   const handleSelectLevel = (slotId: GearSlotId, mode: 'current' | 'target', levelId: string) => {
-    setSelections((prev) => ({
-      ...prev,
-      [slotId]: { ...prev[slotId], [mode === 'current' ? 'currentId' : 'targetId']: levelId },
-    }));
+    setSelections((prev) => {
+      const sel = prev[slotId];
+      if (mode === 'target') {
+        return { ...prev, [slotId]: { ...sel, targetId: levelId } };
+      }
+      // Raising Current past the existing Target brings Target up with it --
+      // the Target dropdown itself already refuses to go below Current, so
+      // this is the only direction that needs auto-correcting.
+      const newCurrent = getGearLevel(levelId);
+      const existingTarget = getGearLevel(sel.targetId);
+      const targetId = newCurrent && existingTarget && newCurrent.order > existingTarget.order ? levelId : sel.targetId;
+      return { ...prev, [slotId]: { currentId: levelId, targetId } };
+    });
+  };
+
+  const handleBulkSetCurrent = (levelId: string) => {
+    const newCurrent = getGearLevel(levelId);
+    setSelections((prev) => {
+      const next = { ...prev };
+      for (const slot of GEAR_SLOTS) {
+        const existingTarget = getGearLevel(next[slot.id].targetId);
+        const targetId = newCurrent && existingTarget && newCurrent.order > existingTarget.order ? levelId : next[slot.id].targetId;
+        next[slot.id] = { currentId: levelId, targetId };
+      }
+      return next;
+    });
+  };
+
+  const handleBulkSetTarget = (levelId: string) => {
+    const newTarget = getGearLevel(levelId);
+    setSelections((prev) => {
+      const next = { ...prev };
+      for (const slot of GEAR_SLOTS) {
+        const existingCurrent = getGearLevel(next[slot.id].currentId);
+        const currentId = newTarget && existingCurrent && newTarget.order < existingCurrent.order ? levelId : next[slot.id].currentId;
+        next[slot.id] = { currentId, targetId: levelId };
+      }
+      return next;
+    });
   };
 
   const handleReset = () => {
@@ -79,6 +115,14 @@ export default function GearCalculatorSection() {
         >
           Reset
         </button>
+      </div>
+
+      <div className="dashboard-card p-3 flex flex-col gap-2 mt-3">
+        <p className="text-xs font-semibold text-parchment-300">Quick set (applies to all 6 pieces)</p>
+        <div className="grid grid-cols-2 gap-2 max-w-sm">
+          <GearLevelDropdown id="bulk-current" label="Set all Current" levelId="" placeholder="Choose..." onSelect={handleBulkSetCurrent} />
+          <GearLevelDropdown id="bulk-target" label="Set all Target" levelId="" placeholder="Choose..." onSelect={handleBulkSetTarget} />
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start mt-3">

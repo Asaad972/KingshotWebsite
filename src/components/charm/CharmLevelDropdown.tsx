@@ -16,10 +16,16 @@ export default function CharmLevelDropdown({
   label,
   levelId,
   onSelect,
+  minOrder,
+  placeholder,
 }: {
   label: string;
   levelId: string;
   onSelect: (levelId: string) => void;
+  /** Only show levels at or above this order -- used to stop Target from going below Current. */
+  minOrder?: number;
+  /** Shown instead of "Base" when levelId doesn't resolve -- used for stateless bulk-select triggers. */
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
@@ -28,6 +34,7 @@ export default function CharmLevelDropdown({
   const selectedRef = useRef<HTMLButtonElement>(null);
 
   const level = getCharmLevel(levelId);
+  const options = minOrder != null ? CHARM_LEVELS.filter((l) => l.order >= minOrder) : CHARM_LEVELS;
 
   const openDropdown = () => {
     const rect = triggerRef.current?.getBoundingClientRect();
@@ -85,12 +92,12 @@ export default function CharmLevelDropdown({
         onClick={() => (open ? setOpen(false) : openDropdown())}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={`${label}: ${level?.label ?? 'Base'}`}
+        aria-label={`${label}: ${level?.label ?? placeholder ?? 'Base'}`}
         className={`focus-ring w-full flex items-center justify-between gap-1 rounded border border-stone-700 bg-stone-950 px-1.5 py-1 text-[11px] font-medium hover:border-gold-600 transition-colors min-h-[28px] ${
           level && level.id !== 'base' ? 'text-cyan-300' : 'text-parchment-300'
         }`}
       >
-        <span className="truncate">{level?.label ?? 'Base'}</span>
+        <span className="truncate">{level?.label ?? placeholder ?? 'Base'}</span>
         <span className="text-parchment-500 shrink-0" aria-hidden>
           ▾
         </span>
@@ -103,7 +110,7 @@ export default function CharmLevelDropdown({
           className="fixed z-50 rounded-md border border-stone-700 bg-stone-900 shadow-lg overflow-y-auto scrollbar-thin"
           style={{ top: position.top, left: position.left, width: position.width, maxHeight: 'min(60vh, 340px)' }}
         >
-          {CHARM_LEVELS.map((l) => {
+          {options.map((l) => {
             const isSelected = l.id === levelId;
             return (
               <button

@@ -55,6 +55,7 @@ export default function GearSlotCard({
           label="Target"
           levelId={targetId}
           onSelect={(levelId) => onSelectLevel(slotId, 'target', levelId)}
+          minOrder={current?.order ?? 0}
         />
       </div>
     </div>

@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { GEAR_SLOTS, type GearSlotId } from '@/lib/gearData';
-import { CHARM_SLOTS } from '@/lib/charmData';
+import { CHARM_SLOTS, getCharmLevel } from '@/lib/charmData';
 import { calcCharmPlan, type CharmSelections } from '@/lib/charmCalc';
 import CharmSlotGroup from './CharmSlotGroup';
+import CharmLevelDropdown from './CharmLevelDropdown';
 import CharmMaterialsPanel from './CharmMaterialsPanel';
 import CharmTroopStatsPanel from './CharmTroopStatsPanel';
 import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon } from './CharmIcons';
@@ -38,10 +39,45 @@ export default function CharmCalculatorSection() {
   const plan = useMemo(() => calcCharmPlan(selections), [selections]);
 
   const handleSelectLevel = (charmSlotId: string, mode: 'current' | 'target', levelId: string) => {
-    setSelections((prev) => ({
-      ...prev,
-      [charmSlotId]: { ...prev[charmSlotId], [mode === 'current' ? 'currentId' : 'targetId']: levelId },
-    }));
+    setSelections((prev) => {
+      const sel = prev[charmSlotId];
+      if (mode === 'target') {
+        return { ...prev, [charmSlotId]: { ...sel, targetId: levelId } };
+      }
+      // Raising Current past the existing Target brings Target up with it --
+      // the Target dropdown itself already refuses to go below Current, so
+      // this is the only direction that needs auto-correcting.
+      const newCurrent = getCharmLevel(levelId);
+      const existingTarget = getCharmLevel(sel.targetId);
+      const targetId = newCurrent && existingTarget && newCurrent.order > existingTarget.order ? levelId : sel.targetId;
+      return { ...prev, [charmSlotId]: { currentId: levelId, targetId } };
+    });
+  };
+
+  const handleBulkSetCurrent = (levelId: string) => {
+    const newCurrent = getCharmLevel(levelId);
+    setSelections((prev) => {
+      const next = { ...prev };
+      for (const charm of CHARM_SLOTS) {
+        const existingTarget = getCharmLevel(next[charm.id].targetId);
+        const targetId = newCurrent && existingTarget && newCurrent.order > existingTarget.order ? levelId : next[charm.id].targetId;
+        next[charm.id] = { currentId: levelId, targetId };
+      }
+      return next;
+    });
+  };
+
+  const handleBulkSetTarget = (levelId: string) => {
+    const newTarget = getCharmLevel(levelId);
+    setSelections((prev) => {
+      const next = { ...prev };
+      for (const charm of CHARM_SLOTS) {
+        const existingCurrent = getCharmLevel(next[charm.id].currentId);
+        const currentId = newTarget && existingCurrent && newTarget.order < existingCurrent.order ? levelId : next[charm.id].currentId;
+        next[charm.id] = { currentId, targetId: levelId };
+      }
+      return next;
+    });
   };
 
   const handleReset = () => {
@@ -69,6 +105,14 @@ export default function CharmCalculatorSection() {
         >
           Reset
         </button>
+      </div>
+
+      <div className="dashboard-card p-3 flex flex-col gap-2 mt-3">
+        <p className="text-xs font-semibold text-parchment-300">Quick set (applies to all 18 charms)</p>
+        <div className="grid grid-cols-2 gap-2 max-w-xs">
+          <CharmLevelDropdown label="Set all Current" levelId="" placeholder="Choose..." onSelect={handleBulkSetCurrent} />
+          <CharmLevelDropdown label="Set all Target" levelId="" placeholder="Choose..." onSelect={handleBulkSetTarget} />
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start mt-3">
