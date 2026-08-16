@@ -3,11 +3,19 @@
 import { useMemo, useState } from 'react';
 import { GEAR_SLOTS, getGearLevel, type GearSlotId } from '@/lib/gearData';
 import { calcGearPlan, type GearSelections } from '@/lib/gearCalc';
+import { useLocalStorageState } from '@/lib/useLocalStorageState';
+import { useProfiles } from '@/lib/useProfiles';
+import ProfileBar from '@/components/shared/ProfileBar';
 import GearSlotCard from './GearSlotCard';
 import GearLevelDropdown from './GearLevelDropdown';
 import GearMaterialsPanel from './GearMaterialsPanel';
 import GearTroopStatsPanel from './GearTroopStatsPanel';
 import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon, CrownIcon } from './GearIcons';
+
+interface SavedState {
+  selections: GearSelections;
+  owned: Record<string, number>;
+}
 
 const SLOT_ICONS: Record<GearSlotId, React.ReactNode> = {
   cap: <CapIcon />,
@@ -32,8 +40,9 @@ function makeEmptySelections(): GearSelections {
  * page's Explore grid. Nothing else in the app imports from here.
  */
 export default function GearCalculatorSection() {
-  const [selections, setSelections] = useState<GearSelections>(makeEmptySelections);
-  const [owned, setOwned] = useState<Record<string, number>>({});
+  const [selections, setSelections] = useLocalStorageState<GearSelections>('governorGear:selections', makeEmptySelections());
+  const [owned, setOwned] = useLocalStorageState<Record<string, number>>('governorGear:owned', {});
+  const { profiles, saveProfile, deleteProfile } = useProfiles<SavedState>('governorGear:profiles');
 
   const plan = useMemo(() => calcGearPlan(selections), [selections]);
 
@@ -103,18 +112,29 @@ export default function GearCalculatorSection() {
 
   return (
     <div className="flex flex-col gap-2" dir="ltr">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-lg font-semibold text-parchment-100">Governor Gear Calculator</h1>
           <p className="text-xs text-parchment-500 mt-0.5">Experimental -- material costs and % bonuses are real, sourced from the gear database.</p>
         </div>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
-        >
-          Reset
-        </button>
+        <div className="flex items-center gap-2">
+          <ProfileBar
+            profiles={profiles}
+            onSave={(name) => saveProfile(name, { selections, owned })}
+            onLoad={(data) => {
+              setSelections(data.selections);
+              setOwned(data.owned);
+            }}
+            onDelete={deleteProfile}
+          />
+          <button
+            type="button"
+            onClick={handleReset}
+            className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       <div className="dashboard-card p-3 flex flex-col gap-2 mt-3">

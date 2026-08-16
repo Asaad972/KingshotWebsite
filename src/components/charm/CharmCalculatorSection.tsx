@@ -4,11 +4,19 @@ import { useMemo, useState } from 'react';
 import { GEAR_SLOTS, type GearSlotId } from '@/lib/gearData';
 import { CHARM_SLOTS, getCharmLevel } from '@/lib/charmData';
 import { calcCharmPlan, type CharmSelections } from '@/lib/charmCalc';
+import { useLocalStorageState } from '@/lib/useLocalStorageState';
+import { useProfiles } from '@/lib/useProfiles';
+import ProfileBar from '@/components/shared/ProfileBar';
 import CharmSlotGroup from './CharmSlotGroup';
 import CharmLevelDropdown from './CharmLevelDropdown';
 import CharmMaterialsPanel from './CharmMaterialsPanel';
 import CharmTroopStatsPanel from './CharmTroopStatsPanel';
 import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon } from './CharmIcons';
+
+interface SavedState {
+  selections: CharmSelections;
+  owned: Record<string, number>;
+}
 
 const SLOT_ICONS: Record<GearSlotId, React.ReactNode> = {
   cap: <CapIcon />,
@@ -33,8 +41,9 @@ function makeEmptySelections(): CharmSelections {
  * page's Explore grid. Nothing else in the app imports from here.
  */
 export default function CharmCalculatorSection() {
-  const [selections, setSelections] = useState<CharmSelections>(makeEmptySelections);
-  const [owned, setOwned] = useState<Record<string, number>>({});
+  const [selections, setSelections] = useLocalStorageState<CharmSelections>('governorCharm:selections', makeEmptySelections());
+  const [owned, setOwned] = useLocalStorageState<Record<string, number>>('governorCharm:owned', {});
+  const { profiles, saveProfile, deleteProfile } = useProfiles<SavedState>('governorCharm:profiles');
 
   const plan = useMemo(() => calcCharmPlan(selections), [selections]);
 
@@ -91,20 +100,31 @@ export default function CharmCalculatorSection() {
 
   return (
     <div className="flex flex-col gap-2" dir="ltr">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-lg font-semibold text-parchment-100">Governor Charm Calculator</h1>
           <p className="text-xs text-parchment-500 mt-0.5">
             Experimental -- material costs and % bonuses are real, sourced from the charm database.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
-        >
-          Reset
-        </button>
+        <div className="flex items-center gap-2">
+          <ProfileBar
+            profiles={profiles}
+            onSave={(name) => saveProfile(name, { selections, owned })}
+            onLoad={(data) => {
+              setSelections(data.selections);
+              setOwned(data.owned);
+            }}
+            onDelete={deleteProfile}
+          />
+          <button
+            type="button"
+            onClick={handleReset}
+            className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       <div className="dashboard-card p-3 flex flex-col gap-2 mt-3">

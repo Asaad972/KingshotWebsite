@@ -3,6 +3,9 @@
 import { useMemo, useState } from 'react';
 import { ARMOR_SLOTS, TROOP_LABELS, type ArmorSlotId, type TroopType } from '@/lib/heroGearData';
 import { calcHeroGearPlan, type ArmorSelection, type ArmorSelections, type HeroGearMaterials } from '@/lib/heroGearCalc';
+import { useLocalStorageState } from '@/lib/useLocalStorageState';
+import { useProfiles } from '@/lib/useProfiles';
+import ProfileBar from '@/components/shared/ProfileBar';
 import ArmorSlotCard from './ArmorSlotCard';
 import WeaponSlotCard from './WeaponSlotCard';
 import HeroGearMaterialsPanel from './HeroGearMaterialsPanel';
@@ -14,6 +17,11 @@ interface TroopGearPlan {
   armor: ArmorSelections;
   weaponCurrent: number;
   weaponTarget: number;
+}
+
+interface SavedState {
+  plans: Record<TroopType, TroopGearPlan>;
+  owned: Record<string, number>;
 }
 
 function makeEmptyArmorSelections(): ArmorSelections {
@@ -39,11 +47,17 @@ function makeEmptyAllPlans(): Record<TroopType, TroopGearPlan> {
  * the two lib files, the /hero-gear-calculator page, its two /public
  * image folders, and its one link on the home page's Explore grid.
  * Nothing else in the app imports from here.
+ *
+ * State auto-persists to localStorage (src/lib/useLocalStorageState.ts) so
+ * refreshing the page doesn't reset your plan, and the Profiles bar
+ * (src/lib/useProfiles.ts + src/components/shared/ProfileBar.tsx) lets you
+ * save/switch between several named setups on top of that.
  */
 export default function HeroGearCalculatorSection() {
-  const [plans, setPlans] = useState<Record<TroopType, TroopGearPlan>>(makeEmptyAllPlans);
+  const [plans, setPlans] = useLocalStorageState<Record<TroopType, TroopGearPlan>>('heroGear:plans', makeEmptyAllPlans());
+  const [owned, setOwned] = useLocalStorageState<Record<string, number>>('heroGear:owned', {});
   const [activeTroop, setActiveTroop] = useState<TroopType>('infantry');
-  const [owned, setOwned] = useState<Record<string, number>>({});
+  const { profiles, saveProfile, deleteProfile } = useProfiles<SavedState>('heroGear:profiles');
 
   const resultsByTroop = useMemo(() => {
     const out = {} as Record<TroopType, ReturnType<typeof calcHeroGearPlan>>;
@@ -102,13 +116,24 @@ export default function HeroGearCalculatorSection() {
             and cross-checked against published gear/mastery tables.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleResetActive}
-          className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
-        >
-          Reset {TROOP_LABELS[activeTroop]}
-        </button>
+        <div className="flex items-center gap-2">
+          <ProfileBar
+            profiles={profiles}
+            onSave={(name) => saveProfile(name, { plans, owned })}
+            onLoad={(data) => {
+              setPlans(data.plans);
+              setOwned(data.owned);
+            }}
+            onDelete={deleteProfile}
+          />
+          <button
+            type="button"
+            onClick={handleResetActive}
+            className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
+          >
+            Reset {TROOP_LABELS[activeTroop]}
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-1.5 rounded-lg bg-stone-900 border border-stone-700 p-1 w-fit mt-2">
