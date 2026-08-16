@@ -50,15 +50,22 @@ export default function CharmLevelDropdown({
       if (e.key === 'Escape') setOpen(false);
     };
     const close = () => setOpen(false);
+    // Capture-phase 'scroll' also fires for scrolling *inside* the panel's own
+    // list (scroll doesn't bubble, but capture listeners still see it on the
+    // way down) -- ignore those so scrolling the list doesn't close it.
+    const onScroll = (e: Event) => {
+      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
+      setOpen(false);
+    };
 
     document.addEventListener('pointerdown', onDocPointerDown);
     window.addEventListener('keydown', onKey);
-    window.addEventListener('scroll', close, true);
+    window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', close);
     return () => {
       document.removeEventListener('pointerdown', onDocPointerDown);
       window.removeEventListener('keydown', onKey);
-      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', close);
     };
   }, [open]);
