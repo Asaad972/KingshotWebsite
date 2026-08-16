@@ -64,7 +64,6 @@ export default function ArmorSlotCard({
           min={0}
           max={ARMOR_MAX_LEVEL}
           onChange={setCurrentLevel}
-          snapPoints={MILESTONE_LEVELS}
         />
         <div className="flex gap-1 flex-wrap">
           {MILESTONE_LEVELS.map((m) => (
@@ -86,7 +85,6 @@ export default function ArmorSlotCard({
           min={currentLevel}
           max={ARMOR_MAX_LEVEL}
           onChange={setTargetLevel}
-          snapPoints={MILESTONE_LEVELS}
         />
         <div className="flex gap-1 flex-wrap">
           {MILESTONE_LEVELS.filter((m) => m >= currentLevel).map((m) => (
