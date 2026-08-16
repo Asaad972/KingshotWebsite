@@ -51,7 +51,7 @@ const tr: typeof en = {
     charmCalculatorNav: 'Tılsım Hesaplayıcı',
     quickLinkCharmCalculatorSubtitle: 'Vali Tılsım yükseltmelerini planla',
     heroGearCalculatorNav: 'Kahraman Ekipman Hesaplayıcı',
-    quickLinkHeroGearCalculatorSubtitle: 'Kahraman ekipman ve silah yükseltmelerini planla',
+    quickLinkHeroGearCalculatorSubtitle: 'Kahraman ekipman yükseltmelerini planla',
     exploreTitle: 'Keşfet',
   },
   tutorial: {

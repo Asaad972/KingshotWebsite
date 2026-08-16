@@ -50,7 +50,7 @@ const ar: typeof en = {
     charmCalculatorNav: 'حاسبة التمائم',
     quickLinkCharmCalculatorSubtitle: 'خطط لترقيات تمائم الحاكم',
     heroGearCalculatorNav: 'حاسبة عتاد الأبطال',
-    quickLinkHeroGearCalculatorSubtitle: 'خطط لترقيات عتاد وسلاح الأبطال',
+    quickLinkHeroGearCalculatorSubtitle: 'خطط لترقيات عتاد الأبطال',
     exploreTitle: 'استكشف',
   },
   tutorial: {
