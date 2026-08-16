@@ -1,7 +1,6 @@
 'use client';
 
 import { useI18n } from '@/lib/i18n';
-import Tutorial from '@/components/Tutorial';
 import QuickLinksGrid from '@/components/QuickLinksGrid';
 
 export default function HomePage() {
@@ -9,8 +8,6 @@ export default function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
-      <Tutorial />
-
       <div className="text-center">
         <h1 className="font-display text-gradient text-3xl sm:text-4xl font-bold leading-tight">
           {t('home.welcomeTitle')}
