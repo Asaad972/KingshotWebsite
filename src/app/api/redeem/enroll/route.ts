@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { verifyPlayerAndKingdom, redeemGiftCode, jitteredDelay, type RedeemStatus } from '@/lib/kingshotRedeem';
+import { verifyPlayerAndKingdom } from '@/lib/kingshotRedeem';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 30;
 
-// Public: enroll a Player ID (+ their kingdom ID) for auto-redeem, then
-// immediately redeem every currently active code for them.
+// Public: verify + enroll a Player ID (+ their kingdom ID) for auto-redeem.
+// Deliberately does NOT redeem any codes here -- that used to happen in
+// this same request (one active code at a time, each paced ~1s apart),
+// which meant the button just sat there for several seconds with zero
+// feedback. Returning as soon as enrollment succeeds lets the client show
+// "Enrolled!" immediately, then redeem each code via a separate call to
+// /api/redeem/redeem-code, updating the UI live as each one finishes.
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const fid = typeof body.fid === 'string' ? body.fid.trim() : '';
@@ -53,18 +58,11 @@ export async function POST(request: Request) {
 
   const { data: activeCodes } = await supabase.from('gift_codes').select('id, code').eq('status', 'active');
 
-  const results: { code: string; status: RedeemStatus }[] = [];
-  for (const gc of activeCodes ?? []) {
-    const status = await redeemGiftCode(fid, kid, gc.code);
-    results.push({ code: gc.code, status });
-    await supabase
-      .from('gift_redemptions')
-      .upsert(
-        { enrollment_id: enrollment.id, code_id: gc.id, status, attempted_at: new Date().toISOString() },
-        { onConflict: 'enrollment_id,code_id' }
-      );
-    await jitteredDelay();
-  }
-
-  return NextResponse.json({ success: true, results });
+  return NextResponse.json({
+    success: true,
+    enrollmentId: enrollment.id,
+    fid,
+    kid,
+    activeCodes: activeCodes ?? [],
+  });
 }

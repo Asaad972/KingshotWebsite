@@ -9,16 +9,36 @@ interface GiftCode {
   created_at: string;
 }
 
-interface RedeemResult {
+interface ProgressRow {
+  codeId: string;
   code: string;
-  status: string;
+  status: 'pending' | 'redeeming' | string;
 }
 
 const SUCCESS_LIKE = new Set(['SUCCESS', 'RECEIVED', 'SAME_TYPE_EXCHANGE']);
 
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Waiting…',
+  redeeming: 'Redeeming…',
+  SUCCESS: 'Redeemed!',
+  RECEIVED: 'Already claimed',
+  SAME_TYPE_EXCHANGE: 'Already claimed',
+  TIME_ERROR: 'Code expired',
+  CDK_NOT_FOUND: 'Code invalid',
+  USAGE_LIMIT: 'Code limit reached',
+};
+
 function formatFoundDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+/** Small pause between redeem calls, mirroring the server's own pacing --
+ * still rate-limit-safe, just visible to the user as live progress now
+ * instead of one long silent wait. */
+function jitteredDelay(): Promise<void> {
+  const ms = 700 + Math.random() * 600;
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default function GiftCodesPage() {
@@ -27,24 +47,30 @@ export default function GiftCodesPage() {
   const [loading, setLoading] = useState(true);
   const [fid, setFid] = useState('');
   const [kid, setKid] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [phase, setPhase] = useState<'idle' | 'verifying' | 'redeeming' | 'done'>('idle');
   const [feedback, setFeedback] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const submitting = phase === 'verifying' || phase === 'redeeming';
 
-  useEffect(() => {
-    fetch('/api/gift-codes')
+  const loadCodes = () => {
+    return fetch('/api/gift-codes')
       .then((r) => r.json())
       .then((data) => {
         setCodes(data.codes ?? []);
         if (data.stats) setStats(data.stats);
-      })
-      .finally(() => setLoading(false));
+      });
+  };
+
+  useEffect(() => {
+    loadCodes().finally(() => setLoading(false));
   }, []);
 
   const handleEnroll = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
-    setSubmitting(true);
+    setProgress([]);
+    setPhase('verifying');
     try {
       const res = await fetch('/api/redeem/enroll', {
         method: 'POST',
@@ -67,26 +93,62 @@ export default function GiftCodesPage() {
         const attempts: string[] = data.attempts ?? [];
         const detail = attempts.length > 0 ? ` (server saw: ${attempts.join(', ')})` : '';
         setFeedback({ kind: 'error', text: message + detail });
+        setPhase('idle');
         return;
       }
 
-      const results: RedeemResult[] = data.results ?? [];
-      const redeemed = results.filter((r) => r.status === 'SUCCESS').length;
-      const already = results.filter((r) => r.status !== 'SUCCESS' && SUCCESS_LIKE.has(r.status)).length;
-
-      setFeedback({
-        kind: 'success',
-        text:
-          results.length === 0
-            ? "Enrolled. No active codes right now -- you'll get the next one automatically."
-            : `Enrolled. ${redeemed} code${redeemed === 1 ? '' : 's'} redeemed, ${already} already claimed.`,
-      });
+      const activeCodes: { id: string; code: string }[] = data.activeCodes ?? [];
+      setFeedback({ kind: 'success', text: '✓ Enrolled! Redeeming your codes…' });
       setFid('');
       setKid('');
+
+      if (activeCodes.length === 0) {
+        setFeedback({
+          kind: 'success',
+          text: "✓ Enrolled. No active codes right now -- you'll get the next one automatically.",
+        });
+        setPhase('done');
+        loadCodes();
+        return;
+      }
+
+      setPhase('redeeming');
+      setProgress(activeCodes.map((c) => ({ codeId: c.id, code: c.code, status: 'pending' })));
+
+      const finalRows: ProgressRow[] = [];
+      for (let i = 0; i < activeCodes.length; i++) {
+        const c = activeCodes[i];
+        setProgress((prev) => prev.map((r) => (r.codeId === c.id ? { ...r, status: 'redeeming' } : r)));
+
+        try {
+          const redeemRes = await fetch('/api/redeem/redeem-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enrollmentId: data.enrollmentId, fid: data.fid, kid: data.kid, codeId: c.id, code: c.code }),
+          });
+          const redeemData = await redeemRes.json();
+          const status = redeemData.status ?? 'UNKNOWN_API_RESPONSE';
+          setProgress((prev) => prev.map((r) => (r.codeId === c.id ? { ...r, status } : r)));
+          finalRows.push({ ...c, codeId: c.id, status });
+        } catch {
+          setProgress((prev) => prev.map((r) => (r.codeId === c.id ? { ...r, status: 'UNKNOWN_API_RESPONSE' } : r)));
+          finalRows.push({ codeId: c.id, code: c.code, status: 'UNKNOWN_API_RESPONSE' });
+        }
+
+        if (i < activeCodes.length - 1) await jitteredDelay();
+      }
+
+      const redeemed = finalRows.filter((r) => r.status === 'SUCCESS').length;
+      const already = finalRows.filter((r) => r.status !== 'SUCCESS' && SUCCESS_LIKE.has(r.status)).length;
+      setFeedback({
+        kind: 'success',
+        text: `✓ Enrolled. ${redeemed} code${redeemed === 1 ? '' : 's'} redeemed, ${already} already claimed.`,
+      });
+      setPhase('done');
+      loadCodes();
     } catch {
       setFeedback({ kind: 'error', text: 'Network error -- try again in a moment.' });
-    } finally {
-      setSubmitting(false);
+      setPhase('idle');
     }
   };
 
@@ -153,12 +215,41 @@ export default function GiftCodesPage() {
           disabled={submitting || !fid.trim() || !kid.trim()}
           className="btn-gradient focus-ring rounded-md py-2.5 text-sm disabled:opacity-50"
         >
-          {submitting ? 'Adding…' : 'Add to Auto-Redeem'}
+          {phase === 'verifying' ? 'Verifying Player ID…' : phase === 'redeeming' ? 'Redeeming…' : 'Add to Auto-Redeem'}
         </button>
         {feedback && (
           <p className={`text-xs ${feedback.kind === 'success' ? 'text-moss-500' : 'text-ember-500'}`}>
             {feedback.text}
           </p>
+        )}
+        {progress.length > 0 && (
+          <div className="flex flex-col gap-1.5 mt-1">
+            {progress.map((row) => {
+              const isDone = row.status !== 'pending' && row.status !== 'redeeming';
+              const isSuccessLike = isDone && SUCCESS_LIKE.has(row.status);
+              return (
+                <div
+                  key={row.codeId}
+                  className="flex items-center justify-between gap-2 rounded border border-stone-700 bg-stone-950 px-2.5 py-1.5"
+                >
+                  <span className="font-mono text-xs text-parchment-200">{row.code}</span>
+                  <span
+                    className={`text-xs font-medium shrink-0 ${
+                      row.status === 'pending'
+                        ? 'text-parchment-500'
+                        : row.status === 'redeeming'
+                        ? 'text-sky-400'
+                        : isSuccessLike
+                        ? 'text-moss-500'
+                        : 'text-ember-500'
+                    }`}
+                  >
+                    {STATUS_LABEL[row.status] ?? row.status}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         )}
       </form>
 
