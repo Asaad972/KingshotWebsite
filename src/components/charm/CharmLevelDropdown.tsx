@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { CHARM_LEVELS, getCharmLevel } from '@/lib/charmData';
 
 interface Position {
-  top: number;
+  top?: number;
+  bottom?: number;
   left: number;
   width: number;
+  maxHeight: number;
 }
 
 /** Same anchored-dropdown pattern as GearLevelDropdown (kept as a separate,
@@ -41,7 +43,21 @@ export default function CharmLevelDropdown({
     if (!rect) return;
     const panelWidth = Math.max(rect.width, 140);
     const left = Math.min(Math.max(8, rect.left), window.innerWidth - panelWidth - 8);
-    setPosition({ top: rect.bottom + 4, left, width: panelWidth });
+    // Flip upward if there isn't enough room below the trigger -- otherwise
+    // the panel opens off the bottom of the viewport with no way to see or
+    // scroll to the rest of it (it's position:fixed, so page scroll doesn't
+    // help), which was the actual bug for triggers near the page bottom.
+    const spaceBelow = window.innerHeight - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+    const openUpward = spaceBelow < 150 && spaceAbove > spaceBelow;
+    const maxHeight = Math.min(340, Math.max(120, openUpward ? spaceAbove : spaceBelow));
+    setPosition({
+      top: openUpward ? undefined : rect.bottom + 4,
+      bottom: openUpward ? window.innerHeight - rect.top + 4 : undefined,
+      left,
+      width: panelWidth,
+      maxHeight,
+    });
     setOpen(true);
   };
 
@@ -108,7 +124,7 @@ export default function CharmLevelDropdown({
           ref={panelRef}
           role="listbox"
           className="fixed z-50 rounded-md border border-stone-700 bg-stone-900 shadow-lg overflow-y-auto scrollbar-thin"
-          style={{ top: position.top, left: position.left, width: position.width, maxHeight: 'min(60vh, 340px)' }}
+          style={{ top: position.top, bottom: position.bottom, left: position.left, width: position.width, maxHeight: position.maxHeight }}
         >
           {options.map((l) => {
             const isSelected = l.id === levelId;
