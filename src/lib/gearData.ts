@@ -327,12 +327,12 @@ export function getGearLevel(id: string): GearLevel | undefined {
 export interface MaterialDef {
   id: 'satin' | 'gildedThreads' | 'artisansVision';
   label: string;
-  /** Fixed swatch color -- these aren't tier-specific, just a per-material identity color. */
-  dot: string;
+  /** Real in-game icon (user-provided), already includes its own colored background. */
+  icon: string;
 }
 
 export const MATERIALS: MaterialDef[] = [
-  { id: 'satin', label: 'Satin', dot: 'bg-cyan-500' },
-  { id: 'gildedThreads', label: 'Gilded Threads', dot: 'bg-purple-500' },
-  { id: 'artisansVision', label: "Artisan's Vision", dot: 'bg-amber-500' },
+  { id: 'satin', label: 'Satin', icon: '/gear/materials/satin.jpg' },
+  { id: 'gildedThreads', label: 'Gilded Threads', icon: '/gear/materials/gilded-threads.jpg' },
+  { id: 'artisansVision', label: "Artisan's Vision", icon: '/gear/materials/artisans-vision.jpg' },
 ];
