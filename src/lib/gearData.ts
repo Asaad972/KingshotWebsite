@@ -306,7 +306,7 @@ function buildGearLevels(): GearLevel[] {
   RAW_LEVELS.forEach(([tier, stars, satin, gildedThreads, artisansVision, attrPercent], i) => {
     levels.push({
       id: `${tier}-${stars}`,
-      label: `${TIER_META[tier].label} ${stars}${stars > 0 ? ' ' + '★'.repeat(stars) : ''}`,
+      label: `${TIER_META[tier].label}${stars > 0 ? ' ' + '★'.repeat(stars) : ''}`,
       tier,
       stars,
       order: i + 1,

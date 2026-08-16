@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { GEAR_LEVELS, TIER_DISPLAY_ORDER, tierMeta } from '@/lib/gearData';
+import { useEffect, useRef } from 'react';
+import { GEAR_LEVELS, tierMeta } from '@/lib/gearData';
 
 export default function GearLevelSelector({
   slotLabel,
@@ -16,6 +16,8 @@ export default function GearLevelSelector({
   onSelect: (id: string) => void;
   onClose: () => void;
 }) {
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -23,6 +25,10 @@ export default function GearLevelSelector({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  useEffect(() => {
+    selectedRef.current?.scrollIntoView({ block: 'center' });
+  }, []);
 
   return (
     <div
@@ -33,7 +39,7 @@ export default function GearLevelSelector({
       aria-label={`${slotLabel} ${mode} level selector`}
     >
       <div
-        className="w-full sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] rounded-t-md sm:rounded-md border border-stone-700 bg-stone-900 flex flex-col"
+        className="w-full sm:max-w-sm max-h-[85vh] sm:max-h-[80vh] rounded-t-md sm:rounded-md border border-stone-700 bg-stone-900 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-stone-700 shrink-0">
@@ -50,40 +56,34 @@ export default function GearLevelSelector({
           </button>
         </div>
 
-        <div className="overflow-y-auto scrollbar-thin p-4 flex flex-col gap-4">
-          {TIER_DISPLAY_ORDER.map((tier) => {
-            const levels = GEAR_LEVELS.filter((l) => l.tier === tier);
-            if (levels.length === 0) return null;
-            const meta = tierMeta(tier);
-
+        <div className="overflow-y-auto scrollbar-thin flex flex-col">
+          {GEAR_LEVELS.map((level) => {
+            const meta = tierMeta(level.tier);
+            const isSelected = level.id === selectedId;
             return (
-              <div key={tier}>
-                <p className={`text-[11px] font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 ${meta.text}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} aria-hidden />
-                  {meta.label}
-                </p>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
-                  {levels.map((level) => {
-                    const isSelected = level.id === selectedId;
-                    return (
-                      <button
-                        key={level.id}
-                        type="button"
-                        onClick={() => {
-                          onSelect(level.id);
-                          onClose();
-                        }}
-                        aria-pressed={isSelected}
-                        className={`focus-ring rounded border px-2 py-2.5 text-center transition-colors min-h-[44px] ${meta.border} ${
-                          isSelected ? `${meta.bg} ring-2 ${meta.ring}` : 'bg-stone-950 hover:bg-stone-800'
-                        }`}
-                      >
-                        <span className={`block text-xs font-semibold ${meta.text}`}>{level.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <button
+                key={level.id}
+                ref={isSelected ? selectedRef : undefined}
+                type="button"
+                onClick={() => {
+                  onSelect(level.id);
+                  onClose();
+                }}
+                aria-pressed={isSelected}
+                className={`focus-ring flex items-center justify-between gap-2 px-4 py-2.5 text-left border-b border-stone-800 transition-colors ${
+                  isSelected ? `${meta.bg}` : 'hover:bg-stone-800/60'
+                }`}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className={`h-2 w-2 rounded-full shrink-0 ${meta.dot}`} aria-hidden />
+                  <span className={`text-sm font-medium truncate ${meta.text}`}>{level.label}</span>
+                </span>
+                {isSelected && (
+                  <span className={`shrink-0 ${meta.text}`} aria-hidden>
+                    ✓
+                  </span>
+                )}
+              </button>
             );
           })}
         </div>
