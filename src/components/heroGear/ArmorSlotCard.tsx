@@ -22,6 +22,9 @@ export default function ArmorSlotCard({
   onChange: (slotId: ArmorSlotId, next: ArmorSelection) => void;
 }) {
   const { currentLevel, targetLevel, currentMastery, targetMastery } = selection;
+  // Past level 100 the piece is Red tier in-game instead of Gold -- we don't
+  // have real red photos, so tint the gold ones toward red with a filter.
+  const isRedTier = currentLevel > 100;
 
   const setCurrentLevel = (v: number) => {
     onChange(slotId, { ...selection, currentLevel: v, targetLevel: Math.max(targetLevel, v) });
@@ -39,10 +42,18 @@ export default function ArmorSlotCard({
   return (
     <div className="dashboard-card p-3 flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <div className="h-14 w-14 shrink-0 rounded-lg overflow-hidden border border-stone-700 bg-stone-800">
+        <div
+          className={`relative isolate h-14 w-14 shrink-0 rounded-lg overflow-hidden border bg-stone-800 ${
+            isRedTier ? 'border-red-500/60' : 'border-stone-700'
+          }`}
+        >
           <Image src={icon} alt={label} width={56} height={56} className="h-full w-full object-cover" />
+          {isRedTier && <div className="absolute inset-0 bg-red-600" style={{ mixBlendMode: 'hue' }} aria-hidden />}
         </div>
-        <p className="text-base font-semibold text-parchment-100">{label}</p>
+        <div>
+          <p className="text-base font-semibold text-parchment-100">{label}</p>
+          {isRedTier && <p className="text-[10px] font-semibold text-red-400">Red tier</p>}
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">
