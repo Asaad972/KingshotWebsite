@@ -1,15 +1,13 @@
 'use client';
 
-import { MATERIALS, tierMeta } from '@/lib/gearData';
+import { MATERIALS } from '@/lib/gearData';
 
 export default function GearMaterialsPanel({
   required,
-  coins,
   owned,
   onChangeOwned,
 }: {
   required: Record<string, number>;
-  coins: number;
   owned: Record<string, number>;
   onChangeOwned: (materialId: string, value: number) => void;
 }) {
@@ -25,7 +23,7 @@ export default function GearMaterialsPanel({
         <div className="flex flex-col gap-2">
           <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-2 text-[10px] uppercase tracking-wide text-parchment-500 px-0.5">
             <span>Material</span>
-            <span className="text-right w-14">Required</span>
+            <span className="text-right w-16">Required</span>
             <span className="text-right w-16">Owned</span>
             <span className="text-right w-16">Needed</span>
           </div>
@@ -33,14 +31,13 @@ export default function GearMaterialsPanel({
             const req = required[m.id] ?? 0;
             const own = owned[m.id] ?? 0;
             const needed = Math.max(0, req - own);
-            const meta = tierMeta(m.tier);
             return (
               <div key={m.id} className="grid grid-cols-[1fr_auto_auto_auto] gap-x-2 items-center">
-                <span className={`text-xs font-medium truncate flex items-center gap-1.5 ${meta.text}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${meta.dot}`} aria-hidden />
+                <span className="flex items-center gap-1.5 text-xs font-medium text-parchment-200 truncate">
+                  <span className={`h-2 w-2 rounded-full shrink-0 ${m.dot}`} aria-hidden />
                   {m.label}
                 </span>
-                <span className="text-xs text-parchment-300 text-right w-14 tabular-nums">{req.toLocaleString()}</span>
+                <span className="text-xs text-parchment-300 text-right w-16 tabular-nums">{req.toLocaleString()}</span>
                 <input
                   type="number"
                   min={0}
@@ -55,11 +52,6 @@ export default function GearMaterialsPanel({
               </div>
             );
           })}
-
-          <div className="flex items-center justify-between pt-2 mt-1 border-t border-stone-800">
-            <span className="text-xs text-parchment-400">Total Coins</span>
-            <span className="text-sm font-semibold text-gold-300 tabular-nums">{coins.toLocaleString()}</span>
-          </div>
         </div>
       )}
     </div>

@@ -7,7 +7,7 @@ import GearSlotCard from './GearSlotCard';
 import GearLevelSelector from './GearLevelSelector';
 import GearMaterialsPanel from './GearMaterialsPanel';
 import GearTroopStatsPanel from './GearTroopStatsPanel';
-import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, WeaponIcon, CrownIcon } from './GearIcons';
+import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon, CrownIcon } from './GearIcons';
 
 const SLOT_ICONS: Record<GearSlotId, React.ReactNode> = {
   cap: <CapIcon />,
@@ -15,7 +15,7 @@ const SLOT_ICONS: Record<GearSlotId, React.ReactNode> = {
   coat: <CoatIcon />,
   pants: <PantsIcon />,
   belt: <BeltIcon />,
-  weapon: <WeaponIcon />,
+  staff: <StaffIcon />,
 };
 
 function makeEmptySelections(): GearSelections {
@@ -76,7 +76,7 @@ export default function GearCalculatorSection() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-parchment-100">Governor Gear Calculator</h1>
-          <p className="text-xs text-parchment-500 mt-0.5">Experimental -- material costs and stat bonuses are placeholders.</p>
+          <p className="text-xs text-parchment-500 mt-0.5">Experimental -- material costs and % bonuses are real, sourced from the gear database.</p>
         </div>
         <button
           type="button"
@@ -97,7 +97,7 @@ export default function GearCalculatorSection() {
             {renderSlot('coat')}
             {renderSlot('pants')}
             {renderSlot('belt')}
-            {renderSlot('weapon')}
+            {renderSlot('staff')}
           </div>
 
           {/* Desktop/tablet (>=640px): diamond layout around a center crown. */}
@@ -110,14 +110,17 @@ export default function GearCalculatorSection() {
             <div className="col-start-3 row-start-2 w-full">{renderSlot('watch')}</div>
             <div className="col-start-1 row-start-3 w-full">{renderSlot('belt')}</div>
             <div className="col-start-3 row-start-3 w-full">{renderSlot('pants')}</div>
-            <div className="col-start-2 row-start-4 w-full">{renderSlot('weapon')}</div>
+            <div className="col-start-2 row-start-4 w-full">{renderSlot('staff')}</div>
           </div>
         </div>
 
         {/* Calculations sidebar */}
         <div className="flex flex-col gap-3">
-          <GearMaterialsPanel required={plan.materials} coins={plan.coins} owned={owned} onChangeOwned={handleChangeOwned} />
-          <GearTroopStatsPanel statBonus={plan.statBonus} />
+          <GearMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} />
+          <GearTroopStatsPanel
+            currentTotalAttrPercent={plan.currentTotalAttrPercent}
+            targetTotalAttrPercent={plan.targetTotalAttrPercent}
+          />
         </div>
       </div>
 

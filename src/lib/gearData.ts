@@ -1,14 +1,18 @@
-// Governor Gear Calculator -- ALL NUMBERS BELOW ARE PLACEHOLDERS.
+// Governor Gear Calculator -- REAL data sourced from
+// https://kingshotdata.com/database/governor-gear/ (fetched 2026-08-16).
 //
-// The tier progression (Base -> Green -> Blue -> Purple -> Purple T1 ->
-// Gold -> Gold T1 -> Gold T2) matches the real game's structure, but the
-// exact material costs and stat bonuses per level are invented so the
-// calculator has something consistent to compute with. Edit the numbers
-// in `buildGearLevels()` below once you have real values -- the shape of
-// the data (6 slots, ordered levels, per-step cost/stat) doesn't need to
-// change, just the numbers.
+// Per that source: "All six Governor Gear pieces (Head, Armor, Legs, Staff,
+// Ring, Accessory) use the same costs, power, and score at each level.
+// Attribute numbers match; each piece applies them to different troop
+// stats." The site does not specify exactly WHICH stat(s) each piece maps
+// to, so the one real "attrPercent" value per level is applied uniformly
+// across Attack/Defense/Lethality/Health in the troop stats panel -- the
+// magnitude is real, the even split across all 4 stats is a simplification
+// (documented in GearTroopStatsPanel.tsx too). `attrPercent` is the
+// CUMULATIVE total bonus at that level (not incremental); material costs
+// ARE incremental (cost to go from the previous level to this one).
 
-export type GearSlotId = 'cap' | 'watch' | 'coat' | 'pants' | 'belt' | 'weapon';
+export type GearSlotId = 'cap' | 'watch' | 'coat' | 'pants' | 'belt' | 'staff';
 
 export const GEAR_SLOTS: { id: GearSlotId; label: string }[] = [
   { id: 'cap', label: 'Cap' },
@@ -16,13 +20,41 @@ export const GEAR_SLOTS: { id: GearSlotId; label: string }[] = [
   { id: 'coat', label: 'Coat' },
   { id: 'pants', label: 'Pants' },
   { id: 'belt', label: 'Belt' },
-  { id: 'weapon', label: 'Weapon' },
+  { id: 'staff', label: 'Staff' },
 ];
 
-export type GearTier = 'green' | 'blue' | 'purple' | 'purpleT1' | 'gold' | 'goldT1' | 'goldT2';
+export type GearTier =
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | 'purpleT1'
+  | 'gold'
+  | 'goldT1'
+  | 'goldT2'
+  | 'goldT3'
+  | 'red'
+  | 'redT1'
+  | 'redT2'
+  | 'redT3'
+  | 'redT4'
+  | 'redT5'
+  | 'redT6';
 export type GearTierOrBase = GearTier | 'base';
 
-export const TIER_META: Record<GearTier, { label: string; text: string; border: string; bg: string; ring: string; dot: string }> = {
+interface TierMeta {
+  label: string;
+  text: string;
+  border: string;
+  bg: string;
+  ring: string;
+  dot: string;
+}
+
+// Class names are written out in full (not built from template strings)
+// because Tailwind's build-time scanner only picks up complete, literal
+// class names in the source -- a dynamic `text-${color}-400` would produce
+// no CSS at all.
+export const TIER_META: Record<GearTier, TierMeta> = {
   green: {
     label: 'Green',
     text: 'text-emerald-400',
@@ -73,30 +105,109 @@ export const TIER_META: Record<GearTier, { label: string; text: string; border: 
   },
   goldT2: {
     label: 'Gold T2',
+    text: 'text-amber-300',
+    border: 'border-amber-400/50',
+    bg: 'bg-amber-400/10',
+    ring: 'ring-amber-400/70',
+    dot: 'bg-amber-400',
+  },
+  goldT3: {
+    label: 'Gold T3',
     text: 'text-amber-200',
     border: 'border-amber-300/50',
     bg: 'bg-amber-300/10',
     ring: 'ring-amber-300/70',
     dot: 'bg-amber-300',
   },
+  red: {
+    label: 'Red',
+    text: 'text-red-400',
+    border: 'border-red-500/40',
+    bg: 'bg-red-500/10',
+    ring: 'ring-red-500/70',
+    dot: 'bg-red-500',
+  },
+  redT1: {
+    label: 'Red T1',
+    text: 'text-red-400',
+    border: 'border-red-500/40',
+    bg: 'bg-red-500/10',
+    ring: 'ring-red-500/70',
+    dot: 'bg-red-500',
+  },
+  redT2: {
+    label: 'Red T2',
+    text: 'text-red-400',
+    border: 'border-red-500/40',
+    bg: 'bg-red-500/10',
+    ring: 'ring-red-500/70',
+    dot: 'bg-red-500',
+  },
+  redT3: {
+    label: 'Red T3',
+    text: 'text-red-300',
+    border: 'border-red-400/50',
+    bg: 'bg-red-400/10',
+    ring: 'ring-red-400/70',
+    dot: 'bg-red-400',
+  },
+  redT4: {
+    label: 'Red T4',
+    text: 'text-red-300',
+    border: 'border-red-400/50',
+    bg: 'bg-red-400/10',
+    ring: 'ring-red-400/70',
+    dot: 'bg-red-400',
+  },
+  redT5: {
+    label: 'Red T5',
+    text: 'text-red-200',
+    border: 'border-red-300/50',
+    bg: 'bg-red-300/10',
+    ring: 'ring-red-300/70',
+    dot: 'bg-red-300',
+  },
+  redT6: {
+    label: 'Red T6',
+    text: 'text-red-200',
+    border: 'border-red-300/50',
+    bg: 'bg-red-300/10',
+    ring: 'ring-red-300/70',
+    dot: 'bg-red-300',
+  },
 };
 
-export const BASE_META = { label: 'Base', text: 'text-parchment-300', border: 'border-stone-600', bg: 'bg-stone-800', ring: 'ring-stone-400/70', dot: 'bg-stone-500' };
+export const BASE_META: TierMeta = {
+  label: 'Base',
+  text: 'text-parchment-300',
+  border: 'border-stone-600',
+  bg: 'bg-stone-800',
+  ring: 'ring-stone-400/70',
+  dot: 'bg-stone-500',
+};
 
-export interface GearLevelCost {
-  designId: string;
-  designQty: number;
-  materialId: string;
-  materialQty: number;
-  coins: number;
+export function tierMeta(tier: GearTierOrBase): TierMeta {
+  return tier === 'base' ? BASE_META : TIER_META[tier];
 }
 
-export interface GearStatBonus {
-  attack: number;
-  defense: number;
-  lethality: number;
-  health: number;
-}
+export const TIER_DISPLAY_ORDER: GearTierOrBase[] = [
+  'base',
+  'green',
+  'blue',
+  'purple',
+  'purpleT1',
+  'gold',
+  'goldT1',
+  'goldT2',
+  'goldT3',
+  'red',
+  'redT1',
+  'redT2',
+  'redT3',
+  'redT4',
+  'redT5',
+  'redT6',
+];
 
 export interface GearLevel {
   id: string;
@@ -105,26 +216,70 @@ export interface GearLevel {
   stars: number;
   order: number;
   /** Cost to reach THIS level from the previous one. Zero for 'base'. */
-  cost: GearLevelCost;
-  /** Incremental % bonus THIS level grants (on top of the previous level). */
-  statBonus: GearStatBonus;
+  cost: { satin: number; gildedThreads: number; artisansVision: number };
+  /** CUMULATIVE total attribute bonus AT this level (real data). */
+  attrPercent: number;
 }
 
-function materialsForTier(tier: GearTier): { designId: string; materialId: string } {
-  if (tier === 'green') return { designId: 'green-design', materialId: 'green-material' };
-  if (tier === 'blue') return { designId: 'blue-design', materialId: 'blue-material' };
-  if (tier === 'purple' || tier === 'purpleT1') return { designId: 'purple-design', materialId: 'purple-material' };
-  return { designId: 'gold-design', materialId: 'gold-material' }; // gold, goldT1, goldT2
-}
-
-const TIER_SEQUENCE: { tier: GearTier; steps: number }[] = [
-  { tier: 'green', steps: 2 },
-  { tier: 'blue', steps: 4 },
-  { tier: 'purple', steps: 4 },
-  { tier: 'purpleT1', steps: 4 },
-  { tier: 'gold', steps: 4 },
-  { tier: 'goldT1', steps: 4 },
-  { tier: 'goldT2', steps: 4 },
+// [tier, stars, satin, gildedThreads, artisansVision, cumulativeAttrPercent]
+const RAW_LEVELS: [GearTier, number, number, number, number, number][] = [
+  ['green', 0, 1500, 15, 0, 9.35],
+  ['green', 1, 3800, 40, 0, 12.75],
+  ['blue', 0, 7000, 70, 0, 17],
+  ['blue', 1, 9700, 95, 0, 21.25],
+  ['blue', 2, 1000, 10, 45, 25.5],
+  ['blue', 3, 1000, 10, 50, 29.75],
+  ['purple', 0, 1500, 15, 60, 34],
+  ['purple', 1, 1500, 15, 70, 36.89],
+  ['purple', 2, 6500, 65, 40, 39.78],
+  ['purple', 3, 8000, 80, 50, 42.67],
+  ['purpleT1', 0, 10000, 95, 60, 45.56],
+  ['purpleT1', 1, 11000, 110, 70, 48.45],
+  ['purpleT1', 2, 13000, 130, 85, 51.34],
+  ['purpleT1', 3, 15000, 160, 100, 54.23],
+  ['gold', 0, 22000, 220, 40, 56.78],
+  ['gold', 1, 23000, 230, 40, 59.33],
+  ['gold', 2, 25000, 250, 45, 61.88],
+  ['gold', 3, 26000, 260, 45, 64.43],
+  ['goldT1', 0, 28000, 280, 45, 66.98],
+  ['goldT1', 1, 30000, 300, 55, 69.53],
+  ['goldT1', 2, 32000, 320, 55, 72.08],
+  ['goldT1', 3, 35000, 340, 55, 74.63],
+  ['goldT2', 0, 38000, 360, 55, 77.18],
+  ['goldT2', 1, 43000, 430, 75, 79.73],
+  ['goldT2', 2, 45000, 460, 80, 82.28],
+  ['goldT2', 3, 48000, 500, 85, 84.83],
+  ['goldT3', 0, 60000, 600, 120, 87.38],
+  ['goldT3', 1, 70000, 700, 140, 89.93],
+  ['goldT3', 2, 80000, 800, 160, 92.48],
+  ['goldT3', 3, 90000, 900, 180, 95],
+  ['red', 0, 108000, 1080, 220, 97.5],
+  ['red', 1, 114000, 1140, 230, 100],
+  ['red', 2, 121000, 1210, 240, 102.5],
+  ['red', 3, 128000, 1280, 250, 105],
+  ['redT1', 0, 154000, 1540, 300, 107.5],
+  ['redT1', 1, 163000, 1630, 320, 110],
+  ['redT1', 2, 173000, 1730, 340, 112.5],
+  ['redT1', 3, 183000, 1830, 360, 115],
+  ['redT2', 0, 220000, 2200, 430, 117.5],
+  ['redT2', 1, 233000, 2330, 460, 120],
+  ['redT2', 2, 247000, 2470, 490, 122.5],
+  ['redT2', 3, 262000, 2620, 520, 125],
+  ['redT3', 0, 288000, 2880, 570, 127.75],
+  ['redT3', 1, 302000, 3020, 600, 130.5],
+  ['redT3', 2, 317000, 3170, 630, 133.25],
+  ['redT3', 3, 333000, 3330, 660, 136],
+  ['redT4', 0, 366000, 3660, 730, 138.75],
+  ['redT4', 1, 384000, 3840, 770, 141.5],
+  ['redT4', 2, 403000, 4030, 810, 144.25],
+  ['redT4', 3, 423000, 4230, 850, 147],
+  ['redT5', 0, 465000, 4650, 940, 150],
+  ['redT5', 1, 479000, 4790, 970, 153],
+  ['redT5', 2, 493000, 4930, 1000, 156],
+  ['redT5', 3, 508000, 5080, 1030, 159],
+  ['redT6', 0, 549000, 5490, 1110, 162],
+  ['redT6', 1, 565000, 5650, 1140, 165],
+  ['redT6', 2, 582000, 5820, 1170, 168],
 ];
 
 function buildGearLevels(): GearLevel[] {
@@ -135,70 +290,41 @@ function buildGearLevels(): GearLevel[] {
       tier: 'base',
       stars: 0,
       order: 0,
-      cost: { designId: '', designQty: 0, materialId: '', materialQty: 0, coins: 0 },
-      statBonus: { attack: 0, defense: 0, lethality: 0, health: 0 },
+      cost: { satin: 0, gildedThreads: 0, artisansVision: 0 },
+      attrPercent: 0,
     },
   ];
 
-  let order = 1;
-  let tierIndex = 0;
-  for (const { tier, steps } of TIER_SEQUENCE) {
-    const { designId, materialId } = materialsForTier(tier);
-    for (let step = 0; step < steps; step++) {
-      const stars = step;
-      levels.push({
-        id: `${tier}-${step}`,
-        label: `${TIER_META[tier].label} ${step}${stars > 0 ? ' ' + '★'.repeat(stars) : ''}`,
-        tier,
-        stars,
-        order,
-        cost: {
-          designId,
-          designQty: 2 + tierIndex * 3 + step,
-          materialId,
-          materialQty: 3 + tierIndex * 4 + step,
-          coins: (5 + tierIndex * 5 + step) * 1000,
-        },
-        statBonus: {
-          attack: Math.round((0.1 + tierIndex * 0.05) * 100) / 100,
-          defense: Math.round((0.1 + tierIndex * 0.05) * 100) / 100,
-          lethality: Math.round((0.05 + tierIndex * 0.03) * 100) / 100,
-          health: Math.round((0.1 + tierIndex * 0.05) * 100) / 100,
-        },
-      });
-      order++;
-    }
-    tierIndex++;
-  }
+  RAW_LEVELS.forEach(([tier, stars, satin, gildedThreads, artisansVision, attrPercent], i) => {
+    levels.push({
+      id: `${tier}-${stars}`,
+      label: `${TIER_META[tier].label} ${stars}${stars > 0 ? ' ' + '★'.repeat(stars) : ''}`,
+      tier,
+      stars,
+      order: i + 1,
+      cost: { satin, gildedThreads, artisansVision },
+      attrPercent,
+    });
+  });
 
   return levels;
 }
 
 export const GEAR_LEVELS: GearLevel[] = buildGearLevels();
 
-export const TIER_DISPLAY_ORDER: GearTierOrBase[] = ['base', 'green', 'blue', 'purple', 'purpleT1', 'gold', 'goldT1', 'goldT2'];
-
 export function getGearLevel(id: string): GearLevel | undefined {
   return GEAR_LEVELS.find((l) => l.id === id);
 }
 
-export function tierMeta(tier: GearTierOrBase) {
-  return tier === 'base' ? BASE_META : TIER_META[tier];
-}
-
 export interface MaterialDef {
-  id: string;
+  id: 'satin' | 'gildedThreads' | 'artisansVision';
   label: string;
-  tier: GearTier;
+  /** Fixed swatch color -- these aren't tier-specific, just a per-material identity color. */
+  dot: string;
 }
 
 export const MATERIALS: MaterialDef[] = [
-  { id: 'green-design', label: 'Green Design', tier: 'green' },
-  { id: 'green-material', label: 'Green Material', tier: 'green' },
-  { id: 'blue-design', label: 'Blue Design', tier: 'blue' },
-  { id: 'blue-material', label: 'Blue Material', tier: 'blue' },
-  { id: 'purple-design', label: 'Purple Design', tier: 'purple' },
-  { id: 'purple-material', label: 'Purple Material', tier: 'purple' },
-  { id: 'gold-design', label: 'Gold Design', tier: 'gold' },
-  { id: 'gold-material', label: 'Gold Material', tier: 'gold' },
+  { id: 'satin', label: 'Satin', dot: 'bg-cyan-500' },
+  { id: 'gildedThreads', label: 'Gilded Threads', dot: 'bg-purple-500' },
+  { id: 'artisansVision', label: "Artisan's Vision", dot: 'bg-amber-500' },
 ];

@@ -1,4 +1,4 @@
-import { GEAR_LEVELS, getGearLevel, type GearStatBonus, type GearSlotId } from './gearData';
+import { GEAR_LEVELS, getGearLevel, type GearSlotId } from './gearData';
 
 export interface GearSlotSelection {
   currentId: string;
@@ -10,18 +10,25 @@ export type GearSelections = Record<GearSlotId, GearSlotSelection>;
 export interface GearCalcResult {
   /** materialId -> total quantity required across all 6 slots. */
   materials: Record<string, number>;
-  coins: number;
-  statBonus: GearStatBonus;
+  /** Sum, across all 6 slots, of each slot's CURRENT cumulative %. */
+  currentTotalAttrPercent: number;
+  /** Sum, across all 6 slots, of each slot's TARGET cumulative %. */
+  targetTotalAttrPercent: number;
+  /** targetTotalAttrPercent - currentTotalAttrPercent. */
+  totalAttrPercent: number;
   /** Slots where target is set below current -- nothing counted for these. */
   invalidSlots: GearSlotId[];
 }
 
-/** Sums the incremental cost/stat of every level strictly after `current`
- * up to and including `target`, for every gear slot, into one grand total. */
+/** Materials are summed from every level strictly after `current` up to and
+ * including `target` (each level's cost is the incremental cost of that one
+ * step). Attribute % totals are summed directly from each slot's cumulative
+ * value (current and target separately), since the source data reports
+ * attrPercent as a running total, not a per-level increment. */
 export function calcGearPlan(selections: GearSelections): GearCalcResult {
   const materials: Record<string, number> = {};
-  let coins = 0;
-  const statBonus: GearStatBonus = { attack: 0, defense: 0, lethality: 0, health: 0 };
+  let currentTotalAttrPercent = 0;
+  let targetTotalAttrPercent = 0;
   const invalidSlots: GearSlotId[] = [];
 
   for (const slotId of Object.keys(selections) as GearSlotId[]) {
@@ -29,22 +36,29 @@ export function calcGearPlan(selections: GearSelections): GearCalcResult {
     const current = getGearLevel(sel.currentId);
     const target = getGearLevel(sel.targetId);
     if (!current || !target) continue;
+
+    currentTotalAttrPercent += current.attrPercent;
+
     if (target.order < current.order) {
       invalidSlots.push(slotId);
+      targetTotalAttrPercent += current.attrPercent;
       continue;
     }
 
     const steps = GEAR_LEVELS.filter((l) => l.order > current.order && l.order <= target.order);
     for (const step of steps) {
-      if (step.cost.designId) materials[step.cost.designId] = (materials[step.cost.designId] ?? 0) + step.cost.designQty;
-      if (step.cost.materialId) materials[step.cost.materialId] = (materials[step.cost.materialId] ?? 0) + step.cost.materialQty;
-      coins += step.cost.coins;
-      statBonus.attack += step.statBonus.attack;
-      statBonus.defense += step.statBonus.defense;
-      statBonus.lethality += step.statBonus.lethality;
-      statBonus.health += step.statBonus.health;
+      materials.satin = (materials.satin ?? 0) + step.cost.satin;
+      materials.gildedThreads = (materials.gildedThreads ?? 0) + step.cost.gildedThreads;
+      materials.artisansVision = (materials.artisansVision ?? 0) + step.cost.artisansVision;
     }
+    targetTotalAttrPercent += target.attrPercent;
   }
 
-  return { materials, coins, statBonus, invalidSlots };
+  return {
+    materials,
+    currentTotalAttrPercent,
+    targetTotalAttrPercent,
+    totalAttrPercent: targetTotalAttrPercent - currentTotalAttrPercent,
+    invalidSlots,
+  };
 }

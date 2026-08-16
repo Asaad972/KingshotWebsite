@@ -50,12 +50,12 @@ export function BeltIcon() {
   );
 }
 
-export function WeaponIcon() {
+export function StaffIcon() {
   return (
     <svg {...ICON_PROPS} className="h-6 w-6">
-      <path d="M6 18 17 7" strokeLinecap="round" />
-      <path d="M14 4l6 6-2.5 2.5-6-6L14 4Z" strokeLinejoin="round" />
-      <path d="M4 20l2-4 2 2-4 2Z" strokeLinejoin="round" />
+      <path d="M12 4v16" strokeLinecap="round" />
+      <circle cx="12" cy="5.5" r="2.3" />
+      <path d="M8.5 20h7" strokeLinecap="round" />
     </svg>
   );
 }
