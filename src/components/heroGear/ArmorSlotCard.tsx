@@ -6,6 +6,8 @@ import type { ArmorSelection } from '@/lib/heroGearCalc';
 import LevelSlider from './LevelSlider';
 import ThresholdBadgeList from './ThresholdBadgeList';
 
+const MILESTONE_LEVELS = [120, 140, 160, 180, 200];
+
 export default function ArmorSlotCard({
   slotId,
   label,
@@ -45,8 +47,22 @@ export default function ArmorSlotCard({
 
       <div className="flex flex-col gap-2">
         <p className="text-[10px] font-medium text-parchment-500">Level (0-{ARMOR_MAX_LEVEL})</p>
-        <LevelSlider label="Current" value={currentLevel} min={0} max={ARMOR_MAX_LEVEL} onChange={setCurrentLevel} />
-        <LevelSlider label="Target" value={targetLevel} min={currentLevel} max={ARMOR_MAX_LEVEL} onChange={setTargetLevel} />
+        <LevelSlider
+          label="Current"
+          value={currentLevel}
+          min={0}
+          max={ARMOR_MAX_LEVEL}
+          onChange={setCurrentLevel}
+          snapPoints={MILESTONE_LEVELS}
+        />
+        <LevelSlider
+          label="Target"
+          value={targetLevel}
+          min={currentLevel}
+          max={ARMOR_MAX_LEVEL}
+          onChange={setTargetLevel}
+          snapPoints={MILESTONE_LEVELS}
+        />
       </div>
 
       <div className="flex flex-col gap-2">
