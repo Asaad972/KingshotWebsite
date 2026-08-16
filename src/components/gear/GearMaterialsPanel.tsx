@@ -35,6 +35,7 @@ export default function GearMaterialsPanel({
             const req = required[m.id] ?? 0;
             const own = owned[m.id] ?? 0;
             const needed = Math.max(0, req - own);
+            const extra = Math.max(0, own - req);
             const ready = needed === 0;
             return (
               <div key={m.id} className="rounded-md border border-stone-700 bg-stone-950/60 p-3 flex flex-col gap-2.5">
@@ -66,7 +67,11 @@ export default function GearMaterialsPanel({
                     ready ? 'bg-moss-500/15 text-moss-500' : 'bg-ember-500/15 text-ember-500'
                   }`}
                 >
-                  {ready ? "You're ready ✓" : `Need ${needed.toLocaleString()} more`}
+                  {ready
+                    ? extra > 0
+                      ? `You're ready ✓ (+${extra.toLocaleString()} extra)`
+                      : "You're ready ✓"
+                    : `Need ${needed.toLocaleString()} more`}
                 </div>
               </div>
             );
