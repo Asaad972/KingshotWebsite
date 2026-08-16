@@ -58,7 +58,7 @@ export default function ArmorSlotCard({
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
-          <Image src="/heroGear/materials/xp.webp" alt="" width={16} height={16} className="h-4 w-4 rounded object-cover" />
+          <Image src="/heroGear/materials/xp.webp" alt="" width={24} height={24} className="h-6 w-6 rounded object-cover" />
           <p className="text-[10px] font-medium text-parchment-500">Level (0-{ARMOR_MAX_LEVEL})</p>
         </div>
         <LevelSlider
@@ -110,9 +110,9 @@ export default function ArmorSlotCard({
           <Image
             src="/heroGear/materials/forgehammers.png"
             alt=""
-            width={16}
-            height={16}
-            className="h-4 w-4 rounded object-cover"
+            width={24}
+            height={24}
+            className="h-6 w-6 rounded object-cover"
           />
           <p className="text-[10px] font-medium text-parchment-500">Mastery Forging (0-{MASTERY_MAX_LEVEL})</p>
         </div>
