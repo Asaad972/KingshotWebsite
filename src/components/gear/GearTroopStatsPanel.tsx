@@ -27,18 +27,18 @@ export default function GearTroopStatsPanel({ troopStats }: { troopStats: Record
           return (
             <div key={troop} className="rounded-md border border-stone-700 bg-stone-950/60 p-3">
               <p className="text-sm font-semibold text-gold-300 mb-2">{TROOP_LABELS[troop]}</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
                 {(['Attack', 'Defense'] as const).map((label) => (
-                  <div key={label} className="flex flex-col">
-                    <span className="text-[11px] uppercase tracking-wide text-parchment-500">{label}</span>
-                    <span className="flex items-baseline gap-2 tabular-nums mt-0.5">
-                      <span className={`text-lg font-bold ${improved ? 'text-parchment-400' : 'text-parchment-200'}`}>
+                  <div key={label} className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-parchment-400 shrink-0">{label}</span>
+                    <span className="flex items-baseline gap-1.5 flex-wrap justify-end tabular-nums">
+                      <span className={`text-sm font-semibold ${improved ? 'text-parchment-400' : 'text-parchment-200'}`}>
                         {formatPercent(stat.current)}
                       </span>
                       {improved && (
                         <>
-                          <span className="text-parchment-600">&rarr;</span>
-                          <span className="text-lg font-bold text-moss-500">{formatPercent(stat.target)}</span>
+                          <span className="text-parchment-600 text-xs">&rarr;</span>
+                          <span className="text-sm font-bold text-moss-500">{formatPercent(stat.target)}</span>
                         </>
                       )}
                     </span>

@@ -72,9 +72,9 @@ export function CrownIcon() {
 export function SatinIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-full w-full">
-      <rect x="3" y="9" width="18" height="7" rx="2" fill="currentColor" />
-      <circle cx="6.3" cy="12.5" r="1.6" fill="#0e1116" opacity="0.35" />
-      <circle cx="17.7" cy="12.5" r="1.6" fill="#0e1116" opacity="0.35" />
+      <path d="M4 13.5c3.5-2.4 8-3.6 12.5-2.6 1.6.35 3 .9 3.5 1.6-2.6-.9-5.6-.5-8 .6-2.7 1.2-5.5 1.6-8 .4Z" fill="currentColor" opacity="0.85" />
+      <circle cx="6.2" cy="15.2" r="3.6" fill="currentColor" />
+      <path d="M4.6 13.6c1.6.5 2.6 1.9 2.2 3.4" stroke="#0e1116" strokeWidth="1" fill="none" opacity="0.3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -82,8 +82,9 @@ export function SatinIcon() {
 export function ThreadIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-full w-full">
-      <rect x="7" y="3" width="10" height="18" rx="3" fill="currentColor" />
-      <path d="M8 7h8M8 12h8M8 17h8" stroke="#0e1116" strokeWidth="1.3" strokeLinecap="round" opacity="0.35" />
+      <rect x="7.5" y="3" width="9" height="17" rx="4.5" fill="currentColor" />
+      <path d="M8 6.5h8M8 10h8M8 13.5h8M8 17h8" stroke="#0e1116" strokeWidth="1.1" opacity="0.3" strokeLinecap="round" />
+      <path d="M9.5 19.5c-1.6.8-2.3 2-1.8 3" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
     </svg>
   );
 }
@@ -91,7 +92,10 @@ export function ThreadIcon() {
 export function VisionIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5-2-6.5L3.5 11 10 9l2-6.5Z" fill="currentColor" />
+      <rect x="3.5" y="8.5" width="15" height="7.5" rx="3.2" fill="currentColor" />
+      <path d="M6 12h7" stroke="#0e1116" strokeWidth="1" opacity="0.3" strokeLinecap="round" />
+      <circle cx="18" cy="7" r="2.8" fill="#e11d48" />
+      <circle cx="18" cy="7" r="1.1" fill="#fecdd3" />
     </svg>
   );
 }
