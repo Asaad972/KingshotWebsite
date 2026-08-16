@@ -42,6 +42,11 @@ const tr: typeof en = {
     speedupsGuideBody:
       'Genel Bakış\'ı açmak için ekranınızın üstündeki kaynak çubuğuna dokunun, ardından "Hızlandırmalar" sekmesine geçin. Genel, Asker Eğitimi, İnşaat ve Araştırma hızlandırmalarınızın göründüğünden emin olun, aşağıdaki örnekteki gibi.',
     exampleImageMissing: 'Örnek görsel henüz eklenmedi',
+    quickLinkBookSubtitle: 'Kale randevusu için başvur',
+    quickLinkScheduleSubtitle: 'Kimde hangi slot var, gör',
+    quickLinkRallyTimerSubtitle: 'Rally vuruş zamanlamasını planla',
+    quickLinkGiftCodesSubtitle: 'Aktif kodlar, otomatik kullanım',
+    exploreTitle: 'Keşfet',
   },
   tutorial: {
     step1Title: 'Ana hesap ekran görüntünüzü hazırlayın',

@@ -42,6 +42,11 @@ const ar: typeof en = {
     speedupsGuideBody:
       'اضغط على شريط الموارد أعلى الشاشة لفتح النظرة العامة، ثم انتقل إلى تبويب "التسريعات". تأكد من ظهور تسريعات التدريب العام وتدريب الجنود والبناء والبحث، كما في المثال أدناه.',
     exampleImageMissing: 'لم تتم إضافة صورة توضيحية بعد',
+    quickLinkBookSubtitle: 'قدّم طلبًا لحجز موعد القلعة',
+    quickLinkScheduleSubtitle: 'تعرّف على من يملك أي موعد',
+    quickLinkRallyTimerSubtitle: 'خطط لتوقيت التجمع',
+    quickLinkGiftCodesSubtitle: 'الأكواد النشطة، استرداد تلقائي',
+    exploreTitle: 'استكشف',
   },
   tutorial: {
     step1Title: 'جهّز لقطة شاشة لحسابك الرئيسي',

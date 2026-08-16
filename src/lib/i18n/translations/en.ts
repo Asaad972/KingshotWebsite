@@ -40,6 +40,11 @@ const en = {
     speedupsGuideBody:
       "Tap the resource bar at the top of your screen to open the Overview, then switch to the \"Speedups\" tab. Make sure your General, Soldier Training, Construction and Research speedups are visible, like the example below.",
     exampleImageMissing: 'Example image not added yet',
+    quickLinkBookSubtitle: 'Apply for a castle time slot',
+    quickLinkScheduleSubtitle: 'See who has which slot',
+    quickLinkRallyTimerSubtitle: 'Plan rally hit timing',
+    quickLinkGiftCodesSubtitle: 'Active codes, auto-redeem',
+    exploreTitle: 'Explore',
   },
   tutorial: {
     step1Title: 'Prepare your main account screenshot',

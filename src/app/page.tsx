@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n';
 import UTCClock from '@/components/UTCClock';
 import Tutorial from '@/components/Tutorial';
 import ExampleScreenshot from '@/components/ExampleScreenshot';
+import QuickLinksGrid from '@/components/QuickLinksGrid';
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -51,6 +52,20 @@ export default function HomePage() {
             {t('home.viewTutorialAgain')}
           </button>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-parchment-400 mb-3">{t('home.exploreTitle')}</h2>
+        <QuickLinksGrid
+          bookTitle={t('home.bookButton')}
+          bookSubtitle={t('home.quickLinkBookSubtitle')}
+          scheduleTitle={t('home.viewSchedule')}
+          scheduleSubtitle={t('home.quickLinkScheduleSubtitle')}
+          rallyTimerTitle={t('home.rallyTimerNav')}
+          rallyTimerSubtitle={t('home.quickLinkRallyTimerSubtitle')}
+          giftCodesTitle={t('home.giftCodesNav')}
+          giftCodesSubtitle={t('home.quickLinkGiftCodesSubtitle')}
+        />
       </div>
 
       <div className="mt-8">
