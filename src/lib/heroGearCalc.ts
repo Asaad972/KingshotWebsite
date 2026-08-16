@@ -52,7 +52,7 @@ function thresholdTotals(level: number, variant: 'A' | 'B'): Partial<Record<Stat
   return totals;
 }
 
-export function calcHeroGearPlan(armor: ArmorSelections, weaponCurrent: number, weaponTarget: number): HeroGearCalcResult {
+export function calcHeroGearPlan(armor: ArmorSelections): HeroGearCalcResult {
   const materials: HeroGearMaterials = { xp: 0, mithril: 0, mythicGears: 0, forgehammers: 0 };
   const statBonus = emptyStats();
 
@@ -84,12 +84,6 @@ export function calcHeroGearPlan(armor: ArmorSelections, weaponCurrent: number, 
     for (const stat of Object.keys(targetThresholds) as StatId[]) {
       statBonus[stat] += (targetThresholds[stat] ?? 0) - (currentThresholds[stat] ?? 0);
     }
-  }
-
-  if (weaponTarget > weaponCurrent) {
-    const delta = (weaponTarget - weaponCurrent) * 6.25;
-    statBonus.lethality += delta;
-    statBonus.health += delta;
   }
 
   return { materials, statBonus };

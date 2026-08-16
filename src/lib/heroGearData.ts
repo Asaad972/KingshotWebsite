@@ -23,19 +23,14 @@
 // bonuses that unlock once its Level crosses 120/140/160/180/200 -- these
 // are flat, one-time, and NOT affected by Mastery (confirmed via testing).
 //
-// The Weapon uses a much simpler 0-10 level scale with no separate Mastery
-// axis and no threshold bonuses -- confirmed it grants +6.25%/level to BOTH
-// Lethality and Health simultaneously (linear, verified at levels 5 and 10).
-// Its exact material cost (Hero Weapon pieces / Hero Shards, per the
-// reference site's Inventory panel) is NOT published anywhere checked, so
-// it's intentionally left out of material totals rather than guessed --
-// only its stat contribution is modeled.
+// Per the user (2026-08-16): the Weapon piece is not tracked at all -- only
+// the 4 armor pieces (Helm, Chestplate, Gloves, Boots).
 //
 // There is no per-piece troop-type mapping like Governor Gear has: hero
 // gear's troop type depends on which hero equips it, and per the user we
-// are not modeling hero selection -- so stat bonuses are shown as flat
-// totals (Attack/Defense/Lethality/Health/Hero Health (Arena)), not split
-// by troop type.
+// are not modeling hero selection -- instead the UI keeps one independent
+// gear plan per troop type (Infantry/Cavalry/Archers), so stat bonuses are
+// computed and shown separately for each.
 
 // One gear plan per troop type -- since we aren't tracking specific hero
 // names/stars, Infantry/Cavalry/Archers act as 3 independent "slots" for
@@ -114,7 +109,6 @@ export const THRESHOLDS: Record<ThresholdVariant, ThresholdBonus[]> = { A: THRES
 
 export const ARMOR_MAX_LEVEL = 200;
 export const MASTERY_MAX_LEVEL = 20;
-export const WEAPON_MAX_LEVEL = 10;
 
 /** Cumulative primary-stat % at a given armor Level (0-200), before Mastery
  * multiplier. Piecewise-linear: confirmed level 0->0 (not the raw sheet's

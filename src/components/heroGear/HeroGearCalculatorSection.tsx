@@ -7,7 +7,6 @@ import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { useProfiles } from '@/lib/useProfiles';
 import ProfileBar from '@/components/shared/ProfileBar';
 import ArmorSlotCard from './ArmorSlotCard';
-import WeaponSlotCard from './WeaponSlotCard';
 import HeroGearMaterialsPanel from './HeroGearMaterialsPanel';
 import HeroGearStatsPanel from './HeroGearStatsPanel';
 
@@ -15,8 +14,6 @@ const TROOP_ORDER: TroopType[] = ['infantry', 'cavalry', 'archers'];
 
 interface TroopGearPlan {
   armor: ArmorSelections;
-  weaponCurrent: number;
-  weaponTarget: number;
 }
 
 interface SavedState {
@@ -33,7 +30,7 @@ function makeEmptyArmorSelections(): ArmorSelections {
 }
 
 function makeEmptyTroopPlan(): TroopGearPlan {
-  return { armor: makeEmptyArmorSelections(), weaponCurrent: 0, weaponTarget: 0 };
+  return { armor: makeEmptyArmorSelections() };
 }
 
 function makeEmptyAllPlans(): Record<TroopType, TroopGearPlan> {
@@ -52,6 +49,9 @@ function makeEmptyAllPlans(): Record<TroopType, TroopGearPlan> {
  * refreshing the page doesn't reset your plan, and the Profiles bar
  * (src/lib/useProfiles.ts + src/components/shared/ProfileBar.tsx) lets you
  * save/switch between several named setups on top of that.
+ *
+ * Only the 4 armor pieces (Helm, Chestplate, Gloves, Boots) are tracked --
+ * no Weapon, per the user.
  */
 export default function HeroGearCalculatorSection() {
   const [plans, setPlans] = useLocalStorageState<Record<TroopType, TroopGearPlan>>('heroGear:plans', makeEmptyAllPlans());
@@ -63,7 +63,7 @@ export default function HeroGearCalculatorSection() {
     const out = {} as Record<TroopType, ReturnType<typeof calcHeroGearPlan>>;
     for (const troop of TROOP_ORDER) {
       const plan = plans[troop];
-      out[troop] = calcHeroGearPlan(plan.armor, plan.weaponCurrent, plan.weaponTarget);
+      out[troop] = calcHeroGearPlan(plan.armor);
     }
     return out;
   }, [plans]);
@@ -90,12 +90,6 @@ export default function HeroGearCalculatorSection() {
 
   const handleArmorChange = (slotId: ArmorSlotId, next: ArmorSelection) => {
     setPlans((prev) => ({ ...prev, [activeTroop]: { ...prev[activeTroop], armor: { ...prev[activeTroop].armor, [slotId]: next } } }));
-  };
-  const setWeaponCurrent = (v: number) => {
-    setPlans((prev) => ({ ...prev, [activeTroop]: { ...prev[activeTroop], weaponCurrent: v } }));
-  };
-  const setWeaponTarget = (v: number) => {
-    setPlans((prev) => ({ ...prev, [activeTroop]: { ...prev[activeTroop], weaponTarget: v } }));
   };
 
   const handleResetActive = () => {
@@ -163,12 +157,6 @@ export default function HeroGearCalculatorSection() {
               onChange={handleArmorChange}
             />
           ))}
-          <WeaponSlotCard
-            current={activePlan.weaponCurrent}
-            target={activePlan.weaponTarget}
-            onChangeCurrent={setWeaponCurrent}
-            onChangeTarget={setWeaponTarget}
-          />
         </div>
 
         <div className="flex flex-col gap-3">

@@ -36,13 +36,3 @@ export function BootsIcon() {
     </svg>
   );
 }
-
-export function WeaponIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M6 18 17 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M14 4l6 6-2.5 2.5-6-6L14 4Z" fill="currentColor" />
-      <path d="M4 20l2-4 2 2-4 2Z" fill="currentColor" opacity="0.8" />
-    </svg>
-  );
-}
