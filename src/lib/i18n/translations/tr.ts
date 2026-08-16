@@ -24,18 +24,18 @@ const tr: typeof en = {
     en: 'İngilizce',
   },
   home: {
-    title: 'Kale Randevuları',
+    welcomeTitle: 'Kingdom #1781\'e Hoş Geldiniz',
+    welcomeBody:
+      'Burası kale randevularını, rally zamanlamasını ve hediye kodlarını koordine ettiğimiz ana merkezimiz. Başlamak için aşağıdaki bağlantıları kullanın.',
     intro:
       'Size uygun zamanları seçerek kale randevunuzu oluşturun. Yöneticiler başvurunuzu inceleyip size uygun bir zaman dilimi atayacaktır.',
     bookButton: 'Randevu Al',
     viewSchedule: 'Kale Takvimini Görüntüle',
-    viewTutorialAgain: 'Rehberi tekrar göster',
     rallyTimerNav: 'Rally Zamanlayıcı',
     giftCodesNav: 'Hediye Kodları',
     howItWorksTitle: 'Nasıl Çalışır',
     step4Title: 'Atama yapılır',
     step4Body: 'Yönetici başvurunuzu inceler ve size bir kale randevusu atar.',
-    tagline: 'Kale zamanınızı kolayca planlayın.',
     screenshotGuideTitle: 'Ekran görüntüleriniz şöyle görünmeli',
     mainAccountGuideBody:
       'Profilinizi açın (karakter portrenize dokunun). İsminizin, ID\'nizin, Gücünüzün, Öldürme sayınızın, İttifakınızın ve Krallığınızın göründüğünden emin olun, aşağıdaki örnekteki gibi.',

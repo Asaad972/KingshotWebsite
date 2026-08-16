@@ -22,18 +22,18 @@ const en = {
     en: 'English',
   },
   home: {
-    title: 'Castle Appointments',
+    welcomeTitle: 'Welcome to Kingdom #1781',
+    welcomeBody:
+      'This is our home base for coordinating castle appointments, rally timing, and gift codes. Use the links below to get started.',
     intro:
       'Book your castle appointment by selecting the times that work best for you. Admins will review your application and assign you one available slot.',
     bookButton: 'Book Your Slot',
     viewSchedule: 'View Castle Schedule',
-    viewTutorialAgain: 'View tutorial again',
     rallyTimerNav: 'Rally Timer',
     giftCodesNav: 'Gift Codes',
     howItWorksTitle: 'How It Works',
     step4Title: 'Get assigned',
     step4Body: 'The admin reviews your application and assigns you one castle appointment.',
-    tagline: 'Plan your castle time easily.',
     screenshotGuideTitle: 'What your screenshots should look like',
     mainAccountGuideBody:
       'Open your profile (tap your character portrait). Make sure your name, ID, Power, Kills, Alliance and Kingdom are visible, like the example below.',
