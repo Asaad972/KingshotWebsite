@@ -95,10 +95,11 @@ export function getCharmLevel(id: string): CharmLevel | undefined {
 export interface CharmMaterialDef {
   id: 'guides' | 'designs';
   label: string;
-  dot: string;
+  /** Real in-game icon (user-provided), already includes its own colored background. */
+  icon: string;
 }
 
 export const CHARM_MATERIALS: CharmMaterialDef[] = [
-  { id: 'guides', label: 'Charm Guides', dot: 'bg-sky-500' },
-  { id: 'designs', label: 'Charm Designs', dot: 'bg-rose-500' },
+  { id: 'guides', label: 'Charm Guides', icon: '/charm/materials/guide.png' },
+  { id: 'designs', label: 'Charm Designs', icon: '/charm/materials/design.png' },
 ];

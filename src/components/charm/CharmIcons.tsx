@@ -60,22 +60,3 @@ export function StaffIcon() {
     </svg>
   );
 }
-
-export function GuideIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <rect x="4" y="3" width="14" height="18" rx="2" fill="currentColor" />
-      <path d="M7 7h8M7 11h8M7 15h5" stroke="#0e1116" strokeWidth="1.2" opacity="0.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-export function DesignIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M6 3h9l4 4v14H6Z" fill="currentColor" />
-      <path d="M15 3v4h4" fill="none" stroke="#0e1116" strokeWidth="1.1" opacity="0.35" strokeLinejoin="round" />
-      <circle cx="10.5" cy="14" r="2.6" fill="none" stroke="#0e1116" strokeWidth="1.1" opacity="0.35" />
-    </svg>
-  );
-}

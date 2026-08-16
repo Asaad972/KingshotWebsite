@@ -1,12 +1,7 @@
 'use client';
 
+import Image from 'next/image';
 import { CHARM_MATERIALS } from '@/lib/charmData';
-import { GuideIcon, DesignIcon } from './CharmIcons';
-
-const MATERIAL_ICONS: Record<string, React.ReactNode> = {
-  guides: <GuideIcon />,
-  designs: <DesignIcon />,
-};
 
 export default function CharmMaterialsPanel({
   required,
@@ -34,7 +29,13 @@ export default function CharmMaterialsPanel({
           return (
             <div key={m.id} className="rounded-md border border-stone-700 bg-stone-950/60 p-3 flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
-                <div className={`h-11 w-11 shrink-0 rounded-lg p-2 text-stone-950 ${m.dot}`}>{MATERIAL_ICONS[m.id]}</div>
+                <Image
+                  src={m.icon}
+                  alt={m.label}
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
                   <p className="text-xs text-parchment-500">
