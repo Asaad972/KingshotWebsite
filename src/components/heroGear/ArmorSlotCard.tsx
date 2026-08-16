@@ -6,7 +6,7 @@ import type { ArmorSelection } from '@/lib/heroGearCalc';
 import LevelSlider from './LevelSlider';
 import ThresholdBadgeList from './ThresholdBadgeList';
 
-const MILESTONE_LEVELS = [120, 140, 160, 180, 200];
+const MILESTONE_LEVELS = [100, 120, 140, 160, 180, 200];
 
 export default function ArmorSlotCard({
   slotId,
@@ -55,6 +55,20 @@ export default function ArmorSlotCard({
           onChange={setCurrentLevel}
           snapPoints={MILESTONE_LEVELS}
         />
+        <div className="flex gap-1 flex-wrap">
+          {MILESTONE_LEVELS.map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setCurrentLevel(m)}
+              className={`focus-ring rounded px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                currentLevel === m ? 'bg-gold-500 text-stone-950' : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-gold-600'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
         <LevelSlider
           label="Target"
           value={targetLevel}
