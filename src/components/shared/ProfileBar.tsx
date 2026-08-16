@@ -2,10 +2,21 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+interface Position {
+  top: number;
+  left: number;
+  width: number;
+}
+
 /** Save/load named snapshots of a calculator's state, generic over the
  * shape T. Auto-save (useLocalStorageState) already keeps you from losing
  * work on refresh -- this is for keeping several distinct named setups
- * (e.g. one per player) side by side. */
+ * (e.g. one per player) side by side.
+ *
+ * Uses `position: fixed` with a JS-computed, viewport-clamped position
+ * (same pattern as GearLevelDropdown etc.) instead of CSS `absolute right-0`
+ * -- the latter clipped off-screen on mobile when the trigger button wasn't
+ * near the right edge. */
 export default function ProfileBar<T>({
   profiles,
   onLoad,
@@ -18,24 +29,45 @@ export default function ProfileBar<T>({
   onDelete: (name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<Position | null>(null);
   const [name, setName] = useState('');
-  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const names = Object.keys(profiles);
+
+  const openPanel = () => {
+    const rect = triggerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const panelWidth = 256;
+    const left = Math.min(Math.max(8, rect.right - panelWidth), window.innerWidth - panelWidth - 8);
+    setPosition({ top: rect.bottom + 6, left: Math.max(8, left), width: panelWidth });
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (!open) return;
     const onDocPointerDown = (e: PointerEvent) => {
-      if (rootRef.current?.contains(e.target as Node)) return;
+      const target = e.target as Node;
+      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) return;
       setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
+    const close = () => setOpen(false);
+    const onScroll = (e: Event) => {
+      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
+      setOpen(false);
+    };
     document.addEventListener('pointerdown', onDocPointerDown);
     window.addEventListener('keydown', onKey);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', close);
     return () => {
       document.removeEventListener('pointerdown', onDocPointerDown);
       window.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', close);
     };
   }, [open]);
 
@@ -46,10 +78,11 @@ export default function ProfileBar<T>({
   };
 
   return (
-    <div className="relative" ref={rootRef}>
+    <div>
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => (open ? setOpen(false) : openPanel())}
         aria-expanded={open}
         className="focus-ring flex items-center gap-1.5 rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-parchment-200 hover:border-gold-600 transition-colors"
       >
@@ -57,8 +90,12 @@ export default function ProfileBar<T>({
         <span aria-hidden>{open ? '▲' : '▼'}</span>
       </button>
 
-      {open && (
-        <div className="absolute right-0 z-50 mt-1.5 w-64 rounded-md border border-stone-700 bg-stone-900 shadow-lg p-3 flex flex-col gap-2.5">
+      {open && position && (
+        <div
+          ref={panelRef}
+          className="fixed z-50 rounded-md border border-stone-700 bg-stone-900 shadow-lg p-3 flex flex-col gap-2.5"
+          style={{ top: position.top, left: position.left, width: position.width }}
+        >
           {names.length === 0 ? (
             <p className="text-xs text-parchment-500">No saved profiles yet.</p>
           ) : (
