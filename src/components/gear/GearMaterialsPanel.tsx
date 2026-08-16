@@ -18,7 +18,7 @@ export default function GearMaterialsPanel({
   owned: Record<string, number>;
   onChangeOwned: (materialId: string, value: number) => void;
 }) {
-  const usedMaterials = MATERIALS.filter((m) => (required[m.id] ?? 0) > 0);
+  const hasAnyPlan = MATERIALS.some((m) => (required[m.id] ?? 0) > 0);
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
@@ -27,11 +27,11 @@ export default function GearMaterialsPanel({
         <p className="text-[11px] text-parchment-500 mt-0.5">Enter what you already have -- we'll tell you how much more you need.</p>
       </div>
 
-      {usedMaterials.length === 0 ? (
+      {!hasAnyPlan ? (
         <p className="text-xs text-parchment-500">Set a Target above Current on at least one gear piece to see costs.</p>
       ) : (
         <div className="flex flex-col gap-2.5">
-          {usedMaterials.map((m) => {
+          {MATERIALS.map((m) => {
             const req = required[m.id] ?? 0;
             const own = owned[m.id] ?? 0;
             const needed = Math.max(0, req - own);
