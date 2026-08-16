@@ -65,6 +65,24 @@ function ArrowIcon() {
   );
 }
 
+function ShieldIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" strokeLinejoin="round" />
+      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function GemIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M5 9l3-5h8l3 5-7 11-7-11Z" strokeLinejoin="round" />
+      <path d="M5 9h14M9.5 4 8 9l4 11 4-11-1.5-5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -74,6 +92,10 @@ export default function QuickLinksGrid({
   rallyTimerSubtitle,
   giftCodesTitle,
   giftCodesSubtitle,
+  gearCalculatorTitle,
+  gearCalculatorSubtitle,
+  charmCalculatorTitle,
+  charmCalculatorSubtitle,
 }: {
   bookTitle: string;
   bookSubtitle: string;
@@ -83,12 +105,18 @@ export default function QuickLinksGrid({
   rallyTimerSubtitle: string;
   giftCodesTitle: string;
   giftCodesSubtitle: string;
+  gearCalculatorTitle: string;
+  gearCalculatorSubtitle: string;
+  charmCalculatorTitle: string;
+  charmCalculatorSubtitle: string;
 }) {
   const links: QuickLink[] = [
     { href: '/book', title: bookTitle, subtitle: bookSubtitle, tone: 'gold', icon: <CalendarIcon /> },
     { href: '/schedule', title: scheduleTitle, subtitle: scheduleSubtitle, tone: 'cyan', icon: <ListIcon /> },
     { href: '/rally-timer', title: rallyTimerTitle, subtitle: rallyTimerSubtitle, tone: 'gold', icon: <ClockIcon /> },
     { href: '/gift-codes', title: giftCodesTitle, subtitle: giftCodesSubtitle, tone: 'cyan', icon: <GiftIcon /> },
+    { href: '/gear-calculator', title: gearCalculatorTitle, subtitle: gearCalculatorSubtitle, tone: 'gold', icon: <ShieldIcon /> },
+    { href: '/charm-calculator', title: charmCalculatorTitle, subtitle: charmCalculatorSubtitle, tone: 'cyan', icon: <GemIcon /> },
   ];
 
   return (

@@ -46,6 +46,10 @@ const tr: typeof en = {
     quickLinkScheduleSubtitle: 'Kimde hangi slot var, gör',
     quickLinkRallyTimerSubtitle: 'Rally vuruş zamanlamasını planla',
     quickLinkGiftCodesSubtitle: 'Aktif kodlar, otomatik kullanım',
+    gearCalculatorNav: 'Ekipman Hesaplayıcı',
+    quickLinkGearCalculatorSubtitle: 'Vali Ekipman yükseltmelerini planla',
+    charmCalculatorNav: 'Tılsım Hesaplayıcı',
+    quickLinkCharmCalculatorSubtitle: 'Vali Tılsım yükseltmelerini planla',
     exploreTitle: 'Keşfet',
   },
   tutorial: {

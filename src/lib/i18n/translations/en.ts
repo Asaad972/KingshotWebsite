@@ -44,6 +44,10 @@ const en = {
     quickLinkScheduleSubtitle: 'See who has which slot',
     quickLinkRallyTimerSubtitle: 'Plan rally hit timing',
     quickLinkGiftCodesSubtitle: 'Active codes, auto-redeem',
+    gearCalculatorNav: 'Gear Calculator',
+    quickLinkGearCalculatorSubtitle: 'Plan Governor Gear upgrades',
+    charmCalculatorNav: 'Charm Calculator',
+    quickLinkCharmCalculatorSubtitle: 'Plan Governor Charm upgrades',
     exploreTitle: 'Explore',
   },
   tutorial: {

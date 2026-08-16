@@ -45,6 +45,10 @@ const ar: typeof en = {
     quickLinkScheduleSubtitle: 'تعرّف على من يملك أي موعد',
     quickLinkRallyTimerSubtitle: 'خطط لتوقيت التجمع',
     quickLinkGiftCodesSubtitle: 'الأكواد النشطة، استرداد تلقائي',
+    gearCalculatorNav: 'حاسبة العتاد',
+    quickLinkGearCalculatorSubtitle: 'خطط لترقيات عتاد الحاكم',
+    charmCalculatorNav: 'حاسبة التمائم',
+    quickLinkCharmCalculatorSubtitle: 'خطط لترقيات تمائم الحاكم',
     exploreTitle: 'استكشف',
   },
   tutorial: {

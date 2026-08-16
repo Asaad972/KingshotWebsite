@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useI18n } from '@/lib/i18n';
 import Tutorial from '@/components/Tutorial';
 import QuickLinksGrid from '@/components/QuickLinksGrid';
@@ -30,21 +29,12 @@ export default function HomePage() {
           rallyTimerSubtitle={t('home.quickLinkRallyTimerSubtitle')}
           giftCodesTitle={t('home.giftCodesNav')}
           giftCodesSubtitle={t('home.quickLinkGiftCodesSubtitle')}
+          gearCalculatorTitle={t('home.gearCalculatorNav')}
+          gearCalculatorSubtitle={t('home.quickLinkGearCalculatorSubtitle')}
+          charmCalculatorTitle={t('home.charmCalculatorNav')}
+          charmCalculatorSubtitle={t('home.quickLinkCharmCalculatorSubtitle')}
         />
       </div>
-
-      {/* --- Experimental: Governor Gear Calculator ---------------------
-          Isolated addition -- delete this block to remove the link without
-          touching QuickLinksGrid or anything else on this page. */}
-      <div className="mt-4 text-center">
-        <Link
-          href="/gear-calculator"
-          className="focus-ring inline-flex items-center gap-1.5 text-xs text-parchment-500 hover:text-gold-300 transition-colors rounded-md"
-        >
-          Trying out: Governor Gear Calculator (Beta)
-        </Link>
-      </div>
-      {/* --- end experimental block --- */}
     </div>
   );
 }
