@@ -43,6 +43,11 @@ export default function GearCalculatorSection() {
   const [selections, setSelections] = useLocalStorageState<GearSelections>('governorGear:selections', makeEmptySelections());
   const [owned, setOwned] = useLocalStorageState<Record<string, number>>('governorGear:owned', {});
   const { profiles, saveProfile, deleteProfile } = useProfiles<SavedState>('governorGear:profiles');
+  // Last value picked in the Quick set row -- purely so the dropdown's own
+  // label reflects the pick instead of reverting to "Choose..." (this
+  // doesn't represent real per-slot state, which can differ slot to slot).
+  const [bulkCurrentId, setBulkCurrentId] = useState('');
+  const [bulkTargetId, setBulkTargetId] = useState('');
 
   const plan = useMemo(() => calcGearPlan(selections), [selections]);
 
@@ -73,6 +78,7 @@ export default function GearCalculatorSection() {
       }
       return next;
     });
+    setBulkCurrentId(levelId);
   };
 
   const handleBulkSetTarget = (levelId: string) => {
@@ -86,11 +92,14 @@ export default function GearCalculatorSection() {
       }
       return next;
     });
+    setBulkTargetId(levelId);
   };
 
   const handleReset = () => {
     setSelections(makeEmptySelections());
     setOwned({});
+    setBulkCurrentId('');
+    setBulkTargetId('');
   };
 
   const handleChangeOwned = (materialId: string, value: number) => {
@@ -140,8 +149,8 @@ export default function GearCalculatorSection() {
       <div className="dashboard-card p-3 flex flex-col gap-2 mt-3">
         <p className="text-xs font-semibold text-parchment-300">Quick set (applies to all 6 pieces)</p>
         <div className="grid grid-cols-2 gap-2 max-w-sm">
-          <GearLevelDropdown id="bulk-current" label="Set all Current" levelId="" placeholder="Choose..." onSelect={handleBulkSetCurrent} />
-          <GearLevelDropdown id="bulk-target" label="Set all Target" levelId="" placeholder="Choose..." onSelect={handleBulkSetTarget} />
+          <GearLevelDropdown id="bulk-current" label="Set all Current" levelId={bulkCurrentId} placeholder="Choose..." onSelect={handleBulkSetCurrent} />
+          <GearLevelDropdown id="bulk-target" label="Set all Target" levelId={bulkTargetId} placeholder="Choose..." onSelect={handleBulkSetTarget} />
         </div>
       </div>
 
