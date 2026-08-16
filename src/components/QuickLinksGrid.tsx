@@ -83,6 +83,16 @@ function GemIcon() {
   );
 }
 
+function SwordIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M6 18 17 7" strokeLinecap="round" />
+      <path d="M14 4l6 6-2.5 2.5-6-6L14 4Z" strokeLinejoin="round" />
+      <path d="M4 20l2-4 2 2-4 2Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -96,6 +106,8 @@ export default function QuickLinksGrid({
   gearCalculatorSubtitle,
   charmCalculatorTitle,
   charmCalculatorSubtitle,
+  heroGearCalculatorTitle,
+  heroGearCalculatorSubtitle,
 }: {
   bookTitle: string;
   bookSubtitle: string;
@@ -109,6 +121,8 @@ export default function QuickLinksGrid({
   gearCalculatorSubtitle: string;
   charmCalculatorTitle: string;
   charmCalculatorSubtitle: string;
+  heroGearCalculatorTitle: string;
+  heroGearCalculatorSubtitle: string;
 }) {
   const links: QuickLink[] = [
     { href: '/book', title: bookTitle, subtitle: bookSubtitle, tone: 'gold', icon: <CalendarIcon /> },
@@ -117,6 +131,7 @@ export default function QuickLinksGrid({
     { href: '/gift-codes', title: giftCodesTitle, subtitle: giftCodesSubtitle, tone: 'cyan', icon: <GiftIcon /> },
     { href: '/gear-calculator', title: gearCalculatorTitle, subtitle: gearCalculatorSubtitle, tone: 'gold', icon: <ShieldIcon /> },
     { href: '/charm-calculator', title: charmCalculatorTitle, subtitle: charmCalculatorSubtitle, tone: 'cyan', icon: <GemIcon /> },
+    { href: '/hero-gear-calculator', title: heroGearCalculatorTitle, subtitle: heroGearCalculatorSubtitle, tone: 'gold', icon: <SwordIcon /> },
   ];
 
   return (

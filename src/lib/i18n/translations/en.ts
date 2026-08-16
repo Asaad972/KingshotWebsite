@@ -48,6 +48,8 @@ const en = {
     quickLinkGearCalculatorSubtitle: 'Plan Governor Gear upgrades',
     charmCalculatorNav: 'Charm Calculator',
     quickLinkCharmCalculatorSubtitle: 'Plan Governor Charm upgrades',
+    heroGearCalculatorNav: 'Hero Gear Calculator',
+    quickLinkHeroGearCalculatorSubtitle: 'Plan hero gear & weapon upgrades',
     exploreTitle: 'Explore',
   },
   tutorial: {
