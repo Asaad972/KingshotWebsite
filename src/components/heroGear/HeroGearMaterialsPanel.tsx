@@ -3,10 +3,10 @@
 import Image from 'next/image';
 import type { HeroGearMaterials } from '@/lib/heroGearCalc';
 
-const MATERIALS: { id: keyof HeroGearMaterials; label: string; icon?: string; dot?: string }[] = [
+const MATERIALS: { id: keyof HeroGearMaterials; label: string; icon: string }[] = [
   { id: 'xp', label: 'Hero Gear XP', icon: '/heroGear/materials/xp.webp' },
   { id: 'mithril', label: 'Mithril', icon: '/heroGear/materials/mithril.png' },
-  { id: 'mythicGears', label: 'Mythic Gears', dot: 'bg-purple-500' },
+  { id: 'mythicGears', label: 'Mythic Gears', icon: '/heroGear/pieces/chestplate.png' },
   { id: 'forgehammers', label: 'Forgehammers', icon: '/heroGear/materials/forgehammers.png' },
 ];
 
@@ -38,11 +38,7 @@ export default function HeroGearMaterialsPanel({
           return (
             <div key={m.id} className="rounded-md border border-stone-700 bg-stone-950/60 p-3 flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
-                {m.icon ? (
-                  <Image src={m.icon} alt={m.label} width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
-                ) : (
-                  <span className={`h-3 w-3 rounded-full shrink-0 ${m.dot}`} aria-hidden />
-                )}
+                <Image src={m.icon} alt={m.label} width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
                   <p className="text-xs text-parchment-500">
