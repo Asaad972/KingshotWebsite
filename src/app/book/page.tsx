@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n';
 import UTCClock from '@/components/UTCClock';
 import SlotSelector from '@/components/SlotSelector';
 import ApplicationSidebar from '@/components/ApplicationSidebar';
+import BookingGuide from '@/components/BookingGuide';
 import { deriveDisplayStatus, generateSlotStartTimes } from '@/lib/slots';
 import type { CastleSlot, EventSettings } from '@/types';
 
@@ -285,6 +286,8 @@ export default function BookPage() {
       </div>
 
       <h1 className="text-lg font-semibold text-parchment-100 mb-4">{t('booking.pageTitle')}</h1>
+
+      <BookingGuide />
 
       {previewMode && (
         <div className="mb-4 rounded border-l-2 border-sky-500 bg-stone-900 px-3 py-2 text-sm text-sky-300">
