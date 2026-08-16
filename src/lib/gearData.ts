@@ -56,6 +56,8 @@ interface TierMeta {
   bg: string;
   ring: string;
   dot: string;
+  /** Raw hex -- native <option> elements can't be styled with Tailwind classes. */
+  hex: string;
 }
 
 // Class names are written out in full (not built from template strings)
@@ -70,6 +72,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-emerald-500/10',
     ring: 'ring-emerald-500/70',
     dot: 'bg-emerald-500',
+    hex: '#34d399',
   },
   blue: {
     label: 'Blue',
@@ -78,6 +81,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-blue-500/10',
     ring: 'ring-blue-500/70',
     dot: 'bg-blue-500',
+    hex: '#60a5fa',
   },
   purple: {
     label: 'Purple',
@@ -86,6 +90,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-purple-500/10',
     ring: 'ring-purple-500/70',
     dot: 'bg-purple-500',
+    hex: '#c084fc',
   },
   purpleT1: {
     label: 'Purple T1',
@@ -94,6 +99,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-purple-400/10',
     ring: 'ring-purple-400/70',
     dot: 'bg-purple-400',
+    hex: '#d8b4fe',
   },
   gold: {
     label: 'Gold',
@@ -102,6 +108,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-amber-500/10',
     ring: 'ring-amber-500/70',
     dot: 'bg-amber-500',
+    hex: '#fbbf24',
   },
   goldT1: {
     label: 'Gold T1',
@@ -110,6 +117,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-amber-400/10',
     ring: 'ring-amber-400/70',
     dot: 'bg-amber-400',
+    hex: '#fcd34d',
   },
   goldT2: {
     label: 'Gold T2',
@@ -118,6 +126,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-amber-400/10',
     ring: 'ring-amber-400/70',
     dot: 'bg-amber-400',
+    hex: '#fcd34d',
   },
   goldT3: {
     label: 'Gold T3',
@@ -126,6 +135,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-amber-300/10',
     ring: 'ring-amber-300/70',
     dot: 'bg-amber-300',
+    hex: '#fde68a',
   },
   red: {
     label: 'Red',
@@ -134,6 +144,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-500/10',
     ring: 'ring-red-500/70',
     dot: 'bg-red-500',
+    hex: '#f87171',
   },
   redT1: {
     label: 'Red T1',
@@ -142,6 +153,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-500/10',
     ring: 'ring-red-500/70',
     dot: 'bg-red-500',
+    hex: '#f87171',
   },
   redT2: {
     label: 'Red T2',
@@ -150,6 +162,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-500/10',
     ring: 'ring-red-500/70',
     dot: 'bg-red-500',
+    hex: '#f87171',
   },
   redT3: {
     label: 'Red T3',
@@ -158,6 +171,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-400/10',
     ring: 'ring-red-400/70',
     dot: 'bg-red-400',
+    hex: '#fca5a5',
   },
   redT4: {
     label: 'Red T4',
@@ -166,6 +180,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-400/10',
     ring: 'ring-red-400/70',
     dot: 'bg-red-400',
+    hex: '#fca5a5',
   },
   redT5: {
     label: 'Red T5',
@@ -174,6 +189,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-300/10',
     ring: 'ring-red-300/70',
     dot: 'bg-red-300',
+    hex: '#fecaca',
   },
   redT6: {
     label: 'Red T6',
@@ -182,6 +198,7 @@ export const TIER_META: Record<GearTier, TierMeta> = {
     bg: 'bg-red-300/10',
     ring: 'ring-red-300/70',
     dot: 'bg-red-300',
+    hex: '#fecaca',
   },
 };
 
@@ -192,6 +209,7 @@ export const BASE_META: TierMeta = {
   bg: 'bg-stone-800',
   ring: 'ring-stone-400/70',
   dot: 'bg-stone-500',
+  hex: '#d6d3d1',
 };
 
 export function tierMeta(tier: GearTierOrBase): TierMeta {

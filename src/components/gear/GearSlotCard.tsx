@@ -1,6 +1,30 @@
 'use client';
 
-import { getGearLevel, tierMeta, type GearSlotId } from '@/lib/gearData';
+import { GEAR_LEVELS, TIER_DISPLAY_ORDER, getGearLevel, tierMeta, type GearSlotId } from '@/lib/gearData';
+
+function LevelOptions() {
+  return (
+    <>
+      <option value="base" style={{ color: tierMeta('base').hex }}>
+        Base
+      </option>
+      {TIER_DISPLAY_ORDER.filter((t) => t !== 'base').map((tier) => {
+        const levels = GEAR_LEVELS.filter((l) => l.tier === tier);
+        if (levels.length === 0) return null;
+        const meta = tierMeta(tier);
+        return (
+          <optgroup key={tier} label={meta.label}>
+            {levels.map((l) => (
+              <option key={l.id} value={l.id} style={{ color: meta.hex }}>
+                {l.label}
+              </option>
+            ))}
+          </optgroup>
+        );
+      })}
+    </>
+  );
+}
 
 export default function GearSlotCard({
   slotId,
@@ -8,7 +32,7 @@ export default function GearSlotCard({
   icon,
   currentId,
   targetId,
-  onOpenSelector,
+  onSelectLevel,
   className = '',
 }: {
   slotId: GearSlotId;
@@ -16,7 +40,7 @@ export default function GearSlotCard({
   icon: React.ReactNode;
   currentId: string;
   targetId: string;
-  onOpenSelector: (slotId: GearSlotId, mode: 'current' | 'target') => void;
+  onSelectLevel: (slotId: GearSlotId, mode: 'current' | 'target', levelId: string) => void;
   className?: string;
 }) {
   const current = getGearLevel(currentId);
@@ -45,22 +69,34 @@ export default function GearSlotCard({
       )}
       <p className="text-xs font-semibold text-parchment-100">{label}</p>
       <div className="w-full flex flex-col gap-1">
-        <button
-          type="button"
-          onClick={() => onOpenSelector(slotId, 'current')}
-          className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-1.5 py-1.5 text-[10px] text-start hover:border-gold-600 transition-colors min-h-[36px]"
-        >
-          <span className="text-parchment-500">Current: </span>
-          <span className={currentMeta ? currentMeta.text : 'text-parchment-300'}>{current?.label ?? 'Base'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onOpenSelector(slotId, 'target')}
-          className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-1.5 py-1.5 text-[10px] text-start hover:border-gold-600 transition-colors min-h-[36px]"
-        >
-          <span className="text-parchment-500">Target: </span>
-          <span className={targetMeta ? targetMeta.text : 'text-parchment-300'}>{target?.label ?? 'Base'}</span>
-        </button>
+        <div>
+          <label className="text-[9px] uppercase tracking-wide text-parchment-500" htmlFor={`${slotId}-current`}>
+            Current
+          </label>
+          <select
+            id={`${slotId}-current`}
+            value={currentId}
+            onChange={(e) => onSelectLevel(slotId, 'current', e.target.value)}
+            className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-1.5 py-1.5 text-[11px] font-medium hover:border-gold-600 transition-colors min-h-[32px]"
+            style={{ color: currentMeta?.hex }}
+          >
+            <LevelOptions />
+          </select>
+        </div>
+        <div>
+          <label className="text-[9px] uppercase tracking-wide text-parchment-500" htmlFor={`${slotId}-target`}>
+            Target
+          </label>
+          <select
+            id={`${slotId}-target`}
+            value={targetId}
+            onChange={(e) => onSelectLevel(slotId, 'target', e.target.value)}
+            className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-1.5 py-1.5 text-[11px] font-medium hover:border-gold-600 transition-colors min-h-[32px]"
+            style={{ color: targetMeta?.hex }}
+          >
+            <LevelOptions />
+          </select>
+        </div>
       </div>
     </div>
   );

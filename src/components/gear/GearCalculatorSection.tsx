@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { GEAR_SLOTS, type GearSlotId } from '@/lib/gearData';
 import { calcGearPlan, type GearSelections } from '@/lib/gearCalc';
 import GearSlotCard from './GearSlotCard';
-import GearLevelSelector from './GearLevelSelector';
 import GearMaterialsPanel from './GearMaterialsPanel';
 import GearTroopStatsPanel from './GearTroopStatsPanel';
 import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon, CrownIcon } from './GearIcons';
@@ -34,18 +33,13 @@ function makeEmptySelections(): GearSelections {
 export default function GearCalculatorSection() {
   const [selections, setSelections] = useState<GearSelections>(makeEmptySelections);
   const [owned, setOwned] = useState<Record<string, number>>({});
-  const [selector, setSelector] = useState<{ slotId: GearSlotId; mode: 'current' | 'target' } | null>(null);
 
   const plan = useMemo(() => calcGearPlan(selections), [selections]);
 
-  const openSelector = (slotId: GearSlotId, mode: 'current' | 'target') => setSelector({ slotId, mode });
-  const closeSelector = () => setSelector(null);
-
-  const handleSelectLevel = (levelId: string) => {
-    if (!selector) return;
+  const handleSelectLevel = (slotId: GearSlotId, mode: 'current' | 'target', levelId: string) => {
     setSelections((prev) => ({
       ...prev,
-      [selector.slotId]: { ...prev[selector.slotId], [selector.mode === 'current' ? 'currentId' : 'targetId']: levelId },
+      [slotId]: { ...prev[slotId], [mode === 'current' ? 'currentId' : 'targetId']: levelId },
     }));
   };
 
@@ -67,7 +61,7 @@ export default function GearCalculatorSection() {
       icon={SLOT_ICONS[slotId]}
       currentId={selections[slotId].currentId}
       targetId={selections[slotId].targetId}
-      onOpenSelector={openSelector}
+      onSelectLevel={handleSelectLevel}
     />
   );
 
@@ -124,16 +118,6 @@ export default function GearCalculatorSection() {
           <GearTroopStatsPanel troopStats={plan.troopStats} />
         </div>
       </div>
-
-      {selector && (
-        <GearLevelSelector
-          slotLabel={slotLabel(selector.slotId)}
-          mode={selector.mode}
-          selectedId={selector.mode === 'current' ? selections[selector.slotId].currentId : selections[selector.slotId].targetId}
-          onSelect={handleSelectLevel}
-          onClose={closeSelector}
-        />
-      )}
     </div>
   );
 }
