@@ -22,7 +22,7 @@ const en = {
     en: 'English',
   },
   home: {
-    title: 'KingShot Castle Appointments',
+    title: 'Castle Appointments',
     intro:
       'Book your castle appointment by selecting the times that work best for you. Admins will review your application and assign you one available slot.',
     bookButton: 'Book Your Slot',

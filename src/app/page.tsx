@@ -16,7 +16,7 @@ export default function HomePage() {
       <Tutorial forceOpen={showTutorialAgain} onClose={() => setShowTutorialAgain(false)} />
 
       <div className="text-center">
-        <p className="text-gold-400 tracking-widest text-xs font-semibold uppercase mb-2">KingShot</p>
+        <p className="text-gold-400 tracking-widest text-xs font-semibold uppercase mb-2">Kingdom #1781</p>
         <h1 className="font-display text-gradient text-3xl sm:text-4xl font-bold leading-tight">{t('home.title')}</h1>
         <p className="mt-2 text-parchment-300 text-sm">{t('home.tagline')}</p>
       </div>

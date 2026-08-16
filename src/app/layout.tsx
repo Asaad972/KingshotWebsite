@@ -27,8 +27,8 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'KingShot Castle Appointments',
-  description: 'Apply for your KingShot castle appointment time slot.',
+  title: 'Kingdom #1781 Castle Appointments',
+  description: 'Apply for your Kingdom #1781 castle appointment time slot.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

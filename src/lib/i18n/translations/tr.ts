@@ -24,7 +24,7 @@ const tr: typeof en = {
     en: 'İngilizce',
   },
   home: {
-    title: 'KingShot Kale Randevuları',
+    title: 'Kale Randevuları',
     intro:
       'Size uygun zamanları seçerek kale randevunuzu oluşturun. Yöneticiler başvurunuzu inceleyip size uygun bir zaman dilimi atayacaktır.',
     bookButton: 'Randevu Al',

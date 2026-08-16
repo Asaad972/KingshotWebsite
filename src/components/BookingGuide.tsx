@@ -43,12 +43,16 @@ export default function BookingGuide() {
           <div className="dashboard-card p-3 flex flex-col gap-2">
             <h3 className="text-sm font-semibold text-parchment-100">{t('booking.uploadMainTitle')}</h3>
             <p className="text-xs text-parchment-400 leading-relaxed">{t('home.mainAccountGuideBody')}</p>
-            <ExampleScreenshot src="/tutorial/main-account.png" alt={t('booking.uploadMainTitle')} />
+            <div className="w-32 mx-auto sm:mx-0">
+              <ExampleScreenshot src="/tutorial/main-account.png" alt={t('booking.uploadMainTitle')} />
+            </div>
           </div>
           <div className="dashboard-card p-3 flex flex-col gap-2">
             <h3 className="text-sm font-semibold text-parchment-100">{t('booking.uploadResourcesTitle')}</h3>
             <p className="text-xs text-parchment-400 leading-relaxed">{t('home.speedupsGuideBody')}</p>
-            <ExampleScreenshot src="/tutorial/speedups.png" alt={t('booking.uploadResourcesTitle')} />
+            <div className="w-32 mx-auto sm:mx-0">
+              <ExampleScreenshot src="/tutorial/speedups.png" alt={t('booking.uploadResourcesTitle')} />
+            </div>
           </div>
         </div>
       </div>
