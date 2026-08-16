@@ -2,7 +2,7 @@
 
 import { useId } from 'react';
 
-const SNAP_TOLERANCE = 4;
+const SNAP_TOLERANCE = 2;
 
 /** Plain native range slider -- far easier to use than typing an exact 0-200
  * number or scrolling a long dropdown list. min/max are enforced natively by

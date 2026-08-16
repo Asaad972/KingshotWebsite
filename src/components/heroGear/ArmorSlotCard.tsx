@@ -63,6 +63,20 @@ export default function ArmorSlotCard({
           onChange={setTargetLevel}
           snapPoints={MILESTONE_LEVELS}
         />
+        <div className="flex gap-1 flex-wrap">
+          {MILESTONE_LEVELS.filter((m) => m >= currentLevel).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setTargetLevel(m)}
+              className={`focus-ring rounded px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                targetLevel === m ? 'bg-gold-500 text-stone-950' : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-gold-600'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">
