@@ -11,38 +11,32 @@ const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
   iron: 'text-cyan-400',
 };
 
+/** Shows only the goal (target) total per stat -- current-only progress
+ * isn't shown here since this panel represents what your plan adds up to
+ * once you finish everything you've set a goal for, not a running log. */
 export default function ResearchBonusSidebar({ bonuses }: { bonuses: CategoryBonus[] }) {
   return (
-    <div className="dashboard-card p-3.5 flex flex-col gap-2.5 lg:sticky lg:top-3">
-      <h2 className="text-sm font-semibold text-parchment-100">Overall Bonuses</h2>
-      <p className="text-[11px] text-parchment-400 -mt-1.5">Every tier of a stat stacks, so this is your true total.</p>
+    <div className="dashboard-card p-5 flex flex-col gap-3 lg:sticky lg:top-3">
+      <h2 className="text-base font-semibold text-parchment-100">Overall Bonuses</h2>
+      <p className="text-xs text-parchment-400 -mt-2">Your total once you finish everything on your goal list.</p>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         {bonuses.map((b) => {
           const resource = CATEGORY_RESOURCE[b.category];
           const Icon = RESOURCE_ICON[resource];
           const isGathering = b.category.endsWith('gathering');
-          const hasGoal = b.targetPercent > b.currentPercent;
           return (
-            <div key={b.category} className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 odd:bg-stone-950/60">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className={`h-4 w-4 shrink-0 ${RESOURCE_COLOR[resource]}`}>
+            <div key={b.category} className="flex items-center justify-between gap-2 rounded-md px-2.5 py-2 odd:bg-stone-950/60">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`h-5 w-5 shrink-0 ${RESOURCE_COLOR[resource]}`}>
                   <Icon />
                 </span>
-                <span className="h-3 w-3 shrink-0 text-parchment-500">{isGathering ? <GatheringGlyph /> : <OutputGlyph />}</span>
-                <span className="text-xs text-parchment-300 truncate">{b.label}</span>
+                <span className="h-3.5 w-3.5 shrink-0 text-parchment-500">{isGathering ? <GatheringGlyph /> : <OutputGlyph />}</span>
+                <span className="text-sm text-parchment-300 truncate">{b.label}</span>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0 tabular-nums">
-                <span className={`text-xs font-bold ${b.currentPercent > 0 ? 'text-gold-300' : 'text-parchment-500'}`}>
-                  +{b.currentPercent}%
-                </span>
-                {hasGoal && (
-                  <>
-                    <span className="text-parchment-600 text-xs">→</span>
-                    <span className="text-xs font-bold text-cyan-400">+{b.targetPercent}%</span>
-                  </>
-                )}
-              </div>
+              <span className={`text-sm font-bold shrink-0 tabular-nums ${b.targetPercent > 0 ? 'text-gold-300' : 'text-parchment-500'}`}>
+                +{b.targetPercent}%
+              </span>
             </div>
           );
         })}

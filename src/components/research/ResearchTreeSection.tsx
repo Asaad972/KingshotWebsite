@@ -55,6 +55,18 @@ export default function ResearchTreeSection() {
     return tech.prereqs.every((p) => (plan[p.techId]?.current ?? 0) >= p.level);
   };
 
+  // Quick-max toggle right on the tree node -- no popup needed for the
+  // common "I already have this maxed" case. Mirrors the Current-Max
+  // checkbox inside the popup: sets current (and target, clamped up) to
+  // maxLevel, or back to 0 if it was already maxed.
+  const toggleMax = (techId: string) => {
+    const tech = getEconomyTech(techId);
+    if (!tech) return;
+    const state = plan[techId] ?? { current: 0, target: 0 };
+    const nextCurrent = state.current >= tech.maxLevel ? 0 : tech.maxLevel;
+    updateTech(techId, { current: nextCurrent, target: Math.max(nextCurrent, state.target) });
+  };
+
   return (
     <div className="flex flex-col gap-3" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -88,8 +100,8 @@ export default function ResearchTreeSection() {
 
       <ResearchSummaryBar totals={totals} />
 
-      <div className="grid lg:grid-cols-[1fr_280px] gap-3 items-start">
-        <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} />
+      <div className="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
+        <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
         <ResearchBonusSidebar bonuses={bonuses} />
       </div>
 

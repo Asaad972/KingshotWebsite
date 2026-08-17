@@ -21,12 +21,14 @@ const RESOURCE_RING: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
 // Fixed vertical layout -- one row per dependency depth, up to 3 nodes wide,
 // connected by right-angle "elbow" lines. Mirrors the actual in-game
 // Academy tree's single trunk that splits and re-merges, rather than a
-// grid or a lanes-based layout.
-const NODE = 68;
-const ROW_H = 132;
-const COL_GAP = 118;
-const PADDING_TOP = 24;
-const PADDING_X = 200;
+// grid or a lanes-based layout. No internal scroll container -- this is
+// sized to its full natural height so the whole PAGE scrolls through it,
+// not a cramped inner box.
+const NODE = 92;
+const ROW_H = 168;
+const COL_GAP = 156;
+const PADDING_TOP = 32;
+const PADDING_X = 220;
 
 function xOffsetsFor(count: number): number[] {
   if (count === 1) return [0];
@@ -38,10 +40,12 @@ export default function ResearchTreeFlow({
   plan,
   selectedId,
   onSelect,
+  onToggleMax,
 }: {
   plan: ResearchPlan;
   selectedId: string | null;
   onSelect: (techId: string) => void;
+  onToggleMax: (techId: string) => void;
 }) {
   const rows = groupByDepth();
   const centerX = PADDING_X;
@@ -67,7 +71,7 @@ export default function ResearchTreeFlow({
   }
 
   return (
-    <div className="dashboard-card overflow-auto scrollbar-thin" style={{ maxHeight: 640 }}>
+    <div className="dashboard-card overflow-x-auto scrollbar-thin">
       <div className="relative mx-auto" style={{ width: canvasWidth, height: canvasHeight }}>
         <svg className="absolute inset-0" width={canvasWidth} height={canvasHeight}>
           {edges.map((e, i) => {
@@ -86,7 +90,7 @@ export default function ResearchTreeFlow({
                 d={d}
                 fill="none"
                 stroke={e.unlocked ? '#f9a8d4' : '#2b384e'}
-                strokeWidth={3}
+                strokeWidth={3.5}
                 strokeLinejoin="round"
                 opacity={e.unlocked ? 0.9 : 0.7}
               />
@@ -106,15 +110,11 @@ export default function ResearchTreeFlow({
           const hasGoal = state.target > state.current;
 
           return (
-            <button
-              key={tech.id}
-              type="button"
-              onClick={() => onSelect(tech.id)}
-              className="absolute flex flex-col items-center gap-1.5 focus-ring rounded-lg"
-              style={{ left: pos.x - 76, top: pos.y - NODE / 2, width: 152 }}
-            >
-              <span
-                className={`relative flex items-center justify-center rounded-2xl border-2 transition-colors ${
+            <div key={tech.id} className="absolute flex flex-col items-center gap-2" style={{ left: pos.x - 90, top: pos.y - NODE / 2, width: 180 }}>
+              <button
+                type="button"
+                onClick={() => onSelect(tech.id)}
+                className={`focus-ring relative flex items-center justify-center rounded-2xl border-2 transition-colors ${
                   selected
                     ? 'border-gold-300 bg-gold-500/20'
                     : maxed
@@ -125,26 +125,36 @@ export default function ResearchTreeFlow({
                 } ${hasGoal ? `ring-2 ring-offset-2 ring-offset-stone-900 ${RESOURCE_RING[resource]}` : ''}`}
                 style={{ width: NODE, height: NODE }}
               >
-                <span className={`h-7 w-7 ${RESOURCE_COLOR[resource]} ${!unlocked ? 'opacity-60' : ''}`}>
+                <span className={`h-9 w-9 ${RESOURCE_COLOR[resource]} ${!unlocked ? 'opacity-60' : ''}`}>
                   <Icon />
                 </span>
-                <span className="absolute -bottom-1.5 h-3.5 w-3.5 rounded-full bg-stone-950 border border-stone-700 flex items-center justify-center text-parchment-500">
-                  <span className="h-2 w-2">{isGathering ? <GatheringGlyph /> : <OutputGlyph />}</span>
+                <span className="absolute -bottom-2 h-4 w-4 rounded-full bg-stone-950 border border-stone-700 flex items-center justify-center text-parchment-500">
+                  <span className="h-2.5 w-2.5">{isGathering ? <GatheringGlyph /> : <OutputGlyph />}</span>
                 </span>
-                {maxed ? (
-                  <span className="absolute -bottom-3 rounded-full bg-gold-500 px-1.5 py-0.5 text-[9px] font-bold text-stone-950 leading-none">
-                    MAX
-                  </span>
-                ) : state.current > 0 ? (
-                  <span className="absolute -bottom-3 rounded-full bg-stone-700 px-1.5 py-0.5 text-[9px] font-bold text-parchment-100 leading-none tabular-nums">
-                    {state.current}/{tech.maxLevel}
-                  </span>
-                ) : null}
-              </span>
-              <span className={`text-[11px] font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleMax(tech.id);
+                }}
+                title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
+                className={`focus-ring -mt-4 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none tabular-nums transition-colors ${
+                  maxed
+                    ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
+                    : state.current > 0
+                      ? 'bg-stone-700 text-parchment-100 hover:bg-stone-600'
+                      : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
+                }`}
+              >
+                {maxed ? 'MAX' : state.current > 0 ? `${state.current}/${tech.maxLevel}` : 'Tap max'}
+              </button>
+
+              <span className={`text-xs font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}>
                 {tech.name}
               </span>
-            </button>
+            </div>
           );
         })}
       </div>
