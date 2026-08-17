@@ -30,15 +30,20 @@ export default function ArmorSlotCard({
     onChange(slotId, { ...selection, currentLevel: v, targetLevel: Math.max(targetLevel, v) });
   };
   const setTargetLevel = (v: number) => {
-    onChange(slotId, { ...selection, targetLevel: v });
+    // Clamped here (instead of via the slider's min) so the Target slider's
+    // own min/range stays fixed -- if min tracked currentLevel live, Target's
+    // fill percentage (and thumb position) would visibly shift every time
+    // Current moved, even though Target's value hadn't changed.
+    onChange(slotId, { ...selection, targetLevel: Math.max(v, currentLevel) });
   };
   const setCurrentMastery = (v: number) => {
     // Unlike Level, don't auto-raise Target when Current passes it -- Target
-    // stays put; the slider's own min just blocks setting it below Current.
+    // stays put; setTargetMastery's own clamp just blocks setting it below
+    // Current.
     onChange(slotId, { ...selection, currentMastery: v });
   };
   const setTargetMastery = (v: number) => {
-    onChange(slotId, { ...selection, targetMastery: v });
+    onChange(slotId, { ...selection, targetMastery: Math.max(v, currentMastery) });
   };
 
   return (
@@ -87,7 +92,7 @@ export default function ArmorSlotCard({
         <LevelSlider
           label="Target"
           value={targetLevel}
-          min={currentLevel}
+          min={0}
           max={ARMOR_MAX_LEVEL}
           onChange={setTargetLevel}
         />
@@ -130,7 +135,7 @@ export default function ArmorSlotCard({
         <LevelSlider
           label="Target"
           value={targetMastery}
-          min={currentMastery}
+          min={0}
           max={MASTERY_MAX_LEVEL}
           onChange={setTargetMastery}
           tone="cyan"
