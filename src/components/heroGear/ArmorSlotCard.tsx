@@ -7,6 +7,9 @@ import LevelSlider from './LevelSlider';
 import ThresholdBadgeList from './ThresholdBadgeList';
 
 const MILESTONE_LEVELS = [100, 120, 140, 160, 180, 200];
+// Mastery only spans 0-20 -- small enough to pick directly from a grid of
+// boxes instead of dragging a slider.
+const MASTERY_LEVELS = Array.from({ length: 21 }, (_, i) => i);
 
 export default function ArmorSlotCard({
   slotId,
@@ -116,15 +119,44 @@ export default function ArmorSlotCard({
           />
           <p className="text-[10px] font-medium text-parchment-500">Mastery Forging (0-{MASTERY_MAX_LEVEL})</p>
         </div>
-        <LevelSlider label="Current" value={currentMastery} min={0} max={MASTERY_MAX_LEVEL} onChange={setCurrentMastery} tone="cyan" />
-        <LevelSlider
-          label="Target"
-          value={targetMastery}
-          min={currentMastery}
-          max={MASTERY_MAX_LEVEL}
-          onChange={setTargetMastery}
-          tone="cyan"
-        />
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] uppercase tracking-wide text-parchment-500">Current</p>
+          <div className="flex gap-1 flex-wrap">
+            {MASTERY_LEVELS.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setCurrentMastery(m)}
+                className={`focus-ring h-6 w-6 shrink-0 rounded text-[10px] font-semibold transition-colors ${
+                  currentMastery === m
+                    ? 'bg-cyan-400 text-stone-950'
+                    : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-cyan-400'
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] uppercase tracking-wide text-parchment-500">Target</p>
+          <div className="flex gap-1 flex-wrap">
+            {MASTERY_LEVELS.filter((m) => m >= currentMastery).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setTargetMastery(m)}
+                className={`focus-ring h-6 w-6 shrink-0 rounded text-[10px] font-semibold transition-colors ${
+                  targetMastery === m
+                    ? 'bg-cyan-400 text-stone-950'
+                    : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-cyan-400'
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div>
