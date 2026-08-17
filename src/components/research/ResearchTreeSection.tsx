@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
-import { calcResearchPlan, defaultResearchPlan, type ResearchPlan, type TechLevelState } from '@/lib/researchCalc';
+import { calcResearchPlan, calcCategoryBonuses, defaultResearchPlan, type ResearchPlan, type TechLevelState } from '@/lib/researchCalc';
 import { getEconomyTech } from '@/lib/researchEconomyData';
 import ResearchTreeFlow from './ResearchTreeFlow';
 import ResearchTechCard from './ResearchTechCard';
 import ResearchSummaryBar from './ResearchSummaryBar';
+import ResearchBonusSidebar from './ResearchBonusSidebar';
 
 /**
  * Research Tree (Economy branch) -- an isolated, self-contained feature (this
@@ -27,7 +28,17 @@ export default function ResearchTreeSection() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const totals = calcResearchPlan(plan);
+  const bonuses = calcCategoryBonuses(plan);
   const selectedTech = selectedId ? getEconomyTech(selectedId) : null;
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedId(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selectedId]);
 
   const updateTech = (techId: string, next: TechLevelState) => {
     setPlan((prev) => ({ ...prev, [techId]: next }));
@@ -77,16 +88,26 @@ export default function ResearchTreeSection() {
 
       <ResearchSummaryBar totals={totals} />
 
-      <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} />
+      <div className="grid lg:grid-cols-[1fr_280px] gap-3 items-start">
+        <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} />
+        <ResearchBonusSidebar bonuses={bonuses} />
+      </div>
 
       {selectedTech && (
-        <ResearchTechCard
-          tech={selectedTech}
-          state={plan[selectedTech.id] ?? { current: 0, target: 0 }}
-          unlocked={isUnlocked(selectedTech.id)}
-          onChange={(next) => updateTech(selectedTech.id, next)}
-          onClose={() => setSelectedId(null)}
-        />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4"
+          onClick={() => setSelectedId(null)}
+        >
+          <div className="w-full max-w-sm max-h-[85vh] overflow-y-auto scrollbar-thin" onClick={(e) => e.stopPropagation()}>
+            <ResearchTechCard
+              tech={selectedTech}
+              state={plan[selectedTech.id] ?? { current: 0, target: 0 }}
+              unlocked={isUnlocked(selectedTech.id)}
+              onChange={(next) => updateTech(selectedTech.id, next)}
+              onClose={() => setSelectedId(null)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

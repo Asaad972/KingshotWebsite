@@ -147,6 +147,37 @@ export function calcResearchPlan(plan: ResearchPlan): ResearchPlanTotals {
   return { cost, timeSeconds, powerGained, levelsCurrent, levelsTarget, levelsMax, techsMaxedCurrent };
 }
 
+export interface CategoryBonus {
+  category: ResearchCategory;
+  label: string;
+  currentPercent: number;
+  targetPercent: number;
+}
+
+/** Total stat bonus per category, right now and at your goal. Tiers of the
+ * same stat (e.g. Bread Output I-VI) stack additively in-game, so this sums
+ * each tech's own current/target level effect% across the whole category --
+ * not just the incremental cost/power the top summary bar shows. */
+export function calcCategoryBonuses(plan: ResearchPlan): CategoryBonus[] {
+  return LANE_ORDER.map((category) => {
+    const techs = techsInLane(category);
+    let currentPercent = 0;
+    let targetPercent = 0;
+    for (const tech of techs) {
+      const state = plan[tech.id] ?? { current: 0, target: 0 };
+      const curLv = tech.levels[state.current - 1];
+      const tgtLv = tech.levels[state.target - 1];
+      if (curLv) currentPercent += curLv.effectPercent;
+      if (tgtLv) targetPercent += tgtLv.effectPercent;
+    }
+    return { category, label: statLabel(techs[0]), currentPercent: round1(currentPercent), targetPercent: round1(targetPercent) };
+  });
+}
+
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
 export function formatCompact(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`;
