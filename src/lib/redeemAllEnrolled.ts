@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { redeemGiftCode, jitteredDelay, type RedeemStatus } from './kingshotRedeem';
+import { redeemGiftCode, jitteredDelay, DEAD_CODE_STATUSES, type RedeemStatus } from './kingshotRedeem';
 
 export interface EnrolledRedeemResult {
   fid: string;
@@ -26,6 +26,15 @@ export async function redeemCodeForAllEnrolled(
         { enrollment_id: enrollment.id, code_id: codeId, status, attempted_at: new Date().toISOString() },
         { onConflict: 'enrollment_id,code_id' }
       );
+
+    // The code is confirmed dead -- flip it so the list stops showing
+    // "Active", and stop burning API calls against it for the rest of the
+    // enrolled players.
+    if (DEAD_CODE_STATUSES.includes(status)) {
+      await supabase.from('gift_codes').update({ status: 'inactive' }).eq('id', codeId);
+      break;
+    }
+
     await jitteredDelay();
   }
   return results;

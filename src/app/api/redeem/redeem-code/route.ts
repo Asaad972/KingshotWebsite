@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { redeemGiftCode } from '@/lib/kingshotRedeem';
+import { redeemGiftCode, DEAD_CODE_STATUSES } from '@/lib/kingshotRedeem';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 15;
@@ -30,6 +30,13 @@ export async function POST(request: Request) {
       { enrollment_id: enrollmentId, code_id: codeId, status, attempted_at: new Date().toISOString() },
       { onConflict: 'enrollment_id,code_id' }
     );
+
+  // The live redemption attempt is the most authoritative signal we get that
+  // a code has actually died -- flip it here instead of leaving the list
+  // showing "Active" until a separate sync happens to catch it.
+  if (DEAD_CODE_STATUSES.includes(status)) {
+    await supabase.from('gift_codes').update({ status: 'inactive' }).eq('id', codeId);
+  }
 
   return NextResponse.json({ success: true, status });
 }
