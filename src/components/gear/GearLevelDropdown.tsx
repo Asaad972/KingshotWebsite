@@ -117,7 +117,7 @@ export default function GearLevelDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${label}: ${level?.label ?? placeholder ?? 'Base'}`}
-        className="focus-ring w-full flex items-center justify-between gap-1 rounded border border-stone-700 bg-stone-950 px-1.5 py-1.5 text-[11px] font-medium hover:border-gold-600 transition-colors min-h-[32px]"
+        className="focus-ring w-full flex items-center justify-between gap-1 rounded border border-stone-700 bg-stone-950 px-2 py-2 text-xs font-medium hover:border-gold-600 transition-colors min-h-[40px]"
       >
         <span className={`truncate ${meta ? meta.text : 'text-parchment-300'}`}>{level?.label ?? placeholder ?? 'Base'}</span>
         <span className="text-parchment-500 shrink-0" aria-hidden>

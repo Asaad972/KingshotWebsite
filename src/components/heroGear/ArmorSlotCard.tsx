@@ -71,13 +71,13 @@ export default function ArmorSlotCard({
           max={ARMOR_MAX_LEVEL}
           onChange={setCurrentLevel}
         />
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap">
           {MILESTONE_LEVELS.map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => setCurrentLevel(m)}
-              className={`focus-ring rounded px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+              className={`focus-ring rounded px-3 py-2 text-xs font-semibold transition-colors min-h-[36px] ${
                 currentLevel === m ? 'bg-gold-500 text-stone-950' : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-gold-600'
               }`}
             >
@@ -92,7 +92,7 @@ export default function ArmorSlotCard({
           max={ARMOR_MAX_LEVEL}
           onChange={setTargetLevel}
         />
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap">
           {MILESTONE_LEVELS.map((m) => {
             const disabled = m < currentLevel;
             return (
@@ -101,7 +101,7 @@ export default function ArmorSlotCard({
                 type="button"
                 disabled={disabled}
                 onClick={() => setTargetLevel(m)}
-                className={`focus-ring rounded px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                className={`focus-ring rounded px-3 py-2 text-xs font-semibold transition-colors min-h-[36px] ${
                   disabled
                     ? 'bg-stone-900 border border-stone-800 text-parchment-600 opacity-50 cursor-not-allowed'
                     : targetLevel === m
@@ -129,13 +129,13 @@ export default function ArmorSlotCard({
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-[10px] uppercase tracking-wide text-parchment-500">Current</p>
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {MASTERY_LEVELS.map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setCurrentMastery(m)}
-                className={`focus-ring h-6 w-6 shrink-0 rounded text-[10px] font-semibold transition-colors ${
+                className={`focus-ring h-9 w-9 shrink-0 rounded text-xs font-semibold transition-colors ${
                   currentMastery === m
                     ? 'bg-cyan-400 text-stone-950'
                     : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-cyan-400'
@@ -148,7 +148,7 @@ export default function ArmorSlotCard({
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-[10px] uppercase tracking-wide text-parchment-500">Target</p>
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {MASTERY_LEVELS.map((m) => {
               const disabled = m < currentMastery;
               return (
@@ -157,7 +157,7 @@ export default function ArmorSlotCard({
                   type="button"
                   disabled={disabled}
                   onClick={() => setTargetMastery(m)}
-                  className={`focus-ring h-6 w-6 shrink-0 rounded text-[10px] font-semibold transition-colors ${
+                  className={`focus-ring h-9 w-9 shrink-0 rounded text-xs font-semibold transition-colors ${
                     disabled
                       ? 'bg-stone-900 border border-stone-800 text-parchment-600 opacity-50 cursor-not-allowed'
                       : targetMastery === m

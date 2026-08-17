@@ -109,7 +109,7 @@ export default function CharmLevelDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${label}: ${level?.label ?? placeholder ?? 'Base'}`}
-        className={`focus-ring w-full flex items-center justify-between gap-1 rounded border border-stone-700 bg-stone-950 px-1.5 py-1 text-[11px] font-medium hover:border-gold-600 transition-colors min-h-[28px] ${
+        className={`focus-ring w-full flex items-center justify-between gap-1 rounded border border-stone-700 bg-stone-950 px-2 py-2 text-xs font-medium hover:border-gold-600 transition-colors min-h-[40px] ${
           level && level.id !== 'base' ? 'text-cyan-300' : 'text-parchment-300'
         }`}
       >
