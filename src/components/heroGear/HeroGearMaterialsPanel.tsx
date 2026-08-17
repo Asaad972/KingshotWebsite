@@ -9,6 +9,10 @@ const OTHER_MATERIALS: { id: keyof HeroGearMaterials; label: string; icon: strin
   { id: 'forgehammers', label: 'Forgehammers', icon: '/heroGear/materials/forgehammers.png' },
 ];
 
+// KvK event: spending these materials on upgrades also earns event points.
+const KVK_POINTS_PER_MITHRIL = 40_000;
+const KVK_POINTS_PER_FORGEHAMMER = 20_000;
+
 // Hero Gear XP isn't a material you count directly -- you count how many
 // Green/Purple gear items you have, each worth a fixed XP amount.
 const XP_ITEMS = [
@@ -30,6 +34,11 @@ export default function HeroGearMaterialsPanel({
   const xpExtra = Math.max(0, ownedXp - required.xp);
   const xpReady = xpNeeded === 0;
 
+  // Points earned from spending the Mithril/Forgehammers this whole plan
+  // uses -- based on the full required amount, not just what's still
+  // missing, since materials you already own still earn points when spent.
+  const kvkPoints = required.mithril * KVK_POINTS_PER_MITHRIL + required.forgehammers * KVK_POINTS_PER_FORGEHAMMER;
+
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
@@ -38,6 +47,19 @@ export default function HeroGearMaterialsPanel({
           Combined total across Infantry, Cavalry and Archers. Enter what you already have -- we'll tell you how much more you need.
         </p>
       </div>
+
+      {kvkPoints > 0 && (
+        <div className="rounded-md border border-gold-600/40 bg-gold-500/10 p-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gold-300">KvK Points</p>
+            <p className="text-[11px] text-parchment-400">
+              {required.mithril.toLocaleString()} Mithril × {KVK_POINTS_PER_MITHRIL.toLocaleString()} + {required.forgehammers.toLocaleString()}{' '}
+              Forgehammers × {KVK_POINTS_PER_FORGEHAMMER.toLocaleString()}
+            </p>
+          </div>
+          <p className="text-lg font-bold text-gold-300 tabular-nums shrink-0">{kvkPoints.toLocaleString()}</p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-2.5">
         {/* Hero Gear XP -- entered as item counts, not a raw number */}
