@@ -54,6 +54,48 @@ export function techsInLane(category: ResearchCategory): ResearchTech[] {
   return ECONOMY_TECHS.filter((t) => t.category === category);
 }
 
+/** Other Economy techs that list this one as a prerequisite -- the reverse
+ * of `tech.prereqs`, used to draw "what does researching this unlock" lines. */
+export function getDependents(techId: string): ResearchTech[] {
+  return ECONOMY_TECHS.filter((t) => t.prereqs.some((p) => p.techId === techId));
+}
+
+/** "Bread Output +4% to +13.5%" -> "Bread Output" -- the stat name a tech's
+ * bonus applies to, with the numeric range stripped off. */
+export function statLabel(tech: ResearchTech): string {
+  return tech.effectRange.replace(/\s*[+-][\d.]+%.*$/, '');
+}
+
+/** Each tech's longest-path distance from a root (a tech with no
+ * prerequisites). This is the in-game tree's actual branching structure --
+ * a tech unlocked by two different lines (e.g. Iron Mining needs both a
+ * Gathering and a Foraging tech) sits one row below whichever prerequisite
+ * is deeper, exactly like the single trunk that splits and re-merges in the
+ * game's own Academy screen. */
+export function computeDepths(): Record<string, number> {
+  const depth: Record<string, number> = {};
+  const byId = Object.fromEntries(ECONOMY_TECHS.map((t) => [t.id, t]));
+  function get(id: string): number {
+    if (depth[id] !== undefined) return depth[id];
+    const t = byId[id];
+    if (!t.prereqs.length) return (depth[id] = 0);
+    depth[id] = 0; // cycle guard, this data has none
+    return (depth[id] = 1 + Math.max(...t.prereqs.map((p) => get(p.techId))));
+  }
+  for (const t of ECONOMY_TECHS) get(t.id);
+  return depth;
+}
+
+/** Techs grouped into rows by depth, each row already in a stable left-to-
+ * right order (source/category order) for consistent side-by-side branches. */
+export function groupByDepth(): ResearchTech[][] {
+  const depth = computeDepths();
+  const maxDepth = Math.max(...Object.values(depth));
+  const rows: ResearchTech[][] = Array.from({ length: maxDepth + 1 }, () => []);
+  for (const t of ECONOMY_TECHS) rows[depth[t.id]].push(t);
+  return rows;
+}
+
 function emptyCost(): ResourceCost {
   return { bread: 0, wood: 0, stone: 0, iron: 0, gold: 0 };
 }

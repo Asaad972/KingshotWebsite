@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { calcResearchPlan, defaultResearchPlan, type ResearchPlan, type TechLevelState } from '@/lib/researchCalc';
-import ResearchTreeCanvas from './ResearchTreeCanvas';
-import TechDetailPanel from './TechDetailPanel';
+import { getEconomyTech } from '@/lib/researchEconomyData';
+import ResearchTreeFlow from './ResearchTreeFlow';
+import ResearchTechCard from './ResearchTechCard';
 import ResearchSummaryBar from './ResearchSummaryBar';
 
 /**
@@ -16,14 +17,17 @@ import ResearchSummaryBar from './ResearchSummaryBar';
  *
  * Costs/time/power/effect% are real, extracted directly from
  * kingshotdata.com/research's own static markup -- see
- * researchEconomyData.ts for the sourcing note. Development and Battle
- * branches aren't built yet; this is the Economy branch only.
+ * researchEconomyData.ts for the sourcing note. The tree's shape (rows that
+ * split and re-merge, connected by right-angle lines) mirrors the game's own
+ * Academy screen layout. Development and Battle branches aren't built yet;
+ * this is the Economy branch only.
  */
 export default function ResearchTreeSection() {
   const [plan, setPlan] = useLocalStorageState<ResearchPlan>('researchTree:economy', defaultResearchPlan());
-  const [selectedTechId, setSelectedTechId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const totals = calcResearchPlan(plan);
+  const selectedTech = selectedId ? getEconomyTech(selectedId) : null;
 
   const updateTech = (techId: string, next: TechLevelState) => {
     setPlan((prev) => ({ ...prev, [techId]: next }));
@@ -31,7 +35,13 @@ export default function ResearchTreeSection() {
 
   const handleReset = () => {
     setPlan(defaultResearchPlan());
-    setSelectedTechId(null);
+    setSelectedId(null);
+  };
+
+  const isUnlocked = (techId: string): boolean => {
+    const tech = getEconomyTech(techId);
+    if (!tech) return false;
+    return tech.prereqs.every((p) => (plan[p.techId]?.current ?? 0) >= p.level);
   };
 
   return (
@@ -40,8 +50,8 @@ export default function ResearchTreeSection() {
         <div>
           <h1 className="text-lg font-semibold text-parchment-100">Research Tree -- Economy</h1>
           <p className="text-xs text-parchment-400 mt-0.5">
-            Real cost, time, power, and effect data for all 44 Economy technologies. Track your level, set a goal, and
-            see what it takes to get there.
+            Real cost, time, power, and effect data for all 44 Economy technologies. Tap a tech to set your level and
+            goal.
           </p>
         </div>
         <button
@@ -53,25 +63,31 @@ export default function ResearchTreeSection() {
         </button>
       </div>
 
+      <div className="flex gap-1.5">
+        <span className="rounded-t-md border border-b-0 border-stone-700 bg-stone-800 px-4 py-2 text-xs font-semibold text-parchment-500">
+          Growth (soon)
+        </span>
+        <span className="rounded-t-md border border-b-0 border-gold-500/60 bg-stone-900 px-4 py-2 text-xs font-semibold text-gold-300">
+          Economy
+        </span>
+        <span className="rounded-t-md border border-b-0 border-stone-700 bg-stone-800 px-4 py-2 text-xs font-semibold text-parchment-500">
+          Battle (soon)
+        </span>
+      </div>
+
       <ResearchSummaryBar totals={totals} />
 
-      <div className="grid lg:grid-cols-[1fr_360px] gap-3.5 items-start">
-        <ResearchTreeCanvas plan={plan} selectedTechId={selectedTechId} onSelectTech={setSelectedTechId} />
+      <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} />
 
-        {selectedTechId ? (
-          <TechDetailPanel
-            techId={selectedTechId}
-            state={plan[selectedTechId] ?? { current: 0, target: 0 }}
-            onChange={(next) => updateTech(selectedTechId, next)}
-            onClose={() => setSelectedTechId(null)}
-          />
-        ) : (
-          <div className="dashboard-card p-6 flex flex-col items-center justify-center gap-2 text-center">
-            <p className="text-sm font-semibold text-parchment-300">Tap a technology</p>
-            <p className="text-xs text-parchment-500">Select any node on the tree to see its levels and set your goal.</p>
-          </div>
-        )}
-      </div>
+      {selectedTech && (
+        <ResearchTechCard
+          tech={selectedTech}
+          state={plan[selectedTech.id] ?? { current: 0, target: 0 }}
+          unlocked={isUnlocked(selectedTech.id)}
+          onChange={(next) => updateTech(selectedTech.id, next)}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
     </div>
   );
 }
