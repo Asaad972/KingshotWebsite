@@ -18,6 +18,8 @@ export interface CharmCalcResult {
   /** Health/Lethality % totals, per troop type (each charm only boosts its own troop type). */
   troopStats: Record<TroopType, TroopStatTotal>;
   invalidSlots: string[];
+  /** Total KvK "Score" stat gained across all 18 charms for this plan. */
+  scoreGained: number;
 }
 
 const SLOT_TROOP_TYPE: Record<string, TroopType> = Object.fromEntries(CHARM_SLOTS.map((s) => [s.id, s.troopType]));
@@ -34,6 +36,7 @@ export function calcCharmPlan(selections: CharmSelections): CharmCalcResult {
   const materials: Record<string, number> = {};
   const troopStats = emptyTroopStats();
   const invalidSlots: string[] = [];
+  let scoreGained = 0;
 
   for (const slotId of Object.keys(selections)) {
     const sel = selections[slotId];
@@ -56,7 +59,8 @@ export function calcCharmPlan(selections: CharmSelections): CharmCalcResult {
       materials.designs = (materials.designs ?? 0) + step.cost.designs;
     }
     troopStats[troop].target += target.totalPercent;
+    scoreGained += target.score - current.score;
   }
 
-  return { materials, troopStats, invalidSlots };
+  return { materials, troopStats, invalidSlots, scoreGained };
 }

@@ -3,21 +3,40 @@
 import Image from 'next/image';
 import { CHARM_MATERIALS } from '@/lib/charmData';
 
+// KvK event: raising a charm's Score stat earns event points at a fixed rate.
+const KVK_POINTS_PER_SCORE = 70;
+
 export default function CharmMaterialsPanel({
   required,
   owned,
   onChangeOwned,
+  scoreGained,
 }: {
   required: Record<string, number>;
   owned: Record<string, number>;
   onChangeOwned: (materialId: string, value: number) => void;
+  scoreGained: number;
 }) {
+  const kvkPoints = scoreGained * KVK_POINTS_PER_SCORE;
+
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
         <h2 className="text-base font-semibold text-parchment-100">Materials</h2>
         <p className="text-[11px] text-parchment-400 mt-0.5">Enter what you already have -- we'll tell you how much more you need.</p>
       </div>
+
+      {kvkPoints > 0 && (
+        <div className="rounded-md border border-gold-600/40 bg-gold-500/10 p-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gold-300">KvK Points</p>
+            <p className="text-[11px] text-parchment-400">
+              {scoreGained.toLocaleString()} Score × {KVK_POINTS_PER_SCORE}
+            </p>
+          </div>
+          <p className="text-lg font-bold text-gold-300 tabular-nums shrink-0">{kvkPoints.toLocaleString()}</p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-2.5">
         {CHARM_MATERIALS.map((m) => {

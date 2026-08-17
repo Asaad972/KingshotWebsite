@@ -42,45 +42,56 @@ export interface CharmLevel {
   cost: { guides: number; designs: number };
   /** CUMULATIVE total % bonus AT this level (real data). */
   totalPercent: number;
+  /** CUMULATIVE KvK "Score" stat AT this level (real data, from
+   * kingshotdata.com/database/governor-charm -- raising Score by 1 earns
+   * 70 KvK event points, per the site's own scoring table). */
+  score: number;
 }
 
-// [level, guides, designs, cumulativeTotalPercent]
-const RAW_LEVELS: [number, number, number, number][] = [
-  [1, 5, 5, 9],
-  [2, 40, 15, 12],
-  [3, 60, 40, 16],
-  [4, 80, 100, 19],
-  [5, 100, 200, 25],
-  [6, 120, 300, 30],
-  [7, 140, 400, 35],
-  [8, 200, 400, 40],
-  [9, 300, 400, 45],
-  [10, 420, 420, 50],
-  [11, 560, 420, 55],
-  [12, 580, 600, 59],
-  [13, 610, 780, 63],
-  [14, 645, 960, 67],
-  [15, 685, 1140, 71],
-  [16, 730, 1320, 75],
-  [17, 780, 1500, 79],
-  [18, 835, 1680, 83],
-  [19, 895, 1860, 87],
-  [20, 960, 2040, 91],
-  [21, 1030, 2220, 95],
-  [22, 1105, 2400, 99],
+// [level, guides, designs, cumulativeTotalPercent, cumulativeScore]
+// Score sourced 2026-08-17 from kingshotdata.com/database/governor-charm,
+// which currently lists a 21-level cap. Level 22 was already present in
+// this file's cost/percent data (pre-dating that source check) but the
+// live site no longer shows it, so its score is EXTRAPOLATED (not
+// confirmed) by continuing the site's own delta pattern, which increases
+// by a clean +3,000 per level across levels 17-21 (33k/36k/39k/42k/45k).
+const RAW_LEVELS: [number, number, number, number, number][] = [
+  [1, 5, 5, 9, 625],
+  [2, 40, 15, 12, 1875],
+  [3, 60, 40, 16, 5000],
+  [4, 80, 100, 19, 13800],
+  [5, 100, 200, 25, 25000],
+  [6, 120, 300, 30, 37500],
+  [7, 140, 400, 35, 50000],
+  [8, 200, 400, 40, 63000],
+  [9, 300, 400, 45, 77000],
+  [10, 420, 420, 50, 92000],
+  [11, 560, 420, 55, 108000],
+  [12, 580, 600, 59, 126000],
+  [13, 610, 780, 63, 147000],
+  [14, 645, 960, 67, 171000],
+  [15, 685, 1140, 71, 198000],
+  [16, 730, 1320, 75, 228000],
+  [17, 780, 1500, 79, 261000],
+  [18, 835, 1680, 83, 297000],
+  [19, 895, 1860, 87, 336000],
+  [20, 960, 2040, 91, 378000],
+  [21, 1030, 2220, 95, 423000],
+  [22, 1105, 2400, 99, 471000], // extrapolated -- see comment above
 ];
 
 function buildCharmLevels(): CharmLevel[] {
   const levels: CharmLevel[] = [
-    { id: 'base', label: 'Base', order: 0, cost: { guides: 0, designs: 0 }, totalPercent: 0 },
+    { id: 'base', label: 'Base', order: 0, cost: { guides: 0, designs: 0 }, totalPercent: 0, score: 0 },
   ];
-  RAW_LEVELS.forEach(([level, guides, designs, totalPercent], i) => {
+  RAW_LEVELS.forEach(([level, guides, designs, totalPercent, score], i) => {
     levels.push({
       id: `level-${level}`,
       label: `Level ${level}`,
       order: i + 1,
       cost: { guides, designs },
       totalPercent,
+      score,
     });
   });
   return levels;

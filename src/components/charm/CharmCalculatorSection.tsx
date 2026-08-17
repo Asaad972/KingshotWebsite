@@ -199,7 +199,7 @@ export default function CharmCalculatorSection() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <CharmMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} />
+          <CharmMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} scoreGained={plan.scoreGained} />
           <CharmTroopStatsPanel troopStats={plan.troopStats} />
         </div>
       </div>
