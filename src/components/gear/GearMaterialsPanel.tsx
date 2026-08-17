@@ -3,21 +3,40 @@
 import Image from 'next/image';
 import { MATERIALS } from '@/lib/gearData';
 
+// KvK event: raising a gear piece's Score stat earns event points at a fixed rate.
+const KVK_POINTS_PER_SCORE = 36;
+
 export default function GearMaterialsPanel({
   required,
   owned,
   onChangeOwned,
+  scoreGained,
 }: {
   required: Record<string, number>;
   owned: Record<string, number>;
   onChangeOwned: (materialId: string, value: number) => void;
+  scoreGained: number;
 }) {
+  const kvkPoints = scoreGained * KVK_POINTS_PER_SCORE;
+
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
         <h2 className="text-base font-semibold text-parchment-100">Materials</h2>
         <p className="text-[11px] text-parchment-400 mt-0.5">Enter what you already have -- we'll tell you how much more you need.</p>
       </div>
+
+      {kvkPoints > 0 && (
+        <div className="rounded-md border border-gold-600/40 bg-gold-500/10 p-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gold-300">KvK Points</p>
+            <p className="text-[11px] text-parchment-400">
+              {scoreGained.toLocaleString()} Score × {KVK_POINTS_PER_SCORE}
+            </p>
+          </div>
+          <p className="text-lg font-bold text-gold-300 tabular-nums shrink-0">{kvkPoints.toLocaleString()}</p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-2.5">
         {MATERIALS.map((m) => {
@@ -39,7 +58,7 @@ export default function GearMaterialsPanel({
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
                     <p className="text-xs text-parchment-400">
-                      Need <span className="text-parchment-200 font-medium tabular-nums">{req.toLocaleString()}</span> total
+                      Need <span className="text-gold-300 font-bold text-sm tabular-nums">{req.toLocaleString()}</span> total
                     </p>
                   </div>
                 </div>
@@ -58,7 +77,7 @@ export default function GearMaterialsPanel({
                   />
                 </div>
                 <div
-                  className={`rounded px-2.5 py-1.5 text-xs font-semibold text-center ${
+                  className={`rounded px-2.5 py-2 text-sm font-semibold text-center ${
                     ready ? 'bg-moss-500/15 text-moss-500' : 'bg-ember-500/15 text-ember-500'
                   }`}
                 >

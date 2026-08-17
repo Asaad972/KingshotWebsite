@@ -67,7 +67,7 @@ export default function HeroGearMaterialsPanel({
           <div>
             <p className="text-sm font-semibold text-parchment-100">Hero Gear XP</p>
             <p className="text-xs text-parchment-400">
-              Need <span className="text-parchment-200 font-medium tabular-nums">{required.xp.toLocaleString()}</span> total
+              Need <span className="text-gold-300 font-bold text-sm tabular-nums">{required.xp.toLocaleString()}</span> total
             </p>
           </div>
           {XP_ITEMS.map((item) => (
@@ -91,7 +91,7 @@ export default function HeroGearMaterialsPanel({
             = <span className="text-parchment-200 font-medium tabular-nums">{ownedXp.toLocaleString()}</span> XP
           </p>
           <div
-            className={`rounded px-2.5 py-1.5 text-xs font-semibold text-center ${
+            className={`rounded px-2.5 py-2 text-sm font-semibold text-center ${
               xpReady ? 'bg-moss-500/15 text-moss-500' : 'bg-ember-500/15 text-ember-500'
             }`}
           >
@@ -116,7 +116,7 @@ export default function HeroGearMaterialsPanel({
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
                   <p className="text-xs text-parchment-400">
-                    Need <span className="text-parchment-200 font-medium tabular-nums">{req.toLocaleString()}</span> total
+                    Need <span className="text-gold-300 font-bold text-sm tabular-nums">{req.toLocaleString()}</span> total
                   </p>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function HeroGearMaterialsPanel({
                 />
               </div>
               <div
-                className={`rounded px-2.5 py-1.5 text-xs font-semibold text-center ${
+                className={`rounded px-2.5 py-2 text-sm font-semibold text-center ${
                   ready ? 'bg-moss-500/15 text-moss-500' : 'bg-ember-500/15 text-ember-500'
                 }`}
               >

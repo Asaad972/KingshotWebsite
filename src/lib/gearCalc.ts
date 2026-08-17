@@ -21,6 +21,8 @@ export interface GearCalcResult {
   troopStats: Record<TroopType, TroopStatTotal>;
   /** Slots where target is set below current -- nothing counted for these. */
   invalidSlots: GearSlotId[];
+  /** Total KvK "Score" stat gained across all 6 pieces for this plan. */
+  scoreGained: number;
 }
 
 const SLOT_TROOP_TYPE: Record<GearSlotId, TroopType> = Object.fromEntries(
@@ -43,6 +45,7 @@ export function calcGearPlan(selections: GearSelections): GearCalcResult {
   const materials: Record<string, number> = {};
   const troopStats = emptyTroopStats();
   const invalidSlots: GearSlotId[] = [];
+  let scoreGained = 0;
 
   for (const slotId of Object.keys(selections) as GearSlotId[]) {
     const sel = selections[slotId];
@@ -66,7 +69,8 @@ export function calcGearPlan(selections: GearSelections): GearCalcResult {
       materials.artisansVision = (materials.artisansVision ?? 0) + step.cost.artisansVision;
     }
     troopStats[troop].target += target.attrPercent;
+    scoreGained += target.score - current.score;
   }
 
-  return { materials, troopStats, invalidSlots };
+  return { materials, troopStats, invalidSlots, scoreGained };
 }

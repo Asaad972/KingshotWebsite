@@ -187,7 +187,7 @@ export default function GearCalculatorSection() {
 
         {/* Calculations sidebar */}
         <div className="flex flex-col gap-3">
-          <GearMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} />
+          <GearMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} scoreGained={plan.scoreGained} />
           <GearTroopStatsPanel troopStats={plan.troopStats} />
         </div>
       </div>
