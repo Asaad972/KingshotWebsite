@@ -21,14 +21,14 @@ const RESOURCE_RING: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
 // Fixed vertical layout -- one row per dependency depth, up to 3 nodes wide,
 // connected by right-angle "elbow" lines. Mirrors the actual in-game
 // Academy tree's single trunk that splits and re-merges, rather than a
-// grid or a lanes-based layout. No internal scroll container -- this is
-// sized to its full natural height so the whole PAGE scrolls through it,
-// not a cramped inner box.
-const NODE = 92;
-const ROW_H = 168;
-const COL_GAP = 156;
+// grid or a lanes-based layout. No internal scroll container and no card
+// wrapper -- this sits directly on the page background at its full natural
+// size, so the whole PAGE scrolls through it rather than a boxed-in area.
+const NODE = 104;
+const ROW_H = 184;
+const COL_GAP = 176;
 const PADDING_TOP = 32;
-const PADDING_X = 220;
+const PADDING_X = 260;
 
 function xOffsetsFor(count: number): number[] {
   if (count === 1) return [0];
@@ -71,7 +71,7 @@ export default function ResearchTreeFlow({
   }
 
   return (
-    <div className="dashboard-card overflow-x-auto scrollbar-thin">
+    <div className="overflow-x-auto scrollbar-thin -mx-4 px-4">
       <div className="relative mx-auto" style={{ width: canvasWidth, height: canvasHeight }}>
         <svg className="absolute inset-0" width={canvasWidth} height={canvasHeight}>
           {edges.map((e, i) => {

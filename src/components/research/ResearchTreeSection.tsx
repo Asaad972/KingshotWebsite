@@ -104,7 +104,12 @@ export default function ResearchTreeSection() {
 
       <ResearchSummaryBar totals={totals} />
 
-      <div className="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
+      {/* No items-start here on purpose -- a sticky child only has room to
+          stay pinned while scrolling if ITS OWN grid-item box is as tall as
+          the row (i.e. as tall as the tree). items-start would shrink the
+          sidebar's box down to just its own content height, leaving the
+          sticky panel nothing to "stick" within past the first ~400px. */}
+      <div className="grid lg:grid-cols-[1fr_340px] gap-4">
         <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
         <div className="hidden lg:block">
           <ResearchBonusSidebar bonuses={bonuses} />
@@ -117,7 +122,7 @@ export default function ResearchTreeSection() {
       <button
         type="button"
         onClick={() => setBonusesOpen(true)}
-        className="focus-ring lg:hidden fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full border border-gold-500/60 bg-stone-900 px-4 py-3 shadow-lg text-sm font-semibold text-gold-300"
+        className="focus-ring lg:hidden fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full border border-gold-500/60 bg-stone-900 px-4 py-3 shadow-lg text-sm font-semibold text-gold-300"
       >
         Bonuses
       </button>
