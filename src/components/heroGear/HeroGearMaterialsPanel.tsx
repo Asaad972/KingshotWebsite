@@ -34,7 +34,7 @@ export default function HeroGearMaterialsPanel({
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
         <h2 className="text-base font-semibold text-parchment-100">Materials</h2>
-        <p className="text-[11px] text-parchment-500 mt-0.5">
+        <p className="text-[11px] text-parchment-400 mt-0.5">
           Combined total across Infantry, Cavalry and Archers. Enter what you already have -- we'll tell you how much more you need.
         </p>
       </div>
@@ -44,7 +44,7 @@ export default function HeroGearMaterialsPanel({
         <div className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-2.5">
           <div>
             <p className="text-sm font-semibold text-parchment-100">Hero Gear XP</p>
-            <p className="text-xs text-parchment-500">
+            <p className="text-xs text-parchment-400">
               Need <span className="text-parchment-200 font-medium tabular-nums">{required.xp.toLocaleString()}</span> total
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function HeroGearMaterialsPanel({
               />
             </div>
           ))}
-          <p className="text-[11px] text-parchment-500">
+          <p className="text-[11px] text-parchment-400">
             = <span className="text-parchment-200 font-medium tabular-nums">{ownedXp.toLocaleString()}</span> XP
           </p>
           <div
@@ -93,13 +93,13 @@ export default function HeroGearMaterialsPanel({
                 <Image src={m.icon} alt={m.label} width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
-                  <p className="text-xs text-parchment-500">
+                  <p className="text-xs text-parchment-400">
                     Need <span className="text-parchment-200 font-medium tabular-nums">{req.toLocaleString()}</span> total
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-parchment-500 shrink-0" htmlFor={`owned-${m.id}`}>
+                <label className="text-xs text-parchment-400 shrink-0" htmlFor={`owned-${m.id}`}>
                   I have:
                 </label>
                 <input

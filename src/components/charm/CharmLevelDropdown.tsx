@@ -99,7 +99,7 @@ export default function CharmLevelDropdown({
 
   return (
     <div>
-      <span className="text-[9px] uppercase tracking-wide text-parchment-500" aria-hidden>
+      <span className="text-[9px] uppercase tracking-wide text-parchment-400" aria-hidden>
         {label}
       </span>
       <button
@@ -114,7 +114,7 @@ export default function CharmLevelDropdown({
         }`}
       >
         <span className="truncate">{level?.label ?? placeholder ?? 'Base'}</span>
-        <span className="text-parchment-500 shrink-0" aria-hidden>
+        <span className="text-parchment-400 shrink-0" aria-hidden>
           ▾
         </span>
       </button>

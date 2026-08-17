@@ -15,7 +15,7 @@ export default function CharmTroopStatsPanel({ troopStats }: { troopStats: Recor
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
         <h2 className="text-base font-semibold text-parchment-100">Stat Bonuses</h2>
-        <p className="text-[11px] text-parchment-500 mt-0.5">
+        <p className="text-[11px] text-parchment-400 mt-0.5">
           Charms boost their piece's troop type Health &amp; Lethality (Cap/Watch &rarr; Cavalry, Coat/Pants &rarr; Infantry,
           Belt/Staff &rarr; Archers) -- the gear pieces themselves boost Attack &amp; Defense instead.
         </p>

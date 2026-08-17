@@ -106,7 +106,7 @@ export default function GearLevelDropdown({
 
   return (
     <div>
-      <span className="text-[9px] uppercase tracking-wide text-parchment-500" aria-hidden>
+      <span className="text-[9px] uppercase tracking-wide text-parchment-400" aria-hidden>
         {label}
       </span>
       <button
@@ -120,7 +120,7 @@ export default function GearLevelDropdown({
         className="focus-ring w-full flex items-center justify-between gap-1 rounded border border-stone-700 bg-stone-950 px-2 py-2 text-xs font-medium hover:border-gold-600 transition-colors min-h-[40px]"
       >
         <span className={`truncate ${meta ? meta.text : 'text-parchment-300'}`}>{level?.label ?? placeholder ?? 'Base'}</span>
-        <span className="text-parchment-500 shrink-0" aria-hidden>
+        <span className="text-parchment-400 shrink-0" aria-hidden>
           ▾
         </span>
       </button>

@@ -55,7 +55,7 @@ export default function LevelSlider({
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] uppercase tracking-wide text-parchment-500">{label}</span>
+        <span className="text-[10px] uppercase tracking-wide text-parchment-400">{label}</span>
         <div className="flex items-center gap-1">
           <svg
             viewBox="0 0 24 24"

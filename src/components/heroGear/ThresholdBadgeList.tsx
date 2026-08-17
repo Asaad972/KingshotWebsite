@@ -18,7 +18,7 @@ export default function ThresholdBadgeList({ level, variant }: { level: number; 
             className={`rounded-md px-2 py-1 text-center ${achieved ? '' : 'bg-stone-800 border border-stone-700'}`}
             style={achieved ? { backgroundColor: ACHIEVED_COLORS[i] } : undefined}
           >
-            <p className={`text-[11px] font-bold leading-tight ${achieved ? 'text-white' : 'text-parchment-500'}`}>
+            <p className={`text-[11px] font-bold leading-tight ${achieved ? 'text-white' : 'text-parchment-400'}`}>
               {STAT_LABELS[t.stat]} +{t.value}%
             </p>
             <p className={`text-[9px] leading-tight ${achieved ? 'text-white/70' : 'text-parchment-600'}`}>Lv.{t.level}</p>

@@ -16,7 +16,7 @@ export default function GearMaterialsPanel({
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
         <h2 className="text-base font-semibold text-parchment-100">Materials</h2>
-        <p className="text-[11px] text-parchment-500 mt-0.5">Enter what you already have -- we'll tell you how much more you need.</p>
+        <p className="text-[11px] text-parchment-400 mt-0.5">Enter what you already have -- we'll tell you how much more you need.</p>
       </div>
 
       <div className="flex flex-col gap-2.5">
@@ -38,13 +38,13 @@ export default function GearMaterialsPanel({
                   />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
-                    <p className="text-xs text-parchment-500">
+                    <p className="text-xs text-parchment-400">
                       Need <span className="text-parchment-200 font-medium tabular-nums">{req.toLocaleString()}</span> total
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-parchment-500 shrink-0" htmlFor={`owned-${m.id}`}>
+                  <label className="text-xs text-parchment-400 shrink-0" htmlFor={`owned-${m.id}`}>
                     I have:
                   </label>
                   <input

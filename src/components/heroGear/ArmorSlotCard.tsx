@@ -61,7 +61,7 @@ export default function ArmorSlotCard({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <Image src="/heroGear/materials/xp.webp" alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
-          <p className="text-[10px] font-medium text-parchment-500">Level (0-{ARMOR_MAX_LEVEL})</p>
+          <p className="text-[10px] font-medium text-parchment-400">Level (0-{ARMOR_MAX_LEVEL})</p>
         </div>
         <LevelSlider
           label="Current"
@@ -124,7 +124,7 @@ export default function ArmorSlotCard({
             height={32}
             className="h-8 w-8 rounded object-cover"
           />
-          <p className="text-[10px] font-medium text-parchment-500">Mastery Forging (0-{MASTERY_MAX_LEVEL})</p>
+          <p className="text-[10px] font-medium text-parchment-400">Mastery Forging (0-{MASTERY_MAX_LEVEL})</p>
         </div>
         <LevelSlider label="Current" value={currentMastery} min={0} max={MASTERY_MAX_LEVEL} onChange={setCurrentMastery} tone="cyan" />
         <LevelSlider
@@ -138,7 +138,7 @@ export default function ArmorSlotCard({
       </div>
 
       <div>
-        <p className="text-[10px] font-medium text-parchment-500 mb-1.5">Milestones (at Target level)</p>
+        <p className="text-[10px] font-medium text-parchment-400 mb-1.5">Milestones (at Target level)</p>
         <ThresholdBadgeList level={targetLevel} variant={ARMOR_THRESHOLD_VARIANT[slotId]} />
       </div>
     </div>
