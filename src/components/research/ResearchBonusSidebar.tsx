@@ -14,11 +14,24 @@ const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
 /** Shows only the goal (target) total per stat -- current-only progress
  * isn't shown here since this panel represents what your plan adds up to
  * once you finish everything you've set a goal for, not a running log. */
-export default function ResearchBonusSidebar({ bonuses }: { bonuses: CategoryBonus[] }) {
+export default function ResearchBonusSidebar({ bonuses, onClose }: { bonuses: CategoryBonus[]; onClose?: () => void }) {
   return (
     <div className="dashboard-card p-5 flex flex-col gap-3 lg:sticky lg:top-3">
-      <h2 className="text-base font-semibold text-parchment-100">Overall Bonuses</h2>
-      <p className="text-xs text-parchment-400 -mt-2">Your total once you finish everything on your goal list.</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h2 className="text-base font-semibold text-parchment-100">Overall Bonuses</h2>
+          <p className="text-xs text-parchment-400 mt-0.5">Your total once you finish everything on your goal list.</p>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="focus-ring shrink-0 rounded border border-stone-700 px-2 py-1 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500"
+          >
+            Close
+          </button>
+        )}
+      </div>
 
       <div className="flex flex-col gap-1.5">
         {bonuses.map((b) => {

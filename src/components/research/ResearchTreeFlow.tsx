@@ -143,12 +143,14 @@ export default function ResearchTreeFlow({
                 className={`focus-ring -mt-4 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none tabular-nums transition-colors ${
                   maxed
                     ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
-                    : state.current > 0
-                      ? 'bg-stone-700 text-parchment-100 hover:bg-stone-600'
-                      : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
+                    : hasGoal
+                      ? 'bg-cyan-500 text-stone-950 hover:bg-cyan-400'
+                      : state.current > 0
+                        ? 'bg-stone-700 text-parchment-100 hover:bg-stone-600'
+                        : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
                 }`}
               >
-                {maxed ? 'MAX' : state.current > 0 ? `${state.current}/${tech.maxLevel}` : 'Tap max'}
+                {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : 'Tap max'}
               </button>
 
               <span className={`text-xs font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}>

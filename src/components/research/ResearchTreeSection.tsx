@@ -26,19 +26,23 @@ import ResearchBonusSidebar from './ResearchBonusSidebar';
 export default function ResearchTreeSection() {
   const [plan, setPlan] = useLocalStorageState<ResearchPlan>('researchTree:economy', defaultResearchPlan());
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [bonusesOpen, setBonusesOpen] = useState(false);
 
   const totals = calcResearchPlan(plan);
   const bonuses = calcCategoryBonuses(plan);
   const selectedTech = selectedId ? getEconomyTech(selectedId) : null;
 
   useEffect(() => {
-    if (!selectedId) return;
+    if (!selectedId && !bonusesOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedId(null);
+      if (e.key === 'Escape') {
+        setSelectedId(null);
+        setBonusesOpen(false);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selectedId]);
+  }, [selectedId, bonusesOpen]);
 
   const updateTech = (techId: string, next: TechLevelState) => {
     setPlan((prev) => ({ ...prev, [techId]: next }));
@@ -102,8 +106,32 @@ export default function ResearchTreeSection() {
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
         <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
-        <ResearchBonusSidebar bonuses={bonuses} />
+        <div className="hidden lg:block">
+          <ResearchBonusSidebar bonuses={bonuses} />
+        </div>
       </div>
+
+      {/* Below lg, the sidebar can't sit beside the tree, so it becomes a
+          floating button that's always on screen no matter how far you've
+          scrolled down the tree -- tapping it opens the same bonus list. */}
+      <button
+        type="button"
+        onClick={() => setBonusesOpen(true)}
+        className="focus-ring lg:hidden fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full border border-gold-500/60 bg-stone-900 px-4 py-3 shadow-lg text-sm font-semibold text-gold-300"
+      >
+        Bonuses
+      </button>
+
+      {bonusesOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-50 flex items-end justify-center bg-stone-950/70 p-4"
+          onClick={() => setBonusesOpen(false)}
+        >
+          <div className="w-full max-w-sm max-h-[80vh] overflow-y-auto scrollbar-thin" onClick={(e) => e.stopPropagation()}>
+            <ResearchBonusSidebar bonuses={bonuses} onClose={() => setBonusesOpen(false)} />
+          </div>
+        </div>
+      )}
 
       {selectedTech && (
         <div
