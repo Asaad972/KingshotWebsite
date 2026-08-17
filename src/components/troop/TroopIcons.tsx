@@ -40,34 +40,3 @@ export function IronIcon() {
     </svg>
   );
 }
-
-export function InfantryIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M12 3l6 2.5v5c0 4.8-2.6 7.8-6 9.5-3.4-1.7-6-4.7-6-9.5v-5L12 3Z" fill="currentColor" />
-      <path d="M9.5 12.5l1.8 1.8L15 10.5" stroke="#1c1917" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.4" />
-    </svg>
-  );
-}
-
-export function CavalryIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path
-        d="M5 18c0-3 1-5 2.5-6.5L6 9l2-2 2 1.3c1-.5 2.1-.8 3.3-.8.6-1.4 1.9-2.5 3.7-2.5l-.5 2c1 .4 1.5 1.3 1.5 2.3v2.2c0 3.6-1.6 6.2-4 7.5H8c-1.2 0-2.5-.2-3-1Z"
-        fill="currentColor"
-      />
-      <circle cx="15" cy="8.5" r="0.9" fill="#1c1917" opacity="0.5" />
-    </svg>
-  );
-}
-
-export function ArcherIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M6 3c6 1 10 5 11 11-6-1-10-5-11-11Z" fill="currentColor" opacity="0.75" />
-      <path d="M4 20 18 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M13 6h5v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  );
-}

@@ -4,12 +4,11 @@ import { useEffect, useMemo } from 'react';
 import { TROOP_TIERS, TROOP_TYPE_LABELS, getTroopTier, type TroopType } from '@/lib/troopData';
 import { calcTroopPlan, tiersAbove, formatDuration, type CalcMode, type CalcType } from '@/lib/troopCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
-import { BreadIcon, WoodIcon, StoneIcon, IronIcon, InfantryIcon, CavalryIcon, ArcherIcon } from './TroopIcons';
+import { BreadIcon, WoodIcon, StoneIcon, IronIcon } from './TroopIcons';
 
 interface TroopFormState {
   calcType: CalcType;
   mode: CalcMode;
-  troopType: TroopType;
   currentTierId: string;
   targetTierId: string;
   quantity: number;
@@ -21,12 +20,12 @@ interface TroopFormState {
   kingdomSkill: boolean;
   nobleAdvisor: boolean;
   kvkBonus: boolean;
+  saulSkill: boolean;
 }
 
 const DEFAULT_STATE: TroopFormState = {
   calcType: 'time',
   mode: 'train',
-  troopType: 'infantry',
   currentTierId: '',
   targetTierId: 't10',
   quantity: 1,
@@ -38,13 +37,10 @@ const DEFAULT_STATE: TroopFormState = {
   kingdomSkill: false,
   nobleAdvisor: false,
   kvkBonus: false,
+  saulSkill: false,
 };
 
-const TROOP_TYPE_ICONS: Record<TroopType, React.ReactNode> = {
-  infantry: <InfantryIcon />,
-  cavalry: <CavalryIcon />,
-  archer: <ArcherIcon />,
-};
+const TROOP_TYPE_ORDER: TroopType[] = ['infantry', 'cavalry', 'archer'];
 
 const RESOURCE_ICONS = [
   { id: 'bread' as const, label: 'Bread', icon: <BreadIcon />, color: 'text-amber-400' },
@@ -63,7 +59,7 @@ function PillToggle<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className={`grid gap-1.5`} style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+    <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
       {options.map((opt) => (
         <button
           key={opt.id}
@@ -91,6 +87,11 @@ function PillToggle<T extends string>({
  *
  * Data and formula reverse-engineered directly from kingshotguide.org's own
  * page bundle (2026-08-18) -- see troopData.ts for the sourcing note.
+ *
+ * No Troop Type selector -- build time, power, and event points are
+ * identical for Infantry/Cavalry/Archer at a given tier, so the Results
+ * panel just shows all three troop types' resource costs at once instead
+ * of making you pick one (per the user, 2026-08-18).
  */
 export default function TroopCalculatorSection() {
   const [form, setForm] = useLocalStorageState<TroopFormState>('troopCalculator:form', DEFAULT_STATE);
@@ -115,7 +116,6 @@ export default function TroopCalculatorSection() {
   const result = useMemo(
     () =>
       calcTroopPlan({
-        troopType: form.troopType,
         mode: form.mode,
         calcType: form.calcType,
         currentTierId: form.mode === 'promote' ? form.currentTierId : undefined,
@@ -127,6 +127,7 @@ export default function TroopCalculatorSection() {
           kingdomSkill: form.kingdomSkill,
           nobleAdvisor: form.nobleAdvisor,
           kvkBonus: form.kvkBonus,
+          saulSkill: form.saulSkill,
         },
       }),
     [form, availableSeconds]
@@ -181,27 +182,6 @@ export default function TroopCalculatorSection() {
               value={form.mode}
               onChange={(mode) => update({ mode })}
             />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Troop Type</p>
-            <div className="grid grid-cols-3 gap-1.5">
-              {(Object.keys(TROOP_TYPE_LABELS) as TroopType[]).map((tt) => (
-                <button
-                  key={tt}
-                  type="button"
-                  onClick={() => update({ troopType: tt })}
-                  className={`focus-ring flex flex-col items-center gap-1 rounded-md border px-2 py-2 text-xs font-semibold transition-colors ${
-                    form.troopType === tt
-                      ? 'bg-gold-500 border-gold-500 text-stone-950'
-                      : 'bg-stone-900 border-stone-700 text-parchment-300 hover:border-gold-600'
-                  }`}
-                >
-                  <span className="h-5 w-5">{TROOP_TYPE_ICONS[tt]}</span>
-                  {TROOP_TYPE_LABELS[tt]}
-                </button>
-              ))}
-            </div>
           </div>
 
           {form.mode === 'promote' && (
@@ -296,9 +276,10 @@ export default function TroopCalculatorSection() {
             <p className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Buffs</p>
             {(
               [
-                { id: 'kingdomSkill' as const, label: 'Kingdom Skill (+30%)' },
-                { id: 'nobleAdvisor' as const, label: 'Noble Advisor (+50%)' },
-                { id: 'kvkBonus' as const, label: 'Kingdom of Power / KvK (+25%)' },
+                { id: 'kingdomSkill' as const, label: 'Kingdom Skill (+30% speed)' },
+                { id: 'nobleAdvisor' as const, label: 'Noble Advisor (+50% speed)' },
+                { id: 'kvkBonus' as const, label: 'Kingdom of Power / KvK (+25% speed)' },
+                { id: 'saulSkill' as const, label: "Saul's Skill (-15% resource cost)" },
               ] as const
             ).map((b) => (
               <label key={b.id} className="flex items-center gap-2 cursor-pointer">
@@ -333,15 +314,19 @@ export default function TroopCalculatorSection() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  {RESOURCE_ICONS.map((r) => (
-                    <div key={r.id} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex items-center gap-2">
-                      <span className={`h-6 w-6 shrink-0 ${r.color}`}>{r.icon}</span>
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-parchment-400">{r.label}</p>
-                        <p className="text-sm font-bold text-parchment-100 tabular-nums truncate">
-                          {result.cost[r.id].toLocaleString()}
-                        </p>
+                <div className="flex flex-col gap-2">
+                  {TROOP_TYPE_ORDER.map((troopType) => (
+                    <div key={troopType} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex flex-col gap-1.5">
+                      <p className="text-xs font-semibold text-parchment-200">{TROOP_TYPE_LABELS[troopType]}</p>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {RESOURCE_ICONS.map((r) => (
+                          <div key={r.id} className="flex flex-col items-center gap-0.5">
+                            <span className={`h-4 w-4 ${r.color}`}>{r.icon}</span>
+                            <span className="text-[11px] font-bold text-parchment-100 tabular-nums">
+                              {result.costByType[troopType][r.id].toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}

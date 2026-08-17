@@ -3,9 +3,11 @@
 // its full tier/cost/time table as a plain JS object in its page bundle.
 // buildTime (seconds), power, and event points are identical across all 3
 // troop types at a given tier -- only the 4 resource costs differ per troop
-// type. Tiers t11/tg4/tg5 exist in that site's data but are excluded from
-// its own selectable UI (presumably unreleased in-game), so they're left
-// out here too.
+// type. Tier t11 exists in that site's data but is excluded from its own
+// selectable UI (presumably unreleased in-game), so it's left out here too
+// -- TG4/TG5 are included since the user asked for them specifically; their
+// real values were already present in that same source data, just likewise
+// hidden from that site's own dropdown.
 //
 // Two data points look like likely typos in the source (kept as-is rather
 // than "corrected", since this is meant to mirror a trusted live reference
@@ -58,6 +60,8 @@ const TIER_META: [string, string, number, number, number, number][] = [
   ['tg1', 'TG1', 152, 71, 60, 39],
   ['tg2', 'TG2', 152, 76, 60, 39],
   ['tg3', 'TG3', 152, 83, 60, 39],
+  ['tg4', 'TG4', 152, 88, 60, 39],
+  ['tg5', 'TG5', 152, 94, 60, 39],
 ];
 
 // [tierId, bread, wood, stone, iron]
@@ -75,6 +79,8 @@ const INFANTRY_COST: [string, number, number, number, number][] = [
   ['tg1', 2788, 2091, 488, 102],
   ['tg2', 2788, 2091, 488, 102],
   ['tg3', 2788, 2091, 488, 102],
+  ['tg4', 2788, 2091, 488, 102],
+  ['tg5', 2788, 2091, 488, 102],
 ];
 
 const CAVALRY_COST: [string, number, number, number, number][] = [
@@ -91,6 +97,8 @@ const CAVALRY_COST: [string, number, number, number, number][] = [
   ['tg1', 2440, 2301, 474, 109],
   ['tg2', 2440, 2301, 474, 109],
   ['tg3', 2440, 2301, 474, 109],
+  ['tg4', 2440, 2301, 474, 109],
+  ['tg5', 2440, 2301, 474, 109],
 ];
 
 const ARCHER_COST: [string, number, number, number, number][] = [
@@ -107,6 +115,8 @@ const ARCHER_COST: [string, number, number, number, number][] = [
   ['tg1', 1740, 2579, 433, 140],
   ['tg2', 1740, 2579, 433, 140],
   ['tg3', 1740, 2579, 433, 140],
+  ['tg4', 1740, 2579, 433, 140],
+  ['tg5', 1740, 2579, 433, 140],
 ];
 
 function costMap(rows: [string, number, number, number, number][]): Record<string, ResourceCost> {

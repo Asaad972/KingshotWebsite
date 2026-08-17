@@ -9,11 +9,16 @@ export interface SpeedBuffs {
   kingdomSkill: boolean;
   nobleAdvisor: boolean;
   kvkBonus: boolean;
+  /** Saul's skill -- a flat 15% discount on resource costs, not a speed buff. */
+  saulSkill: boolean;
 }
 
 const KINGDOM_SKILL_PERCENT = 30;
 const NOBLE_ADVISOR_PERCENT = 50;
 const KVK_BONUS_PERCENT = 25;
+const SAUL_SKILL_COST_DISCOUNT_PERCENT = 15;
+
+const TROOP_TYPES: TroopType[] = ['infantry', 'cavalry', 'archer'];
 
 /** Total time is divided by this multiplier -- every buff stacks additively
  * before being applied, matching the reference calculator's own formula. */
@@ -27,42 +32,39 @@ export function speedMultiplier(buffs: SpeedBuffs): number {
   );
 }
 
-interface PerUnit {
-  buildTime: number;
-  power: number;
-  cost: ResourceCost;
+function costFraction(buffs: SpeedBuffs): number {
+  return buffs.saulSkill ? 1 - SAUL_SKILL_COST_DISCOUNT_PERCENT / 100 : 1;
 }
 
 /** Promoting only costs/takes the INCREMENTAL amount beyond the current
  * tier (you already paid for the base troop) -- training from scratch uses
  * the target tier's full cumulative amount. Clamped at 0 so an invalid
  * target-below-current selection can't produce negative results. */
-function perUnitAmounts(troopType: TroopType, mode: CalcMode, targetTierId: string, currentTierId?: string): PerUnit | null {
+function perUnitCost(troopType: TroopType, mode: CalcMode, targetTierId: string, currentTierId?: string): ResourceCost {
   const target = getTroopTier(targetTierId);
-  if (!target) return null;
   const current = mode === 'promote' ? getTroopTier(currentTierId) : undefined;
+  if (!target) return { bread: 0, wood: 0, stone: 0, iron: 0 };
 
   if (mode === 'promote') {
     const currentCost = current?.cost[troopType];
     return {
-      buildTime: Math.max(0, target.buildTime - (current?.buildTime ?? 0)),
-      power: Math.max(0, target.power - (current?.power ?? 0)),
-      cost: {
-        bread: Math.max(0, target.cost[troopType].bread - (currentCost?.bread ?? 0)),
-        wood: Math.max(0, target.cost[troopType].wood - (currentCost?.wood ?? 0)),
-        stone: Math.max(0, target.cost[troopType].stone - (currentCost?.stone ?? 0)),
-        iron: Math.max(0, target.cost[troopType].iron - (currentCost?.iron ?? 0)),
-      },
+      bread: Math.max(0, target.cost[troopType].bread - (currentCost?.bread ?? 0)),
+      wood: Math.max(0, target.cost[troopType].wood - (currentCost?.wood ?? 0)),
+      stone: Math.max(0, target.cost[troopType].stone - (currentCost?.stone ?? 0)),
+      iron: Math.max(0, target.cost[troopType].iron - (currentCost?.iron ?? 0)),
     };
   }
 
-  return { buildTime: target.buildTime, power: target.power, cost: target.cost[troopType] };
+  return target.cost[troopType];
 }
 
 export interface TroopPlanResult {
   quantity: number;
   timeSeconds: number;
-  cost: ResourceCost;
+  /** Resource cost, broken out per troop type since Infantry/Cavalry/Archer
+   * genuinely cost different amounts even though time/power/points don't
+   * differ between them. */
+  costByType: Record<TroopType, ResourceCost>;
   power: number;
   kvkPoints: number;
   sgPoints: number;
@@ -72,7 +74,6 @@ export interface TroopPlanResult {
  * calcType 'quantity': given available speed-up seconds, find the max
  * troops trainable in that time. */
 export function calcTroopPlan(params: {
-  troopType: TroopType;
   mode: CalcMode;
   calcType: CalcType;
   currentTierId?: string;
@@ -81,30 +82,44 @@ export function calcTroopPlan(params: {
   availableSeconds: number;
   buffs: SpeedBuffs;
 }): TroopPlanResult | null {
-  const { troopType, mode, calcType, currentTierId, targetTierId, quantity, availableSeconds, buffs } = params;
+  const { mode, calcType, currentTierId, targetTierId, quantity, availableSeconds, buffs } = params;
   const target = getTroopTier(targetTierId);
-  const perUnit = perUnitAmounts(troopType, mode, targetTierId, currentTierId);
-  if (!target || !perUnit) return null;
+  if (!target) return null;
+  const current = mode === 'promote' ? getTroopTier(currentTierId) : undefined;
+
+  const buildTimePerUnit = mode === 'promote' ? Math.max(0, target.buildTime - (current?.buildTime ?? 0)) : target.buildTime;
+  const powerPerUnit = mode === 'promote' ? Math.max(0, target.power - (current?.power ?? 0)) : target.power;
 
   const mult = speedMultiplier(buffs);
   const finalQuantity =
     calcType === 'quantity'
-      ? perUnit.buildTime > 0
-        ? Math.floor((availableSeconds * mult) / perUnit.buildTime)
+      ? buildTimePerUnit > 0
+        ? Math.floor((availableSeconds * mult) / buildTimePerUnit)
         : 0
       : Math.max(0, Math.floor(quantity));
-  const timeSeconds = calcType === 'quantity' ? availableSeconds : Math.floor((perUnit.buildTime * finalQuantity) / mult);
+  const timeSeconds = calcType === 'quantity' ? availableSeconds : Math.floor((buildTimePerUnit * finalQuantity) / mult);
+
+  const discount = costFraction(buffs);
+  const costByType = Object.fromEntries(
+    TROOP_TYPES.map((troopType) => {
+      const perUnit = perUnitCost(troopType, mode, targetTierId, currentTierId);
+      return [
+        troopType,
+        {
+          bread: Math.floor(perUnit.bread * finalQuantity * discount),
+          wood: Math.floor(perUnit.wood * finalQuantity * discount),
+          stone: Math.floor(perUnit.stone * finalQuantity * discount),
+          iron: Math.floor(perUnit.iron * finalQuantity * discount),
+        },
+      ];
+    })
+  ) as Record<TroopType, ResourceCost>;
 
   return {
     quantity: finalQuantity,
     timeSeconds,
-    cost: {
-      bread: perUnit.cost.bread * finalQuantity,
-      wood: perUnit.cost.wood * finalQuantity,
-      stone: perUnit.cost.stone * finalQuantity,
-      iron: perUnit.cost.iron * finalQuantity,
-    },
-    power: perUnit.power * finalQuantity,
+    costByType,
+    power: powerPerUnit * finalQuantity,
     kvkPoints: target.kvkPoints * finalQuantity,
     sgPoints: target.sgPoints * finalQuantity,
   };
