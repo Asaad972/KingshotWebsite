@@ -33,7 +33,9 @@ export default function ArmorSlotCard({
     onChange(slotId, { ...selection, targetLevel: v });
   };
   const setCurrentMastery = (v: number) => {
-    onChange(slotId, { ...selection, currentMastery: v, targetMastery: Math.max(targetMastery, v) });
+    // Unlike Level, don't auto-raise Target when Current passes it -- Target
+    // stays put; the slider's own min just blocks setting it below Current.
+    onChange(slotId, { ...selection, currentMastery: v });
   };
   const setTargetMastery = (v: number) => {
     onChange(slotId, { ...selection, targetMastery: v });

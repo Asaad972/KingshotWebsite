@@ -77,7 +77,10 @@ export function calcHeroGearPlan(armor: ArmorSelections): HeroGearCalcResult {
 
     const currentTotal = armorPrimaryStatTotal(sel.currentLevel, sel.currentMastery);
     const targetTotal = armorPrimaryStatTotal(sel.targetLevel, sel.targetMastery);
-    statBonus[primaryStat] += targetTotal - currentTotal;
+    // Target Mastery isn't forced above Current Mastery (unlike Level), so
+    // guard against a transient target-below-current state producing a
+    // negative bonus.
+    statBonus[primaryStat] += Math.max(0, targetTotal - currentTotal);
 
     const currentThresholds = thresholdTotals(sel.currentLevel, variant);
     const targetThresholds = thresholdTotals(sel.targetLevel, variant);
