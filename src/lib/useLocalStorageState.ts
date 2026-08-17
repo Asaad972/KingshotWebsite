@@ -13,7 +13,15 @@ export function useLocalStorageState<T>(key: string, initial: T): [T, (value: T 
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(key);
-      if (raw) setState(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Shallow-merge onto `initial` so a field added to the state shape
+        // after some users already had an older blob saved doesn't come
+        // back as undefined (e.g. React's controlled/uncontrolled input
+        // warning on a checkbox whose key didn't exist yet when they saved).
+        const isPlainObject = parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed);
+        setState(isPlainObject ? { ...(initial as object), ...parsed } : parsed);
+      }
     } catch {
       // ignore malformed/blocked storage
     }
