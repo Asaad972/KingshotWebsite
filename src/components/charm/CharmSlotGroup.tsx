@@ -29,7 +29,7 @@ export default function CharmSlotGroup({
         {charms.map((charm) => {
           const current = getCharmLevel(selections[charm.id].currentId);
           return (
-            <div key={charm.id} className="grid grid-cols-2 gap-2 rounded border border-stone-800 bg-stone-950/40 p-2">
+            <div key={charm.id} className="grid grid-cols-2 gap-2 rounded border border-stone-700 bg-stone-800 p-2">
               <div className="col-span-2 text-[10px] font-medium text-parchment-500">{charm.label}</div>
               <CharmLevelDropdown
                 label="Current"

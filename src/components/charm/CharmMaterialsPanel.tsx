@@ -27,7 +27,7 @@ export default function CharmMaterialsPanel({
           const extra = Math.max(0, own - req);
           const ready = needed === 0;
           return (
-            <div key={m.id} className="rounded-md border border-stone-700 bg-stone-950/60 p-3 flex flex-col gap-2.5">
+            <div key={m.id} className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
                 <Image
                   src={m.icon}

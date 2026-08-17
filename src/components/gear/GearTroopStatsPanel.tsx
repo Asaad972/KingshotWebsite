@@ -25,7 +25,7 @@ export default function GearTroopStatsPanel({ troopStats }: { troopStats: Record
           const stat = troopStats[troop];
           const improved = stat.target > stat.current;
           return (
-            <div key={troop} className="rounded-md border border-stone-700 bg-stone-950/60 p-3">
+            <div key={troop} className="rounded-md border border-stone-700 bg-stone-800 p-3">
               <p className="text-sm font-semibold text-gold-300 mb-2">{TROOP_LABELS[troop]}</p>
               <div className="flex flex-col gap-1.5">
                 {(['Attack', 'Defense'] as const).map((label) => (

@@ -20,7 +20,7 @@ export default function HeroGearStatsPanel({ statsByTroop }: { statsByTroop: Rec
       </div>
       <div className="flex flex-col gap-3">
         {TROOP_ORDER.map((troop) => (
-          <div key={troop} className="rounded-md border border-stone-700 bg-stone-950/60 p-3">
+          <div key={troop} className="rounded-md border border-stone-700 bg-stone-800 p-3">
             <p className="text-sm font-semibold text-gold-300 mb-2">{TROOP_LABELS[troop]}</p>
             <div className="flex flex-col gap-1">
               {STAT_ORDER.map((stat) => (

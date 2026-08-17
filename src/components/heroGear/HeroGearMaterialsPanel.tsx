@@ -41,7 +41,7 @@ export default function HeroGearMaterialsPanel({
 
       <div className="flex flex-col gap-2.5">
         {/* Hero Gear XP -- entered as item counts, not a raw number */}
-        <div className="rounded-md border border-stone-700 bg-stone-950/60 p-3 flex flex-col gap-2.5">
+        <div className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-2.5">
           <div>
             <p className="text-sm font-semibold text-parchment-100">Hero Gear XP</p>
             <p className="text-xs text-parchment-500">
@@ -88,7 +88,7 @@ export default function HeroGearMaterialsPanel({
           const extra = Math.max(0, own - req);
           const ready = needed === 0;
           return (
-            <div key={m.id} className="rounded-md border border-stone-700 bg-stone-950/60 p-3 flex flex-col gap-2.5">
+            <div key={m.id} className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
                 <Image src={m.icon} alt={m.label} width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
                 <div className="min-w-0">
