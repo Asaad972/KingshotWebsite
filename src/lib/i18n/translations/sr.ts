@@ -55,6 +55,8 @@ const sr: typeof en = {
     quickLinkHeroGearCalculatorSubtitle: 'Planirajte nadogradnje opreme heroja',
     troopCalculatorNav: 'Obuka Trupa',
     quickLinkTroopCalculatorSubtitle: 'Vreme obuke, resursi i KvK poeni',
+    researchTreeNav: 'Stablo Istraživanja',
+    quickLinkResearchTreeSubtitle: 'Planiraj ekonomsko istraživanje',
     exploreTitle: 'Istraži',
     goodToKnowTitle: 'Dobro je znati',
     faqCalculatorsTitle: 'Kalkulatori opreme i amajlija',

@@ -54,6 +54,8 @@ const ar: typeof en = {
     quickLinkHeroGearCalculatorSubtitle: 'خطط لترقيات عتاد الأبطال',
     troopCalculatorNav: 'تدريب الجنود',
     quickLinkTroopCalculatorSubtitle: 'وقت التدريب والموارد ونقاط KvK',
+    researchTreeNav: 'شجرة الأبحاث',
+    quickLinkResearchTreeSubtitle: 'خطط أبحاث الاقتصاد',
     exploreTitle: 'استكشف',
     goodToKnowTitle: 'جدير بالمعرفة',
     faqCalculatorsTitle: 'حاسبات العتاد والتمائم',

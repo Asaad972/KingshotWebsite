@@ -53,6 +53,8 @@ const en = {
     quickLinkHeroGearCalculatorSubtitle: 'Plan hero gear upgrades',
     troopCalculatorNav: 'Troop Training',
     quickLinkTroopCalculatorSubtitle: 'Training time, resources & KvK points',
+    researchTreeNav: 'Research Tree',
+    quickLinkResearchTreeSubtitle: 'Plan your Economy research',
     exploreTitle: 'Explore',
     goodToKnowTitle: 'Good to Know',
     faqCalculatorsTitle: 'The Gear & Charm Calculators',
