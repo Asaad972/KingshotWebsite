@@ -2,7 +2,7 @@
 
 import { groupByDepth, CATEGORY_RESOURCE, type ResearchPlan } from '@/lib/researchCalc';
 import type { ResearchTech } from '@/lib/researchEconomyData';
-import { BreadIcon, WoodIcon, StoneIcon, IronIcon, OutputGlyph, GatheringGlyph } from './ResearchIcons';
+import { BreadIcon, WoodIcon, StoneIcon, IronIcon } from './ResearchIcons';
 
 const RESOURCE_ICON = { bread: BreadIcon, wood: WoodIcon, stone: StoneIcon, iron: IronIcon };
 const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
@@ -103,7 +103,6 @@ export default function ResearchTreeFlow({
           const state = plan[tech.id] ?? { current: 0, target: 0 };
           const resource = CATEGORY_RESOURCE[tech.category];
           const Icon = RESOURCE_ICON[resource];
-          const isGathering = tech.category.endsWith('gathering');
           const unlocked = isUnlocked(tech);
           const maxed = state.current >= tech.maxLevel;
           const selected = selectedId === tech.id;
@@ -128,9 +127,6 @@ export default function ResearchTreeFlow({
                 <span className={`h-9 w-9 ${RESOURCE_COLOR[resource]} ${!unlocked ? 'opacity-60' : ''}`}>
                   <Icon />
                 </span>
-                <span className="absolute -bottom-2 h-4 w-4 rounded-full bg-stone-950 border border-stone-700 flex items-center justify-center text-parchment-500">
-                  <span className="h-2.5 w-2.5">{isGathering ? <GatheringGlyph /> : <OutputGlyph />}</span>
-                </span>
               </button>
 
               <button
@@ -140,7 +136,7 @@ export default function ResearchTreeFlow({
                   onToggleMax(tech.id);
                 }}
                 title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
-                className={`focus-ring -mt-4 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none tabular-nums transition-colors ${
+                className={`focus-ring -mt-3 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none tabular-nums transition-colors ${
                   maxed
                     ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
                     : hasGoal
