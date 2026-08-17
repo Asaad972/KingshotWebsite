@@ -7,7 +7,7 @@ import { useI18n } from '@/lib/i18n';
 import UTCClock from './UTCClock';
 import type { Locale } from '@/types';
 
-const LANG_LABELS: Record<Locale, string> = { en: 'EN', ar: 'AR', tr: 'TR' };
+const LANG_LABELS: Record<Locale, string> = { en: 'EN', ar: 'AR', tr: 'TR', sr: 'SR' };
 
 export default function SiteHeader() {
   const { locale, setLocale, t } = useI18n();

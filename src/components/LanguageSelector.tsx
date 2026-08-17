@@ -7,6 +7,7 @@ const OPTIONS: Array<{ code: Locale; flag: string; nativeLabel: string }> = [
   { code: 'ar', flag: '🇸🇦', nativeLabel: 'العربية' },
   { code: 'tr', flag: '🇹🇷', nativeLabel: 'Türkçe' },
   { code: 'en', flag: '🇬🇧', nativeLabel: 'English' },
+  { code: 'sr', flag: '🇷🇸', nativeLabel: 'Srpski' },
 ];
 
 export default function LanguageSelector({
@@ -28,10 +29,10 @@ export default function LanguageSelector({
       <div className="text-center mb-8">
         <p className="text-gold-400 tracking-widest text-xs font-semibold uppercase mb-2">KingShot</p>
         <h1 className="font-display text-xl sm:text-2xl text-parchment-100">
-          Choose your language · اختر لغتك · Dil seçin
+          Choose your language · اختر لغتك · Dil seçin · Izaberite jezik
         </h1>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {OPTIONS.map((opt) => (
           <button
             key={opt.code}

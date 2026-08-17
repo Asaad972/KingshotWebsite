@@ -70,9 +70,17 @@ export function formatUtcClock(date: Date): string {
   return date.toISOString().substring(11, 19); // HH:MM:SS
 }
 
+/** Serbian's bare 'sr' locale defaults to Cyrillic script in ICU/Intl --
+ * force Latin since that's what the rest of our Serbian copy uses. */
+function dateFnsLocale(locale: string): string {
+  if (locale === 'ar') return 'en-GB';
+  if (locale === 'sr') return 'sr-Latn';
+  return locale;
+}
+
 export function formatUtcDate(date: Date | string, locale: string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString(locale === 'ar' ? 'en-GB' : locale, {
+  return d.toLocaleDateString(dateFnsLocale(locale), {
     month: 'long',
     day: 'numeric',
     timeZone: 'UTC',
@@ -81,7 +89,7 @@ export function formatUtcDate(date: Date | string, locale: string): string {
 
 export function formatUtcWeekdayDate(date: Date | string, locale: string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString(locale === 'ar' ? 'en-GB' : locale, {
+  return d.toLocaleDateString(dateFnsLocale(locale), {
     weekday: 'long',
     month: 'long',
     day: 'numeric',

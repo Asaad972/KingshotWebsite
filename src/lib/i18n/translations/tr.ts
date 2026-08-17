@@ -22,6 +22,7 @@ const tr: typeof en = {
     ar: 'Arapça',
     tr: 'Türkçe',
     en: 'İngilizce',
+    sr: 'Sırpça',
   },
   home: {
     welcomeTitle: 'Kingdom #1781\'e Hoş Geldiniz',

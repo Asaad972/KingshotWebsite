@@ -20,6 +20,7 @@ const en = {
     ar: 'Arabic',
     tr: 'Turkish',
     en: 'English',
+    sr: 'Serbian',
   },
   home: {
     welcomeTitle: 'Welcome to Kingdom #1781',

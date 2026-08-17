@@ -5,8 +5,9 @@ import type { Locale } from '@/types';
 import en from './translations/en';
 import ar from './translations/ar';
 import tr from './translations/tr';
+import sr from './translations/sr';
 
-const dictionaries = { en, ar, tr };
+const dictionaries = { en, ar, tr, sr };
 
 export const LOCALE_STORAGE_KEY = 'kingshot_locale';
 

@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'ar' | 'tr';
+export type Locale = 'en' | 'ar' | 'tr' | 'sr';
 
 export type SlotStatus = 'available' | 'pending' | 'booked' | 'past';
 
