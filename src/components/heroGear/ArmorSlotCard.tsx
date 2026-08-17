@@ -6,7 +6,7 @@ import type { ArmorSelection } from '@/lib/heroGearCalc';
 import LevelSlider from './LevelSlider';
 import ThresholdBadgeList from './ThresholdBadgeList';
 
-const MILESTONE_LEVELS = [100, 120, 140, 160, 180, 200];
+const MILESTONE_LEVELS = [50, 75, 100, 120, 140, 160, 180, 200];
 // Mastery only spans 0-20 -- small enough to pick directly from a grid of
 // boxes instead of dragging a slider.
 const MASTERY_LEVELS = Array.from({ length: 21 }, (_, i) => i);
@@ -61,7 +61,7 @@ export default function ArmorSlotCard({
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
-          <Image src="/heroGear/materials/xp.webp" alt="" width={24} height={24} className="h-6 w-6 rounded object-cover" />
+          <Image src="/heroGear/materials/xp.webp" alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
           <p className="text-[10px] font-medium text-parchment-500">Level (0-{ARMOR_MAX_LEVEL})</p>
         </div>
         <LevelSlider
@@ -121,9 +121,9 @@ export default function ArmorSlotCard({
           <Image
             src="/heroGear/materials/forgehammers.png"
             alt=""
-            width={24}
-            height={24}
-            className="h-6 w-6 rounded object-cover"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded object-cover"
           />
           <p className="text-[10px] font-medium text-parchment-500">Mastery Forging (0-{MASTERY_MAX_LEVEL})</p>
         </div>
