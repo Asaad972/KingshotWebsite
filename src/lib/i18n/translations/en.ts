@@ -51,6 +51,24 @@ const en = {
     heroGearCalculatorNav: 'Hero Gear Calculator',
     quickLinkHeroGearCalculatorSubtitle: 'Plan hero gear upgrades',
     exploreTitle: 'Explore',
+    goodToKnowTitle: 'Good to Know',
+    faqCalculatorsTitle: 'The Gear & Charm Calculators',
+    faqCalculatorsBody:
+      "Governor Gear, Governor Charm, and Hero Gear Calculators plan your upgrades: set what you have now and what you're aiming for, and each one tells you exactly how many materials you still need and how much stronger you'll be.",
+    faqProfilesTitle: 'Saving Your Progress',
+    faqProfilesBody:
+      'Everything you enter is saved automatically in this browser, so you can close the tab and come back later. Tracking more than one setup? Tap Profiles at the top of any calculator to save a named snapshot you can reload anytime.',
+    faqQuickSetTitle: 'Quick Set',
+    faqQuickSetBody:
+      'Setting the same level across several pieces one by one is slow -- use the Quick set panel near the top of the Gear/Charm calculators to apply a level to all of them (or a whole troop type) at once.',
+    faqBookingTitle: 'Book Your Slot & Castle Schedule',
+    faqBookingBody:
+      "Apply for a castle appointment by selecting every time that works for you -- the more you pick, the better your odds. Once an admin assigns you a slot, it shows up on the Castle Schedule page.",
+    faqRallyTitle: 'Rally Timer',
+    faqRallyBody: 'Work out exactly when to launch your rally so it lands at the moment you want.',
+    faqGiftCodesTitle: 'Gift Codes',
+    faqGiftCodesBody:
+      "Enter your Player ID once and every active code gets redeemed for you automatically -- new codes too, the moment they're added.",
   },
   tutorial: {
     step1Title: 'Prepare your main account screenshot',

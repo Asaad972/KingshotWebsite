@@ -2,6 +2,7 @@
 
 import { useI18n } from '@/lib/i18n';
 import QuickLinksGrid from '@/components/QuickLinksGrid';
+import HomeGuide from '@/components/HomeGuide';
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -33,6 +34,10 @@ export default function HomePage() {
           heroGearCalculatorTitle={t('home.heroGearCalculatorNav')}
           heroGearCalculatorSubtitle={t('home.quickLinkHeroGearCalculatorSubtitle')}
         />
+      </div>
+
+      <div className="mt-8">
+        <HomeGuide />
       </div>
     </div>
   );

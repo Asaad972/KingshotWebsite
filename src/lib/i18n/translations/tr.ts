@@ -53,6 +53,24 @@ const tr: typeof en = {
     heroGearCalculatorNav: 'Kahraman Ekipman Hesaplayıcı',
     quickLinkHeroGearCalculatorSubtitle: 'Kahraman ekipman yükseltmelerini planla',
     exploreTitle: 'Keşfet',
+    goodToKnowTitle: 'Bilmekte Fayda Var',
+    faqCalculatorsTitle: 'Ekipman ve Tılsım Hesaplayıcıları',
+    faqCalculatorsBody:
+      'Vali Ekipman, Vali Tılsım ve Kahraman Ekipman Hesaplayıcıları yükseltmelerinizi planlar: şu anki durumunuzu ve hedefinizi girin, her biri tam olarak ne kadar malzemeye ihtiyacınız olduğunu ve ne kadar güçleneceğinizi söyler.',
+    faqProfilesTitle: 'İlerlemenizi Kaydetme',
+    faqProfilesBody:
+      "Girdiğiniz her şey bu tarayıcıda otomatik olarak kaydedilir, böylece sekmeyi kapatıp daha sonra devam edebilirsiniz. Birden fazla kurulumu mu takip ediyorsunuz? İstediğiniz zaman geri yükleyebileceğiniz adlandırılmış bir anlık görüntü kaydetmek için herhangi bir hesaplayıcının üstündeki Profiller'e dokunun.",
+    faqQuickSetTitle: 'Hızlı Ayarla',
+    faqQuickSetBody:
+      'Aynı seviyeyi birden fazla parçaya tek tek ayarlamak yavaştır -- Ekipman/Tılsım hesaplayıcılarının üstündeki Hızlı ayarla panelini kullanarak bir seviyeyi hepsine (veya tüm bir asker türüne) tek seferde uygulayın.',
+    faqBookingTitle: 'Randevu Alma ve Kale Takvimi',
+    faqBookingBody:
+      'Size uygun olan her zamanı seçerek kale randevusu için başvurun -- ne kadar çok seçerseniz, şansınız o kadar artar. Bir yönetici size bir zaman dilimi atadığında, bu Kale Takvimi sayfasında görünür.',
+    faqRallyTitle: 'Rally Zamanlayıcı',
+    faqRallyBody: "Rally'nizi istediğiniz anda vurması için tam olarak ne zaman başlatmanız gerektiğini hesaplayın.",
+    faqGiftCodesTitle: 'Hediye Kodları',
+    faqGiftCodesBody:
+      "Oyuncu ID'nizi bir kez girin, aktif her kod sizin için otomatik olarak kullanılır -- yeni kodlar eklendiği anda onlar da dahil.",
   },
   tutorial: {
     step1Title: 'Ana hesap ekran görüntünüzü hazırlayın',
