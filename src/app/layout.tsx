@@ -26,9 +26,24 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
+const SITE_TITLE = 'K1781 -- Kingshot Nerds HQ';
+const SITE_DESCRIPTION =
+  'For Kingshot players who want to be the best at everything: castle appointments, gear calculators, rally timing, and gift codes, all in one place.';
+
 export const metadata: Metadata = {
-  title: 'Kingdom #1781 Castle Appointments',
-  description: 'Apply for your Kingdom #1781 castle appointment time slot.',
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_TITLE,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
