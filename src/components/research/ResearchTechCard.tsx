@@ -99,32 +99,46 @@ export default function ResearchTechCard({
         </div>
       )}
 
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
-        <label className="flex flex-col gap-1">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Current</span>
-          <LevelSelect
-            value={state.current}
-            options={levelOptions}
-            onChange={(v) => onChange({ current: v, target: Math.max(v, state.target) })}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <LevelSelect
+              value={state.current}
+              options={levelOptions}
+              onChange={(v) => onChange({ current: v, target: Math.max(v, state.target) })}
+            />
+            <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
+              <input
+                type="checkbox"
+                checked={state.current === tech.maxLevel}
+                onChange={(e) => onChange({ current: e.target.checked ? tech.maxLevel : 0, target: Math.max(e.target.checked ? tech.maxLevel : 0, state.target) })}
+                className="focus-ring h-4 w-4 rounded border-stone-600 bg-stone-950 accent-gold-500"
+              />
+              Max
+            </label>
+          </div>
+          <p className="text-[10px] text-parchment-500">Already have it? Check Max -- skips it from your goal cost.</p>
+        </div>
+        <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Target</span>
-          <LevelSelect
-            value={state.target}
-            options={levelOptions}
-            onChange={(v) => onChange({ current: state.current, target: Math.max(v, state.current) })}
-          />
-        </label>
-        <label className="flex flex-col items-center gap-1 pb-1.5">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Max</span>
-          <input
-            type="checkbox"
-            checked={state.target === tech.maxLevel && state.target > state.current}
-            onChange={(e) => onChange({ current: state.current, target: e.target.checked ? tech.maxLevel : state.current })}
-            className="focus-ring h-5 w-5 rounded border-stone-600 bg-stone-950 accent-gold-500"
-          />
-        </label>
+          <div className="flex items-center gap-2">
+            <LevelSelect
+              value={state.target}
+              options={levelOptions}
+              onChange={(v) => onChange({ current: state.current, target: Math.max(v, state.current) })}
+            />
+            <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
+              <input
+                type="checkbox"
+                checked={state.target === tech.maxLevel && state.target > state.current}
+                onChange={(e) => onChange({ current: state.current, target: e.target.checked ? tech.maxLevel : state.current })}
+                className="focus-ring h-4 w-4 rounded border-stone-600 bg-stone-950 accent-gold-500"
+              />
+              Max
+            </label>
+          </div>
+        </div>
       </div>
 
       <div className="border-t border-stone-700 pt-2.5 flex flex-col gap-1.5 min-h-[1.25rem]">
