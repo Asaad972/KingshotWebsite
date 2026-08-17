@@ -51,6 +51,8 @@ const en = {
     quickLinkCharmCalculatorSubtitle: 'Plan Governor Charm upgrades',
     heroGearCalculatorNav: 'Hero Gear Calculator',
     quickLinkHeroGearCalculatorSubtitle: 'Plan hero gear upgrades',
+    troopCalculatorNav: 'Troop Training',
+    quickLinkTroopCalculatorSubtitle: 'Training time, resources & KvK points',
     exploreTitle: 'Explore',
     goodToKnowTitle: 'Good to Know',
     faqCalculatorsTitle: 'The Gear & Charm Calculators',

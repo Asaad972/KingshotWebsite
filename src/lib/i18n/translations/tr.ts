@@ -53,6 +53,8 @@ const tr: typeof en = {
     quickLinkCharmCalculatorSubtitle: 'Vali Tılsım yükseltmelerini planla',
     heroGearCalculatorNav: 'Kahraman Ekipman Hesaplayıcı',
     quickLinkHeroGearCalculatorSubtitle: 'Kahraman ekipman yükseltmelerini planla',
+    troopCalculatorNav: 'Asker Eğitimi',
+    quickLinkTroopCalculatorSubtitle: 'Eğitim süresi, kaynaklar ve KvK puanları',
     exploreTitle: 'Keşfet',
     goodToKnowTitle: 'Bilmekte Fayda Var',
     faqCalculatorsTitle: 'Ekipman ve Tılsım Hesaplayıcıları',

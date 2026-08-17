@@ -93,6 +93,15 @@ function SwordIcon() {
   );
 }
 
+function TroopIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z" strokeLinejoin="round" />
+      <path d="M9 12.5l2 2 4-4.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -108,6 +117,8 @@ export default function QuickLinksGrid({
   charmCalculatorSubtitle,
   heroGearCalculatorTitle,
   heroGearCalculatorSubtitle,
+  troopCalculatorTitle,
+  troopCalculatorSubtitle,
 }: {
   bookTitle: string;
   bookSubtitle: string;
@@ -123,6 +134,8 @@ export default function QuickLinksGrid({
   charmCalculatorSubtitle: string;
   heroGearCalculatorTitle: string;
   heroGearCalculatorSubtitle: string;
+  troopCalculatorTitle: string;
+  troopCalculatorSubtitle: string;
 }) {
   const links: QuickLink[] = [
     { href: '/book', title: bookTitle, subtitle: bookSubtitle, tone: 'gold', icon: <CalendarIcon /> },
@@ -132,6 +145,7 @@ export default function QuickLinksGrid({
     { href: '/gear-calculator', title: gearCalculatorTitle, subtitle: gearCalculatorSubtitle, tone: 'gold', icon: <ShieldIcon /> },
     { href: '/charm-calculator', title: charmCalculatorTitle, subtitle: charmCalculatorSubtitle, tone: 'cyan', icon: <GemIcon /> },
     { href: '/hero-gear-calculator', title: heroGearCalculatorTitle, subtitle: heroGearCalculatorSubtitle, tone: 'gold', icon: <SwordIcon /> },
+    { href: '/troop-calculator', title: troopCalculatorTitle, subtitle: troopCalculatorSubtitle, tone: 'cyan', icon: <TroopIcon /> },
   ];
 
   return (

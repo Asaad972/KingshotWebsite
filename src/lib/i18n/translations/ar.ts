@@ -52,6 +52,8 @@ const ar: typeof en = {
     quickLinkCharmCalculatorSubtitle: 'خطط لترقيات تمائم الحاكم',
     heroGearCalculatorNav: 'حاسبة عتاد الأبطال',
     quickLinkHeroGearCalculatorSubtitle: 'خطط لترقيات عتاد الأبطال',
+    troopCalculatorNav: 'تدريب الجنود',
+    quickLinkTroopCalculatorSubtitle: 'وقت التدريب والموارد ونقاط KvK',
     exploreTitle: 'استكشف',
     goodToKnowTitle: 'جدير بالمعرفة',
     faqCalculatorsTitle: 'حاسبات العتاد والتمائم',

@@ -33,6 +33,8 @@ export default function HomePage() {
           charmCalculatorSubtitle={t('home.quickLinkCharmCalculatorSubtitle')}
           heroGearCalculatorTitle={t('home.heroGearCalculatorNav')}
           heroGearCalculatorSubtitle={t('home.quickLinkHeroGearCalculatorSubtitle')}
+          troopCalculatorTitle={t('home.troopCalculatorNav')}
+          troopCalculatorSubtitle={t('home.quickLinkTroopCalculatorSubtitle')}
         />
       </div>
 
