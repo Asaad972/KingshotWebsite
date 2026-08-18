@@ -62,23 +62,81 @@ export function computeDepths(techs: ResearchTech[]): Record<string, number> {
 
 const MAX_ROW_WIDTH = 3;
 
-/** Techs grouped into rows by depth, each row already in a stable left-to-
- * right order (source order) for consistent side-by-side branches, and
- * capped at MAX_ROW_WIDTH per row -- a depth level with more techs than that
- * (common in Growth/Battle, where dropped external prereqs leave many techs
- * as independent depth-0 "roots" instead of one single trunk like Economy's)
- * simply spills into additional stacked rows rather than one wide row, so
- * the tree layout never has to position more than 3 nodes side by side. */
+/** Techs grouped into rows for the tree's visual layout, capped at
+ * MAX_ROW_WIDTH per row and split by *real* prerequisite structure --
+ * NOT just by raw depth number. Growth/Battle have several independent
+ * trunks running in parallel (some tiers gate on external troop upgrades
+ * instead of the previous tier of the same tech, so those chains have no
+ * in-tree edge connecting them to anything else), each with its own local
+ * branch/merge shape (e.g. two techs converging into one, or one
+ * fanning out into three) -- unrelated trunks that merely happen to share
+ * a depth number must never end up sharing a row, or the row would show
+ * techs side by side that have nothing to do with each other.
+ *
+ * Approach: split into connected components (via prereqs, undirected) so
+ * each independent trunk lays out on its own, then within a component walk
+ * depth by depth, ordering each depth's techs by where their prerequisite
+ * sat in the previous row (so real siblings stay adjacent and a merge sits
+ * next to both its parents) before chunking into rows of MAX_ROW_WIDTH. */
 export function groupByDepth(techs: ResearchTech[]): ResearchTech[][] {
+  const byId = new Map(techs.map((t) => [t.id, t]));
   const depth = computeDepths(techs);
-  const maxDepth = Math.max(0, ...Object.values(depth));
-  const byDepth: ResearchTech[][] = Array.from({ length: maxDepth + 1 }, () => []);
-  for (const t of techs) byDepth[depth[t.id]].push(t);
+
+  const parent = new Map<string, string>();
+  const find = (id: string): string => {
+    let root = id;
+    while (parent.get(root) !== root) root = parent.get(root)!;
+    let cur = id;
+    while (parent.get(cur) !== root) {
+      const next = parent.get(cur)!;
+      parent.set(cur, root);
+      cur = next;
+    }
+    return root;
+  };
+  const union = (a: string, b: string) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  };
+  for (const t of techs) parent.set(t.id, t.id);
+  for (const t of techs) {
+    for (const p of t.prereqs) {
+      if (byId.has(p.techId)) union(t.id, p.techId);
+    }
+  }
+
+  const components = new Map<string, ResearchTech[]>();
+  for (const t of techs) {
+    const root = find(t.id);
+    if (!components.has(root)) components.set(root, []);
+    components.get(root)!.push(t);
+  }
 
   const rows: ResearchTech[][] = [];
-  for (const group of byDepth) {
-    for (let i = 0; i < group.length; i += MAX_ROW_WIDTH) {
-      rows.push(group.slice(i, i + MAX_ROW_WIDTH));
+  for (const comp of components.values()) {
+    const byDepth = new Map<number, ResearchTech[]>();
+    for (const t of comp) {
+      const d = depth[t.id];
+      if (!byDepth.has(d)) byDepth.set(d, []);
+      byDepth.get(d)!.push(t);
+    }
+    const depths = Array.from(byDepth.keys()).sort((a, b) => a - b);
+
+    let prevRank = new Map<string, number>();
+    for (const d of depths) {
+      let level = byDepth.get(d)!;
+      if (prevRank.size) {
+        level = [...level].sort((a, b) => {
+          const ra = Math.min(...a.prereqs.map((p) => prevRank.get(p.techId) ?? Infinity));
+          const rb = Math.min(...b.prereqs.map((p) => prevRank.get(p.techId) ?? Infinity));
+          return ra - rb;
+        });
+      }
+      for (let i = 0; i < level.length; i += MAX_ROW_WIDTH) {
+        rows.push(level.slice(i, i + MAX_ROW_WIDTH));
+      }
+      prevRank = new Map(level.map((t, i) => [t.id, i]));
     }
   }
   return rows;
