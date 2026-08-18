@@ -10,11 +10,14 @@ export function clampRallyOffset(v: number): number {
 export interface RallyPlayerInput {
   id: string;
   name: string;
-  townId: string | null;
+  /** Real map coordinates for this player's town, set by tapping the
+   * Kingdom Map. Null until assigned. */
+  townCoord: { x: number; y: number } | null;
   /**
-   * Base march time in seconds, before any pet buff speedup. Defaults from
-   * the tapped town's march time but is directly editable per player, since
-   * real march time varies player to player even for the same town.
+   * Base march time in seconds, before any pet buff speedup. Auto-filled
+   * from the tapped town's coordinates (see src/lib/rallyMarch.ts) but is
+   * directly editable per player, since real march time varies player to
+   * player even from the same town.
    */
   marchTimeSeconds: number | null;
   /**
@@ -31,7 +34,7 @@ export interface RallyPlayerInput {
 export interface RallyPlayerResult {
   id: string;
   name: string;
-  townId: string | null;
+  townCoord: { x: number; y: number } | null;
   marchTimeSeconds: number | null;
   /** March time after applying the pet buff speedup, if any. */
   effectiveMarchTimeSeconds: number | null;
@@ -76,7 +79,7 @@ export function computeRallyPlan({
     return {
       id: p.id,
       name: p.name,
-      townId: p.townId,
+      townCoord: p.townCoord,
       marchTimeSeconds,
       effectiveMarchTimeSeconds,
       petBuffLevel: p.petBuffLevel,

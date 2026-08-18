@@ -2,12 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import UTCClock from '@/components/UTCClock';
-import RallyMap from '@/components/RallyMap';
 import IsometricCastleMap from '@/components/rally/IsometricCastleMap';
 import RallyPlayerRow from '@/components/RallyPlayerRow';
 import RallyTimingPanel from '@/components/RallyTimingPanel';
 import RallyResults from '@/components/RallyResults';
-import { getRallyTown } from '@/lib/rallyTowns';
 import { computeRallyPlan, formatUtcHms, formatCountdown, clampRallyOffset, type RallyPlayerInput } from '@/lib/rally';
 import { getPetBuffSpeedupPercent } from '@/lib/petBuffs';
 import PasswordGate from '@/components/PasswordGate';
@@ -32,6 +30,7 @@ function RallyTimerContent() {
   const [formationMinutes, setFormationMinutes] = useState(5);
 
   const [players, setPlayers] = useState<RallyPlayerInput[]>([]);
+  const [marchSpeedPercent, setMarchSpeedPercent] = useState(0);
 
   // The player with the longest (buffed) march time is the one who has to
   // open earliest -- the target needs enough runway ahead of "now" for that
@@ -92,7 +91,7 @@ function RallyTimerContent() {
     const id = makeId();
     setPlayers((prev) => [
       ...prev,
-      { id, name: '', townId: null, marchTimeSeconds: null, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
+      { id, name: '', townCoord: null, marchTimeSeconds: null, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
     ]);
     setEditingPlayerId(id);
     mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -119,29 +118,20 @@ function RallyTimerContent() {
     mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  // Tapping a castle either updates the player currently being edited, or
-  // (the common case) appends a brand new player assigned to that town --
-  // #1 First, then #2, #3... one per tap.
-  const handleMapSelect = (townId: string) => {
-    const marchTimeSeconds = getRallyTown(townId)?.marchTimeSeconds ?? null;
-    if (editingPlayerId) {
-      updatePlayer(editingPlayerId, { townId, marchTimeSeconds });
-      setEditingPlayerId(null);
-      return;
-    }
-    setPlayers((prev) => [
-      ...prev,
-      { id: makeId(), name: '', townId, marchTimeSeconds, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
-    ]);
+  // Clicking (or typing coordinates into) the Kingdom Map either updates the
+  // player currently being edited, or (the common case) appends a brand new
+  // player assigned to that town -- #1 First, then #2, #3... one per tap.
+  const handleSetPlayerTown = (playerId: string, coord: { x: number; y: number }, marchTimeSeconds: number) => {
+    updatePlayer(playerId, { townCoord: coord, marchTimeSeconds });
+    setEditingPlayerId(null);
   };
 
-  const townCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const p of players) {
-      if (p.townId) counts[p.townId] = (counts[p.townId] ?? 0) + 1;
-    }
-    return counts;
-  }, [players]);
+  const handleAddPlayerAtTown = (coord: { x: number; y: number }, marchTimeSeconds: number) => {
+    setPlayers((prev) => [
+      ...prev,
+      { id: makeId(), name: '', townCoord: coord, marchTimeSeconds, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
+    ]);
+  };
 
   const editingPlayer = players.find((p) => p.id === editingPlayerId) ?? null;
 
@@ -224,9 +214,11 @@ function RallyTimerContent() {
           </div>
 
           <div ref={mapRef} className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold text-parchment-100">Tap a castle to add the next player</h2>
-              {editingPlayer && (
+            {editingPlayer && (
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-moss-500 font-semibold">
+                  Editing {editingPlayer.name.trim() || `player #${players.findIndex((p) => p.id === editingPlayer.id) + 1}`}
+                </p>
                 <button
                   type="button"
                   onClick={() => setEditingPlayerId(null)}
@@ -234,20 +226,17 @@ function RallyTimerContent() {
                 >
                   Cancel
                 </button>
-              )}
-            </div>
-            {editingPlayer && (
-              <p className="text-xs text-moss-500 font-semibold">
-                Editing {editingPlayer.name.trim() || `player #${players.findIndex((p) => p.id === editingPlayer.id) + 1}`} — tap a
-                castle to set their town
-              </p>
+              </div>
             )}
-            <div className="max-w-md mx-auto w-full">
-              <RallyMap townCounts={townCounts} editingTownId={editingPlayer?.townId ?? null} onSelectTown={handleMapSelect} />
-            </div>
+            <IsometricCastleMap
+              players={players}
+              editingPlayerId={editingPlayerId}
+              marchSpeedPercent={marchSpeedPercent}
+              onChangeMarchSpeedPercent={setMarchSpeedPercent}
+              onSetPlayerTown={handleSetPlayerTown}
+              onAddPlayerAtTown={handleAddPlayerAtTown}
+            />
           </div>
-
-          <IsometricCastleMap />
 
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
@@ -262,7 +251,7 @@ function RallyTimerContent() {
             </div>
 
             {players.length === 0 ? (
-              <p className="text-sm text-parchment-500 py-6 text-center">Tap a castle above to add your first player.</p>
+              <p className="text-sm text-parchment-500 py-6 text-center">Tap the map above to add your first player.</p>
             ) : (
               players.map((player, i) => (
                 <RallyPlayerRow
@@ -270,7 +259,6 @@ function RallyTimerContent() {
                   player={player}
                   index={i}
                   isLast={i === players.length - 1}
-                  town={getRallyTown(player.townId)}
                   isEditingTown={editingPlayerId === player.id}
                   onChangeName={(name) => updatePlayer(player.id, { name })}
                   onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}

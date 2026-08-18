@@ -2,7 +2,6 @@
 
 import type { RallyPlayerInput } from '@/lib/rally';
 import { formatCountdown } from '@/lib/rally';
-import type { RallyTown } from '@/lib/rallyTowns';
 import { PET_BUFF_LEVELS, getPetBuffSpeedupPercent } from '@/lib/petBuffs';
 import { ISLAND_LEVELS } from '@/lib/islandDecor';
 
@@ -10,7 +9,6 @@ interface RallyPlayerRowProps {
   player: RallyPlayerInput;
   index: number;
   isLast: boolean;
-  town: RallyTown | null;
   isEditingTown: boolean;
   onChangeName: (name: string) => void;
   onChangePetBuffLevel: (level: number | null) => void;
@@ -26,7 +24,6 @@ export default function RallyPlayerRow({
   player,
   index,
   isLast,
-  town,
   isEditingTown,
   onChangeName,
   onChangePetBuffLevel,
@@ -123,11 +120,11 @@ export default function RallyPlayerRow({
       </div>
 
       {isEditingTown ? (
-        <p className="text-xs text-moss-500 font-semibold">↑ Tap a castle on the map to set this player's town</p>
-      ) : town ? (
+        <p className="text-xs text-moss-500 font-semibold">↑ Tap the Kingdom Map to set this player's town</p>
+      ) : player.townCoord ? (
         <div className="flex items-center justify-between gap-2 text-sm">
           <span className="text-parchment-300">
-            Town: <span className="text-gold-300">Castle {town.id.split('-')[1]}</span>
+            Town: <span className="text-gold-300 tabular-nums">{player.townCoord.x}:{player.townCoord.y}</span>
           </span>
           <button
             type="button"

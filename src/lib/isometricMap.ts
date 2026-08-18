@@ -21,6 +21,30 @@ export function project(point: WorldPoint, origin: WorldPoint, tileSize: number)
   };
 }
 
+/** Inverse of `project` -- given a screen-space point (relative to the same
+ * origin/tileSize), recover the world (x,y) grid coordinate. Used to turn a
+ * map click into real coordinates. */
+export function unproject(point: ScreenPoint, origin: WorldPoint, tileSize: number): WorldPoint {
+  const k = tileSize / 2;
+  const dx = (point.x + point.y) / (2 * k);
+  const dy = (point.y - point.x) / (2 * k);
+  return { x: origin.x + dx, y: origin.y + dy };
+}
+
+/** Picks a "nice" grid line spacing (1/2/5/10/20/50...) that keeps roughly
+ * `targetLines` lines across `range` world units, so the grid stays
+ * readable whether you're zoomed in on a few tiles or zoomed out to fit a
+ * city hundreds of tiles away. */
+export function niceGridStep(range: number, targetLines = 18): number {
+  const raw = Math.max(1, range / targetLines);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+  const steps = [1, 2, 5, 10];
+  for (const s of steps) {
+    if (raw <= s * magnitude) return s * magnitude;
+  }
+  return 10 * magnitude;
+}
+
 /** Turret placement is a visual approximation (a few tiles out from the
  * castle along each screen-cardinal direction), not confirmed exact game
  * data -- there's no public source for the real offset, so this is styled
