@@ -5,30 +5,10 @@ import type { ResearchTech } from './researchTypes';
 
 export type TreeId = 'economy' | 'growth' | 'battle';
 
-/** Icon key resolved to an actual component in ResearchIcons.tsx -- kept as
- * a plain string here so this data file stays framework-agnostic. The
- * 'econ-*' keys are real per-tech-line icons (only Economy has these so
- * far); the plain resource keys (bread/wood/stone/iron) double as both a
- * fallback for categories without dedicated artwork and the cost-display
- * icons used everywhere. */
-export type IconKey =
-  | 'bread'
-  | 'wood'
-  | 'stone'
-  | 'iron'
-  | 'sword'
-  | 'shield'
-  | 'heart'
-  | 'flag'
-  | 'crosshair'
-  | 'gear'
-  | 'econ-bread-output'
-  | 'econ-food-foraging'
-  | 'econ-wood-output'
-  | 'econ-wood-gathering'
-  | 'econ-stone-output'
-  | 'econ-stone-gathering'
-  | 'econ-iron-mining';
+export interface CategoryIcon {
+  src: string;
+  alt: string;
+}
 
 export interface TreeDef {
   id: TreeId;
@@ -36,7 +16,11 @@ export interface TreeDef {
   techs: ResearchTech[];
   /** Display order for the tree's category lanes/legend. */
   categoryOrder: string[];
-  categoryIcon: Record<string, IconKey>;
+  /** One real icon per category, provided by the user (the Economy/Growth/
+   * Battle ones are kingshotdata.com's own per-tech-line icons; the 5 base
+   * resource icons live in ResearchIcons.tsx and are reused here for any
+   * category without dedicated artwork yet). */
+  categoryIcon: Record<string, CategoryIcon>;
   getTech: (id: string) => ResearchTech | undefined;
 }
 
@@ -56,16 +40,16 @@ export const TREES: Record<TreeId, TreeDef> = {
       'Iron Mining',
     ],
     categoryIcon: {
-      'Bread Output': 'econ-bread-output',
-      'Food Foraging': 'econ-food-foraging',
-      'Wood Output': 'econ-wood-output',
-      'Wood Gathering': 'econ-wood-gathering',
-      'Stone Output': 'econ-stone-output',
-      'Stone Gathering': 'econ-stone-gathering',
+      'Bread Output': { src: '/research/economy/bread-output.png', alt: 'Bread Output' },
+      'Food Foraging': { src: '/research/economy/food-foraging.png', alt: 'Food Foraging' },
+      'Wood Output': { src: '/research/economy/wood-output.png', alt: 'Wood Output' },
+      'Wood Gathering': { src: '/research/economy/wood-gathering.png', alt: 'Wood Gathering' },
+      'Stone Output': { src: '/research/economy/stone-output.png', alt: 'Stone Output' },
+      'Stone Gathering': { src: '/research/economy/stone-gathering.png', alt: 'Stone Gathering' },
       // No dedicated icon file for this one yet -- falls back to the plain
       // iron resource icon until one's provided.
-      'Iron Output': 'iron',
-      'Iron Mining': 'econ-iron-mining',
+      'Iron Output': { src: '/research/resources/iron.png', alt: 'Iron Output' },
+      'Iron Mining': { src: '/research/economy/iron-mining.png', alt: 'Iron Mining' },
     },
     getTech: getEconomyTech,
   },
@@ -83,13 +67,13 @@ export const TREES: Record<TreeId, TreeDef> = {
       'Tooling Up',
     ],
     categoryIcon: {
-      Bandaging: 'heart',
-      'Ward Expansion': 'heart',
-      'Camp Expansion': 'flag',
-      'Command Tactics': 'flag',
-      'Trainer Tools': 'gear',
-      'Tool Enhancement': 'gear',
-      'Tooling Up': 'gear',
+      Bandaging: { src: '/research/growth/bandaging.png', alt: 'Bandaging' },
+      'Ward Expansion': { src: '/research/growth/ward-expansion.png', alt: 'Ward Expansion' },
+      'Camp Expansion': { src: '/research/growth/camp-expansion.png', alt: 'Camp Expansion' },
+      'Command Tactics': { src: '/research/growth/command-tactics.png', alt: 'Command Tactics' },
+      'Trainer Tools': { src: '/research/growth/trainer-tools.png', alt: 'Trainer Tools' },
+      'Tool Enhancement': { src: '/research/growth/tool-enhancement.png', alt: 'Tool Enhancement' },
+      'Tooling Up': { src: '/research/growth/tooling-up.png', alt: 'Tooling Up' },
     },
     getTech: getGrowthTech,
   },
@@ -117,23 +101,26 @@ export const TREES: Record<TreeId, TreeDef> = {
       'Fortified Mail',
     ],
     categoryIcon: {
-      'Weapons Prep': 'sword',
-      'Reprisal Tactics': 'sword',
-      'Precision Targeting': 'sword',
-      'Cavalry Charge': 'sword',
-      'Defensive Formations': 'shield',
-      'Picket Lines': 'shield',
-      'Bulwark Formations': 'shield',
-      'Special Defensive Training': 'shield',
-      'Survival Techniques': 'heart',
-      'Shield Upgrade': 'heart',
-      'Leathercraft': 'heart',
-      'Fortified Mail': 'heart',
-      'Assault Techniques': 'crosshair',
-      'Close Combat': 'crosshair',
-      'Targeted Sniping': 'crosshair',
-      'Lance Upgrade': 'crosshair',
-      'Regimental Expansion': 'flag',
+      'Weapons Prep': { src: '/research/battle/weapons-prep.png', alt: 'Weapons Prep' },
+      'Reprisal Tactics': { src: '/research/battle/reprisal-tactics.png', alt: 'Reprisal Tactics' },
+      'Precision Targeting': { src: '/research/battle/precision-targeting.png', alt: 'Precision Targeting' },
+      'Cavalry Charge': { src: '/research/battle/cavalry-charge.png', alt: 'Cavalry Charge' },
+      'Defensive Formations': { src: '/research/battle/defensive-formations.png', alt: 'Defensive Formations' },
+      'Picket Lines': { src: '/research/battle/picket-lines.png', alt: 'Picket Lines' },
+      'Bulwark Formations': { src: '/research/battle/bulwark-formations.png', alt: 'Bulwark Formations' },
+      'Special Defensive Training': {
+        src: '/research/battle/special-defensive-training.png',
+        alt: 'Special Defensive Training',
+      },
+      'Survival Techniques': { src: '/research/battle/survival-techniques.png', alt: 'Survival Techniques' },
+      'Assault Techniques': { src: '/research/battle/assault-techniques.png', alt: 'Assault Techniques' },
+      'Regimental Expansion': { src: '/research/battle/regimental-expansion.png', alt: 'Regimental Expansion' },
+      'Close Combat': { src: '/research/battle/close-combat.png', alt: 'Close Combat' },
+      'Targeted Sniping': { src: '/research/battle/targeted-sniping.png', alt: 'Targeted Sniping' },
+      'Lance Upgrade': { src: '/research/battle/lance-upgrade.png', alt: 'Lance Upgrade' },
+      'Shield Upgrade': { src: '/research/battle/shield-upgrade.png', alt: 'Shield Upgrade' },
+      Leathercraft: { src: '/research/battle/leathercraft.png', alt: 'Leathercraft' },
+      'Fortified Mail': { src: '/research/battle/fortified-mail.png', alt: 'Fortified Mail' },
     },
     getTech: getBattleTech,
   },

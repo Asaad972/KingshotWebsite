@@ -2,7 +2,7 @@
 
 import type { CategoryBonus } from '@/lib/researchCalc';
 import type { TreeDef } from '@/lib/researchTrees';
-import { CATEGORY_ICON_COMPONENT, CATEGORY_ICON_COLOR } from './ResearchIcons';
+import { TechIconImage } from './ResearchIcons';
 
 /** Shows only the bonus gained from techs you've actively set a goal for
  * (target > current) -- a tech just sitting at some level, including one
@@ -38,13 +38,12 @@ export default function ResearchBonusSidebar({
 
       <div className="flex flex-col gap-1.5">
         {bonuses.map((b) => {
-          const iconKey = tree.categoryIcon[b.category];
-          const Icon = CATEGORY_ICON_COMPONENT[iconKey];
+          const catIcon = tree.categoryIcon[b.category];
           return (
             <div key={b.category} className="flex items-center justify-between gap-2 rounded-md px-2.5 py-2 odd:bg-stone-950/60">
               <div className="flex items-center gap-2 min-w-0">
-                <span className={`h-5 w-5 shrink-0 ${CATEGORY_ICON_COLOR[iconKey]}`}>
-                  <Icon />
+                <span className="h-5 w-5 shrink-0">
+                  <TechIconImage src={catIcon.src} alt={catIcon.alt} />
                 </span>
                 <span className="text-sm text-parchment-300 truncate">{b.label}</span>
               </div>

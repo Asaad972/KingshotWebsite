@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { groupByDepth, type ResearchPlan } from '@/lib/researchCalc';
 import type { ResearchTech } from '@/lib/researchTypes';
 import type { TreeDef } from '@/lib/researchTrees';
-import { CATEGORY_ICON_COMPONENT, CATEGORY_ICON_COLOR } from './ResearchIcons';
+import { TechIconImage } from './ResearchIcons';
 
 // Fixed vertical layout -- one row per dependency depth, up to 3 nodes wide,
 // connected by right-angle "elbow" lines. Mirrors the actual in-game
@@ -133,8 +133,7 @@ export default function ResearchTreeFlow({
         {rows.flat().map((tech) => {
           const pos = posById.get(tech.id)!;
           const state = plan[tech.id] ?? { current: 0, target: 0 };
-          const iconKey = tree.categoryIcon[tech.category];
-          const Icon = CATEGORY_ICON_COMPONENT[iconKey];
+          const catIcon = tree.categoryIcon[tech.category];
           const unlocked = isUnlocked(tech);
           const maxed = state.current >= tech.maxLevel;
           const selected = selectedId === tech.id;
@@ -162,8 +161,8 @@ export default function ResearchTreeFlow({
                 }`}
                 style={{ width: NODE, height: NODE }}
               >
-                <span className={`${nodeIcon} ${CATEGORY_ICON_COLOR[iconKey]} ${!unlocked ? 'opacity-60' : ''}`}>
-                  <Icon />
+                <span className={`${nodeIcon} ${!unlocked ? 'opacity-60' : ''}`}>
+                  <TechIconImage src={catIcon.src} alt={catIcon.alt} />
                 </span>
               </button>
 
