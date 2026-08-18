@@ -118,17 +118,6 @@ function ResearchTreeIcon() {
   );
 }
 
-function PeopleIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <circle cx="9" cy="8" r="3" />
-      <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" strokeLinecap="round" />
-      <circle cx="17" cy="9" r="2.5" />
-      <path d="M15.5 14.2c2.6.4 4.5 2.6 4.5 5.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -148,8 +137,6 @@ export default function QuickLinksGrid({
   troopCalculatorSubtitle,
   researchTreeTitle,
   researchTreeSubtitle,
-  playerDirectoryTitle,
-  playerDirectorySubtitle,
 }: {
   bookTitle: string;
   bookSubtitle: string;
@@ -169,8 +156,6 @@ export default function QuickLinksGrid({
   troopCalculatorSubtitle: string;
   researchTreeTitle: string;
   researchTreeSubtitle: string;
-  playerDirectoryTitle: string;
-  playerDirectorySubtitle: string;
 }) {
   const links: QuickLink[] = [
     { href: '/book', title: bookTitle, subtitle: bookSubtitle, tone: 'gold', icon: <CalendarIcon /> },
@@ -182,7 +167,6 @@ export default function QuickLinksGrid({
     { href: '/hero-gear-calculator', title: heroGearCalculatorTitle, subtitle: heroGearCalculatorSubtitle, tone: 'gold', icon: <SwordIcon /> },
     { href: '/troop-calculator', title: troopCalculatorTitle, subtitle: troopCalculatorSubtitle, tone: 'cyan', icon: <TroopIcon /> },
     { href: '/research-tree', title: researchTreeTitle, subtitle: researchTreeSubtitle, tone: 'gold', icon: <ResearchTreeIcon /> },
-    { href: '/players', title: playerDirectoryTitle, subtitle: playerDirectorySubtitle, tone: 'cyan', icon: <PeopleIcon /> },
   ];
 
   return (
