@@ -9,6 +9,7 @@ import RallyResults from '@/components/RallyResults';
 import { getRallyTown } from '@/lib/rallyTowns';
 import { computeRallyPlan, formatUtcHms, formatCountdown, clampRallyOffset, type RallyPlayerInput } from '@/lib/rally';
 import { getPetBuffSpeedupPercent } from '@/lib/petBuffs';
+import PasswordGate from '@/components/PasswordGate';
 
 const FORMATION_OPTIONS_MINUTES = [5, 3, 2, 1];
 
@@ -17,7 +18,7 @@ function makeId(): string {
   return Math.random().toString(36).slice(2);
 }
 
-export default function RallyTimerPage() {
+function RallyTimerContent() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     setNow(new Date());
@@ -291,6 +292,14 @@ export default function RallyTimerPage() {
         <div className="order-2 lg:order-none">{plan && now && <RallyResults plan={plan} now={now} />}</div>
       </div>
     </div>
+  );
+}
+
+export default function RallyTimerPage() {
+  return (
+    <PasswordGate password="HeroIsMyKing" storageKey="kingshot_rally_timer_unlocked">
+      <RallyTimerContent />
+    </PasswordGate>
   );
 }
 

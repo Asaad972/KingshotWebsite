@@ -38,7 +38,10 @@ export default function ResearchBonusSidebar({
   const costEntries = (Object.keys(totals.cost) as (keyof typeof totals.cost)[]).filter((k) => totals.cost[k] > 0);
 
   return (
-    <div className="dashboard-card p-5 flex flex-col gap-3 lg:sticky lg:top-3">
+    // top-20 (not top-3) so the sticky panel settles just below the site
+    // header's own sticky bar instead of tucking in at the very top of the
+    // viewport, where the header (an explicit z-40) would paint over it.
+    <div className="dashboard-card p-5 flex flex-col gap-3 lg:sticky lg:top-20 z-0">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold text-parchment-100">Overall Bonuses</h2>
