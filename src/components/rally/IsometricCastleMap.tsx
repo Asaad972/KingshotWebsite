@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { project, unproject, niceGridStep, TURRETS, TURRET_OFFSET, type WorldPoint } from '@/lib/isometricMap';
-import { distanceTiles, estimateMarchTimeSeconds } from '@/lib/rallyMarch';
+import { distanceTiles, estimateMarchTimeSeconds, type MarchZone } from '@/lib/rallyMarch';
 import type { RallyPlayerInput, RallyPlayerRole } from '@/lib/rally';
 
 const TILE_SIZE = 48;
@@ -101,6 +101,13 @@ export default function IsometricCastleMap({
   const [panOffset, setPanOffset] = useState<WorldPoint>({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [placementMode, setPlacementMode] = useState<RallyPlayerRole | 'enemy'>('rally');
+  // Cities inside the map's "Forbidden Red Zone" ring around the King's
+  // Castle march at roughly half normal speed -- there's no reliable way to
+  // detect that from coordinates alone (see rallyMarch.ts), so it's a
+  // manual per-side toggle, same as the reference calculator this was
+  // fitted against.
+  const [playerZone, setPlayerZone] = useState<MarchZone>('normal');
+  const [enemyZone, setEnemyZone] = useState<MarchZone>('normal');
   const svgRef = useRef<SVGSVGElement>(null);
   // Captured once at pointer-down so mid-drag math never re-reads a CTM
   // that's already shifted by this same drag's own pan updates.
@@ -140,14 +147,14 @@ export default function IsometricCastleMap({
     // Town" from an earlier action would silently overwrite the enemy's
     // town instead of the player you just clicked "+ Add" for.
     if (editingPlayerId) {
-      onSetPlayerTown(editingPlayerId, coord, estimateMarchTimeSeconds(dist, marchSpeedPercent));
+      onSetPlayerTown(editingPlayerId, coord, estimateMarchTimeSeconds(dist, marchSpeedPercent, playerZone));
       return;
     }
     if (placementMode === 'enemy') {
-      onSetEnemyTown(coord, estimateMarchTimeSeconds(dist, enemyMarchSpeedPercent));
+      onSetEnemyTown(coord, estimateMarchTimeSeconds(dist, enemyMarchSpeedPercent, enemyZone));
       return;
     }
-    const marchTimeSeconds = estimateMarchTimeSeconds(dist, marchSpeedPercent);
+    const marchTimeSeconds = estimateMarchTimeSeconds(dist, marchSpeedPercent, playerZone);
     onAddPlayerAtTown(coord, marchTimeSeconds, placementMode === 'garrison' ? 'garrison' : 'rally');
   };
 
@@ -364,10 +371,12 @@ export default function IsometricCastleMap({
   const hoverPos = hoverCoord ? project(hoverCoord, castle, TILE_SIZE) : null;
   const hoverBlocked = hoverCoord ? isInsideBoundary(hoverCoord, castle) : false;
   const hoverRemoveTarget = !editingPlayerId && hoverCoord ? findExistingMarkerAt(hoverCoord) : null;
+  const hoverIsEnemy = !editingPlayerId && placementMode === 'enemy';
   const hoverMarchTimeSeconds = hoverCoord
     ? estimateMarchTimeSeconds(
         distanceTiles(hoverCoord, castle),
-        !editingPlayerId && placementMode === 'enemy' ? enemyMarchSpeedPercent : marchSpeedPercent
+        hoverIsEnemy ? enemyMarchSpeedPercent : marchSpeedPercent,
+        hoverIsEnemy ? enemyZone : playerZone
       )
     : null;
 
@@ -446,6 +455,7 @@ export default function IsometricCastleMap({
             className="focus-ring w-20 rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 placeholder:text-parchment-600 focus:border-gold-600"
           />
         </label>
+        <ZoneToggle label="Your Zone" zone={playerZone} onChange={setPlayerZone} />
         <label className="flex flex-col gap-1">
           <span className="text-[10px] text-parchment-500">Enemy March Speed (%)</span>
           <input
@@ -457,6 +467,7 @@ export default function IsometricCastleMap({
             className="focus-ring w-20 rounded border border-red-900/60 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 placeholder:text-parchment-600 focus:border-red-600"
           />
         </label>
+        <ZoneToggle label="Enemy Zone" zone={enemyZone} onChange={setEnemyZone} />
       </div>
 
       <div className="relative rounded border border-stone-700 bg-stone-950 overflow-hidden">
@@ -676,6 +687,35 @@ export default function IsometricCastleMap({
               : placementMode === 'garrison'
                 ? 'Add Reinforcement Here'
                 : 'Add Rally Opener Here'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ZoneToggle({ label, zone, onChange }: { label: string; zone: MarchZone; onChange: (z: MarchZone) => void }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] text-parchment-500">{label}</span>
+      <div className="flex rounded-md border border-stone-700 p-0.5 gap-0.5">
+        <button
+          type="button"
+          onClick={() => onChange('normal')}
+          className={`focus-ring rounded px-2 py-1.5 text-[10px] font-semibold transition-colors ${
+            zone === 'normal' ? 'bg-stone-700 text-parchment-100' : 'text-parchment-400 hover:bg-stone-800'
+          }`}
+        >
+          Normal
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange('red')}
+          title="Forbidden Red Zone -- march speed is roughly halved here"
+          className={`focus-ring rounded px-2 py-1.5 text-[10px] font-semibold transition-colors ${
+            zone === 'red' ? 'bg-red-600 text-stone-950' : 'text-parchment-400 hover:bg-stone-800'
+          }`}
+        >
+          Red Zone
         </button>
       </div>
     </div>
