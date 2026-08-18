@@ -226,199 +226,195 @@ function RallyTimerContent() {
     <div className="max-w-7xl mx-auto px-4 py-5 pb-8" dir="ltr">
       <h1 className="text-lg font-semibold text-parchment-100 mb-4">Rally Timer</h1>
 
-      <div className="grid lg:grid-cols-[1fr_380px] gap-5 items-start">
-        <div className="flex flex-col gap-5 min-w-0 order-1 lg:order-none">
-          <div className="dashboard-card p-4 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-parchment-100">Configuration</h2>
+      <div className="flex flex-col gap-5">
+        <div className="dashboard-card p-4 flex flex-col gap-4">
+          <h2 className="text-sm font-semibold text-parchment-100">Configuration</h2>
 
-            {now && <UTCClock />}
+          {now && <UTCClock />}
 
-            <div>
-              <p className="text-xs text-parchment-400 mb-1.5">
-                Preparation Delay <span className="text-parchment-500">— time to prepare before opening rallies</span>
-              </p>
-              <div className="flex items-center gap-1.5">
-                <NumberField label="Min" value={prepMinutes} onChange={setPrepMinutes} />
-                <span className="text-parchment-500">:</span>
-                <NumberField label="Sec" value={prepSeconds} onChange={setPrepSeconds} max={59} />
-              </div>
+          <div>
+            <p className="text-xs text-parchment-400 mb-1.5">
+              Preparation Delay <span className="text-parchment-500">— time to prepare before opening rallies</span>
+            </p>
+            <div className="flex items-center gap-1.5">
+              <NumberField label="Min" value={prepMinutes} onChange={setPrepMinutes} />
+              <span className="text-parchment-500">:</span>
+              <NumberField label="Sec" value={prepSeconds} onChange={setPrepSeconds} max={59} />
             </div>
-
-            <div>
-              <p className="text-xs text-parchment-400 mb-1.5">Rally Formation Time</p>
-              <div className="grid grid-cols-4 gap-1.5">
-                {FORMATION_OPTIONS_MINUTES.map((min) => (
-                  <button
-                    key={min}
-                    type="button"
-                    onClick={() => setFormationMinutes(min)}
-                    className={`focus-ring rounded border py-2 text-sm font-semibold transition-colors ${
-                      formationMinutes === min
-                        ? 'border-gold-400 bg-gold-500 text-stone-950'
-                        : 'border-stone-700 text-parchment-300 hover:border-gold-600'
-                    }`}
-                  >
-                    {min} min
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded border border-stone-700 bg-stone-950 p-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs text-parchment-400">Target Arrival Time</p>
-                <p className="font-mono text-lg text-gold-300">
-                  {targetArrival ? `${formatUtcHms(targetArrival)} UTC` : '—'}
-                </p>
-                <p className="text-[11px] text-parchment-500">
-                  = now + preparation delay + rally formation time + longest march time
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={setTargetToNow}
-                className="focus-ring shrink-0 rounded-md bg-gold-500 px-3 py-2 text-xs font-semibold text-stone-950 hover:bg-gold-400 transition-colors"
-              >
-                Set to Now + Delay
-              </button>
-            </div>
-            {rallyPlayers.length > 0 && (
-              <p className="text-[11px] text-parchment-500 -mt-2">
-                Longest march right now: <span className="font-mono text-parchment-300">{formatCountdown(maxEffectiveMarchSeconds)}</span> — re-press
-                the button above after adding rally openers or changing march times so the target stays ahead of them.
-              </p>
-            )}
           </div>
 
-          <div ref={mapRef} className="flex flex-col gap-2">
-            {editingPlayer && (
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs text-moss-500 font-semibold">
-                  Editing {editingPlayer.role === 'garrison' ? 'reinforcement' : 'rally opener'}{' '}
-                  {editingPlayer.name.trim() ||
-                    `#${(editingPlayer.role === 'garrison' ? garrisonPlayers : rallyPlayers).findIndex((p) => p.id === editingPlayer.id) + 1}`}
-                </p>
+          <div>
+            <p className="text-xs text-parchment-400 mb-1.5">Rally Formation Time</p>
+            <div className="grid grid-cols-4 gap-1.5">
+              {FORMATION_OPTIONS_MINUTES.map((min) => (
                 <button
+                  key={min}
                   type="button"
-                  onClick={() => setEditingPlayerId(null)}
-                  className="focus-ring rounded border border-stone-700 px-2.5 py-1 text-xs text-parchment-300 hover:border-gold-600 transition-colors"
+                  onClick={() => setFormationMinutes(min)}
+                  className={`focus-ring rounded border py-2 text-sm font-semibold transition-colors ${
+                    formationMinutes === min
+                      ? 'border-gold-400 bg-gold-500 text-stone-950'
+                      : 'border-stone-700 text-parchment-300 hover:border-gold-600'
+                  }`}
                 >
-                  Cancel
+                  {min} min
                 </button>
-              </div>
-            )}
-            <IsometricCastleMap
-              players={players}
-              editingPlayerId={editingPlayerId}
-              marchSpeedPercent={marchSpeedPercent}
-              onChangeMarchSpeedPercent={setMarchSpeedPercent}
-              onSetPlayerTown={handleSetPlayerTown}
-              onAddPlayerAtTown={handleAddPlayerAtTown}
-              onClearPlayerTown={handleClearPlayerTown}
-              enemyTown={enemyTown}
-              enemyMarchSpeedPercent={enemyMarchSpeedPercent}
-              onChangeEnemyMarchSpeedPercent={setEnemyMarchSpeedPercent}
-              onSetEnemyTown={handleSetEnemyTown}
-              onClearEnemyTown={clearEnemy}
-            />
+              ))}
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2.5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-cyan-300">Rally Openers — hit order</h2>
-              <button
-                type="button"
-                onClick={() => addBlankPlayer('rally')}
-                className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:border-cyan-500 transition-colors"
-              >
-                + Add Rally Opener
-              </button>
-            </div>
-
-            {rallyPlayers.length === 0 ? (
-              <p className="text-sm text-parchment-500 py-6 text-center">Tap the map above to add your first rally opener.</p>
-            ) : (
-              rallyPlayers.map((player, i) => (
-                <RallyPlayerRow
-                  key={player.id}
-                  player={player}
-                  index={i}
-                  isLast={i === rallyPlayers.length - 1}
-                  isEditingTown={editingPlayerId === player.id}
-                  onChangeName={(name) => updatePlayer(player.id, { name })}
-                  onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}
-                  onChangeIslandLevel={(level) => updatePlayer(player.id, { islandLevel: level })}
-                  onChangeMarchTime={(seconds) => updatePlayer(player.id, { marchTimeSeconds: seconds })}
-                  onRequestTownChange={() => requestTownChange(player.id)}
-                  onMoveUp={() => movePlayer(player.id, -1)}
-                  onMoveDown={() => movePlayer(player.id, 1)}
-                  onRemove={() => removePlayer(player.id)}
-                />
-              ))
-            )}
-          </div>
-
-          <RallyTimingPanel
-            players={rallyPlayers}
-            onChangeOffset={(id, seconds) => updatePlayer(id, { offsetSeconds: seconds })}
-            onStepOffset={stepOffset}
-          />
-
-          {enemyTown && now && (
-            <GarrisonPanel
-              enemyTown={enemyTown}
-              enemyMarchTimeSeconds={enemyMarchTimeSeconds}
-              hasRallyOpened={enemyRallyOpenedAt !== null}
-              plan={garrisonPlan}
-              now={now}
-              bufferSeconds={garrisonBufferSeconds}
-              onChangeBufferSeconds={setGarrisonBufferSeconds}
-              onMarkRallyOpened={markEnemyRallyOpened}
-              onCancelRally={cancelEnemyRally}
-              onClearEnemy={clearEnemy}
-            />
-          )}
-
-          <div className="flex flex-col gap-2.5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-moss-500">Reinforcements</h2>
-              <button
-                type="button"
-                onClick={() => addBlankPlayer('garrison')}
-                className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-moss-500 hover:border-moss-500 transition-colors"
-              >
-                + Add Reinforcement
-              </button>
-            </div>
-
-            {garrisonPlayers.length === 0 ? (
-              <p className="text-sm text-parchment-500 py-6 text-center">
-                Tap the map above (Reinforcement mode) to add someone who'll garrison, not rally.
+          <div className="rounded border border-stone-700 bg-stone-950 p-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-parchment-400">Target Arrival Time</p>
+              <p className="font-mono text-lg text-gold-300">
+                {targetArrival ? `${formatUtcHms(targetArrival)} UTC` : '—'}
               </p>
-            ) : (
-              garrisonPlayers.map((player, i) => (
-                <RallyPlayerRow
-                  key={player.id}
-                  player={player}
-                  index={i}
-                  isLast={i === garrisonPlayers.length - 1}
-                  isEditingTown={editingPlayerId === player.id}
-                  onChangeName={(name) => updatePlayer(player.id, { name })}
-                  onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}
-                  onChangeIslandLevel={(level) => updatePlayer(player.id, { islandLevel: level })}
-                  onChangeMarchTime={(seconds) => updatePlayer(player.id, { marchTimeSeconds: seconds })}
-                  onRequestTownChange={() => requestTownChange(player.id)}
-                  onMoveUp={() => movePlayer(player.id, -1)}
-                  onMoveDown={() => movePlayer(player.id, 1)}
-                  onRemove={() => removePlayer(player.id)}
-                />
-              ))
-            )}
+              <p className="text-[11px] text-parchment-500">
+                = now + preparation delay + rally formation time + longest march time
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={setTargetToNow}
+              className="focus-ring shrink-0 rounded-md bg-gold-500 px-3 py-2 text-xs font-semibold text-stone-950 hover:bg-gold-400 transition-colors"
+            >
+              Set to Now + Delay
+            </button>
           </div>
+          {rallyPlayers.length > 0 && (
+            <p className="text-[11px] text-parchment-500 -mt-2">
+              Longest march right now: <span className="font-mono text-parchment-300">{formatCountdown(maxEffectiveMarchSeconds)}</span> — re-press
+              the button above after adding rally openers or changing march times so the target stays ahead of them.
+            </p>
+          )}
         </div>
 
-        <div className="order-2 lg:order-none flex flex-col gap-5">
-          {plan && now && <RallyResults plan={plan} now={now} />}
+        <div ref={mapRef} className="flex flex-col gap-2">
+          {editingPlayer && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-moss-500 font-semibold">
+                Editing {editingPlayer.role === 'garrison' ? 'reinforcement' : 'rally opener'}{' '}
+                {editingPlayer.name.trim() ||
+                  `#${(editingPlayer.role === 'garrison' ? garrisonPlayers : rallyPlayers).findIndex((p) => p.id === editingPlayer.id) + 1}`}
+              </p>
+              <button
+                type="button"
+                onClick={() => setEditingPlayerId(null)}
+                className="focus-ring rounded border border-stone-700 px-2.5 py-1 text-xs text-parchment-300 hover:border-gold-600 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <IsometricCastleMap
+            players={players}
+            editingPlayerId={editingPlayerId}
+            marchSpeedPercent={marchSpeedPercent}
+            onChangeMarchSpeedPercent={setMarchSpeedPercent}
+            onSetPlayerTown={handleSetPlayerTown}
+            onAddPlayerAtTown={handleAddPlayerAtTown}
+            onClearPlayerTown={handleClearPlayerTown}
+            enemyTown={enemyTown}
+            enemyMarchSpeedPercent={enemyMarchSpeedPercent}
+            onChangeEnemyMarchSpeedPercent={setEnemyMarchSpeedPercent}
+            onSetEnemyTown={handleSetEnemyTown}
+            onClearEnemyTown={clearEnemy}
+          />
+        </div>
+
+        {plan && now && <RallyResults plan={plan} now={now} onSetTargetToNow={setTargetToNow} />}
+
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-cyan-300">Rally Openers — hit order</h2>
+            <button
+              type="button"
+              onClick={() => addBlankPlayer('rally')}
+              className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:border-cyan-500 transition-colors"
+            >
+              + Add Rally Opener
+            </button>
+          </div>
+
+          {rallyPlayers.length === 0 ? (
+            <p className="text-sm text-parchment-500 py-6 text-center">Tap the map above to add your first rally opener.</p>
+          ) : (
+            rallyPlayers.map((player, i) => (
+              <RallyPlayerRow
+                key={player.id}
+                player={player}
+                index={i}
+                isLast={i === rallyPlayers.length - 1}
+                isEditingTown={editingPlayerId === player.id}
+                onChangeName={(name) => updatePlayer(player.id, { name })}
+                onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}
+                onChangeIslandLevel={(level) => updatePlayer(player.id, { islandLevel: level })}
+                onChangeMarchTime={(seconds) => updatePlayer(player.id, { marchTimeSeconds: seconds })}
+                onRequestTownChange={() => requestTownChange(player.id)}
+                onMoveUp={() => movePlayer(player.id, -1)}
+                onMoveDown={() => movePlayer(player.id, 1)}
+                onRemove={() => removePlayer(player.id)}
+              />
+            ))
+          )}
+        </div>
+
+        <RallyTimingPanel
+          players={rallyPlayers}
+          onChangeOffset={(id, seconds) => updatePlayer(id, { offsetSeconds: seconds })}
+          onStepOffset={stepOffset}
+        />
+
+        {enemyTown && now && (
+          <GarrisonPanel
+            enemyTown={enemyTown}
+            enemyMarchTimeSeconds={enemyMarchTimeSeconds}
+            hasRallyOpened={enemyRallyOpenedAt !== null}
+            plan={garrisonPlan}
+            now={now}
+            bufferSeconds={garrisonBufferSeconds}
+            onChangeBufferSeconds={setGarrisonBufferSeconds}
+            onMarkRallyOpened={markEnemyRallyOpened}
+            onCancelRally={cancelEnemyRally}
+            onClearEnemy={clearEnemy}
+          />
+        )}
+
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-moss-500">Reinforcements</h2>
+            <button
+              type="button"
+              onClick={() => addBlankPlayer('garrison')}
+              className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-moss-500 hover:border-moss-500 transition-colors"
+            >
+              + Add Reinforcement
+            </button>
+          </div>
+
+          {garrisonPlayers.length === 0 ? (
+            <p className="text-sm text-parchment-500 py-6 text-center">
+              Tap the map above (Reinforcement mode) to add someone who'll garrison, not rally.
+            </p>
+          ) : (
+            garrisonPlayers.map((player, i) => (
+              <RallyPlayerRow
+                key={player.id}
+                player={player}
+                index={i}
+                isLast={i === garrisonPlayers.length - 1}
+                isEditingTown={editingPlayerId === player.id}
+                onChangeName={(name) => updatePlayer(player.id, { name })}
+                onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}
+                onChangeIslandLevel={(level) => updatePlayer(player.id, { islandLevel: level })}
+                onChangeMarchTime={(seconds) => updatePlayer(player.id, { marchTimeSeconds: seconds })}
+                onRequestTownChange={() => requestTownChange(player.id)}
+                onMoveUp={() => movePlayer(player.id, -1)}
+                onMoveDown={() => movePlayer(player.id, 1)}
+                onRemove={() => removePlayer(player.id)}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

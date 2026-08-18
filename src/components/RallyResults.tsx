@@ -10,7 +10,13 @@ import {
   type RallyCountdownState,
 } from '@/lib/rally';
 
-export default function RallyResults({ plan, now }: { plan: RallyPlan; now: Date }) {
+interface RallyResultsProps {
+  plan: RallyPlan;
+  now: Date;
+  onSetTargetToNow: () => void;
+}
+
+export default function RallyResults({ plan, now, onSetTargetToNow }: RallyResultsProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -72,13 +78,22 @@ export default function RallyResults({ plan, now }: { plan: RallyPlan; now: Date
         </div>
       )}
 
-      <button
-        onClick={handleCopy}
-        disabled={plan.players.length === 0}
-        className="focus-ring w-full rounded-md bg-gold-500 py-2.5 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors disabled:opacity-50"
-      >
-        {copied ? 'Copied!' : 'Copy Results'}
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onSetTargetToNow}
+          className="focus-ring shrink-0 rounded-md border border-stone-700 px-3 py-2.5 text-xs font-semibold text-parchment-200 hover:border-gold-600 transition-colors"
+        >
+          Set to Now + Delay
+        </button>
+        <button
+          onClick={handleCopy}
+          disabled={plan.players.length === 0}
+          className="focus-ring flex-1 rounded-md bg-gold-500 py-2.5 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors disabled:opacity-50"
+        >
+          {copied ? 'Copied!' : 'Copy Results'}
+        </button>
+      </div>
     </div>
   );
 }
