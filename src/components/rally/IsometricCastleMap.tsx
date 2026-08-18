@@ -53,8 +53,8 @@ interface IsometricCastleMapProps {
   onChangeMarchSpeedPercent: (v: number) => void;
   onSetPlayerTown: (playerId: string, coord: WorldPoint, marchTimeSeconds: number) => void;
   onAddPlayerAtTown: (coord: WorldPoint, marchTimeSeconds: number, role: RallyPlayerRole) => void;
-  /** Clicking back on a player's already-placed town undoes it (clears the
-   * town, keeps the player) instead of adding a new one. */
+  /** Clicking back on a player's already-placed town undoes it -- removes
+   * that player entirely, same as the row's own remove button. */
   onClearPlayerTown: (playerId: string) => void;
   /** The enemy town currently being tracked for the Garrison Timer (null if
    * none marked yet) -- only one at a time, since it represents "the"
@@ -155,9 +155,18 @@ export default function IsometricCastleMap({
   // Clicking back into an already-placed town (or the enemy town) undoes
   // it instead of adding a new one -- an explicit "editing player X" click
   // still always sets that player's town, even on top of another marker.
+  // Only matches a marker of the CURRENT placement mode's own role -- a
+  // rally opener and a reinforcement are different things that can share
+  // the same coordinate (the same person can fill both roles), so clicking
+  // a rally opener's spot while in Reinforcement mode must add a
+  // reinforcement there, not delete the rally opener.
   const findExistingMarkerAt = (coord: WorldPoint): { type: 'player'; id: string } | { type: 'enemy' } | null => {
-    if (enemyTown && isWithinFootprint(coord, enemyTown, TOWN_FOOTPRINT_TILES)) return { type: 'enemy' };
-    const hit = players.find((p) => p.townCoord && isWithinFootprint(coord, p.townCoord, TOWN_FOOTPRINT_TILES));
+    if (placementMode === 'enemy') {
+      return enemyTown && isWithinFootprint(coord, enemyTown, TOWN_FOOTPRINT_TILES) ? { type: 'enemy' } : null;
+    }
+    const hit = players.find(
+      (p) => p.role === placementMode && p.townCoord && isWithinFootprint(coord, p.townCoord, TOWN_FOOTPRINT_TILES)
+    );
     return hit ? { type: 'player', id: hit.id } : null;
   };
 
@@ -306,7 +315,9 @@ export default function IsometricCastleMap({
               : placementMode === 'garrison'
                 ? 'Hover to preview, then click the map (or type coordinates below) to add the next reinforcement.'
                 : 'Hover to preview, then click the map (or type coordinates below) to add the next rally opener.'}{' '}
-          Click a town already on the map to undo it.
+          {placementMode === 'enemy'
+            ? 'Click the enemy town again to clear it.'
+            : `Click a ${placementMode === 'garrison' ? 'reinforcement' : 'rally opener'} already on the map to remove it -- a town shared with the other role is untouched.`}
         </p>
         {placementError && (
           <p className="text-xs text-ember-500 font-semibold mt-1">

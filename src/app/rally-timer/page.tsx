@@ -204,10 +204,10 @@ function RallyTimerContent() {
     ]);
   };
 
-  // Undo: clicking back on an already-placed town clears it but keeps the
-  // player (name/buffs intact) so they can just re-pick a spot.
+  // Undo: clicking back on an already-placed town removes that player
+  // entirely, same as pressing the row's own remove button.
   const handleClearPlayerTown = (playerId: string) => {
-    updatePlayer(playerId, { townCoord: null, marchTimeSeconds: null });
+    removePlayer(playerId);
   };
 
   const editingPlayer = players.find((p) => p.id === editingPlayerId) ?? null;
