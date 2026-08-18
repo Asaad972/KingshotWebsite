@@ -1,4 +1,5 @@
 import { getPetBuffSpeedupPercent } from './petBuffs';
+import { getIslandSpeedupPercent } from './islandDecor';
 
 export const RALLY_OFFSET_MIN = -30;
 export const RALLY_OFFSET_MAX = 30;
@@ -33,7 +34,7 @@ export interface RallyPlayerInput {
   offsetSeconds: number;
   /** Pet buff level (1-10), or null if the player has no active pet buff. */
   petBuffLevel: number | null;
-  /** Cosmetic island decoration level (1-5), or null. No effect on the calculation yet. */
+  /** Pet island decoration level (1-5), or null -- adds +1%/level march speedup. */
   islandLevel: number | null;
 }
 
@@ -75,8 +76,9 @@ export function computeRallyPlan({
     const arrivalTime = new Date(targetArrival.getTime() + cumulativeMs);
     const marchTimeSeconds = p.marchTimeSeconds;
     const petBuffSpeedupPercent = getPetBuffSpeedupPercent(p.petBuffLevel);
+    const totalSpeedupPercent = petBuffSpeedupPercent + getIslandSpeedupPercent(p.islandLevel);
     const effectiveMarchTimeSeconds =
-      marchTimeSeconds != null ? marchTimeSeconds * (1 - petBuffSpeedupPercent / 100) : null;
+      marchTimeSeconds != null ? marchTimeSeconds * (1 - totalSpeedupPercent / 100) : null;
     const rallyOpenTime =
       effectiveMarchTimeSeconds != null
         ? new Date(arrivalTime.getTime() - effectiveMarchTimeSeconds * 1000 - formationSeconds * 1000)
@@ -172,8 +174,9 @@ export function computeGarrisonPlan({
 }): GarrisonPlan {
   const senders: GarrisonSenderResult[] = players.map((p) => {
     const petBuffSpeedupPercent = getPetBuffSpeedupPercent(p.petBuffLevel);
+    const totalSpeedupPercent = petBuffSpeedupPercent + getIslandSpeedupPercent(p.islandLevel);
     const effectiveMarchTimeSeconds =
-      p.marchTimeSeconds != null ? p.marchTimeSeconds * (1 - petBuffSpeedupPercent / 100) : null;
+      p.marchTimeSeconds != null ? p.marchTimeSeconds * (1 - totalSpeedupPercent / 100) : null;
     const sendTime =
       effectiveMarchTimeSeconds != null
         ? new Date(enemyArrivalTime.getTime() + bufferSeconds * 1000 - effectiveMarchTimeSeconds * 1000)

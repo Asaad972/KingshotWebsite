@@ -10,10 +10,16 @@ import {
   type GarrisonCountdownState,
 } from '@/lib/rally';
 import type { WorldPoint } from '@/lib/isometricMap';
+import { PET_BUFF_LEVELS, getPetBuffSpeedupPercent } from '@/lib/petBuffs';
+import { ISLAND_LEVELS, getIslandSpeedupPercent } from '@/lib/islandDecor';
 
 interface GarrisonPanelProps {
   enemyTown: WorldPoint;
   enemyMarchTimeSeconds: number | null;
+  enemyPetBuffLevel: number | null;
+  enemyIslandLevel: number | null;
+  onChangeEnemyPetBuffLevel: (level: number | null) => void;
+  onChangeEnemyIslandLevel: (level: number | null) => void;
   hasRallyOpened: boolean;
   plan: GarrisonPlan | null;
   now: Date;
@@ -36,6 +42,10 @@ interface GarrisonPanelProps {
 export default function GarrisonPanel({
   enemyTown,
   enemyMarchTimeSeconds,
+  enemyPetBuffLevel,
+  enemyIslandLevel,
+  onChangeEnemyPetBuffLevel,
+  onChangeEnemyIslandLevel,
   hasRallyOpened,
   plan,
   now,
@@ -46,6 +56,10 @@ export default function GarrisonPanel({
   onClearEnemy,
 }: GarrisonPanelProps) {
   const [copied, setCopied] = useState(false);
+
+  const enemySpeedupPercent = getPetBuffSpeedupPercent(enemyPetBuffLevel) + getIslandSpeedupPercent(enemyIslandLevel);
+  const effectiveEnemyMarchTimeSeconds =
+    enemyMarchTimeSeconds != null ? enemyMarchTimeSeconds * (1 - enemySpeedupPercent / 100) : null;
 
   const handleCopy = async () => {
     if (!plan) return;
@@ -61,16 +75,54 @@ export default function GarrisonPanel({
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4 border border-red-900/50">
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <h2 className="text-sm font-semibold text-red-400">GARRISON TIMER</h2>
-          <p className="text-xs text-parchment-400 mt-1.5">
-            Enemy town: <span className="font-mono text-parchment-100">{enemyTown.x}:{enemyTown.y}</span>
-            {enemyMarchTimeSeconds != null && (
-              <>
-                {' '}· march <span className="font-mono text-parchment-100">{formatCountdown(enemyMarchTimeSeconds)}</span>
-              </>
-            )}
-          </p>
+        <div className="flex flex-col gap-2">
+          <div>
+            <h2 className="text-sm font-semibold text-red-400">GARRISON TIMER</h2>
+            <p className="text-xs text-parchment-400 mt-1.5">
+              Enemy town: <span className="font-mono text-parchment-100">{enemyTown.x}:{enemyTown.y}</span>
+              {enemyMarchTimeSeconds != null && (
+                <>
+                  {' '}· march{' '}
+                  <span className="font-mono text-parchment-100">
+                    {formatCountdown(effectiveEnemyMarchTimeSeconds ?? enemyMarchTimeSeconds)}
+                  </span>
+                  {enemySpeedupPercent > 0 && <span className="text-red-400"> (−{enemySpeedupPercent}%)</span>}
+                </>
+              )}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <select
+              value={enemyPetBuffLevel ?? ''}
+              onChange={(e) => onChangeEnemyPetBuffLevel(e.target.value ? Number(e.target.value) : null)}
+              aria-label="Enemy pet buff level"
+              className={`focus-ring w-28 shrink-0 rounded border bg-stone-950 px-1.5 py-1.5 text-xs focus:border-red-600 ${
+                enemyPetBuffLevel != null ? 'border-red-500/80 text-red-400 font-semibold' : 'border-stone-700 text-parchment-400'
+              }`}
+            >
+              <option value="">No pet buff</option>
+              {PET_BUFF_LEVELS.map((l) => (
+                <option key={l.level} value={l.level}>
+                  Pet Lv.{l.level} +{l.speedupPercent}%
+                </option>
+              ))}
+            </select>
+            <select
+              value={enemyIslandLevel ?? ''}
+              onChange={(e) => onChangeEnemyIslandLevel(e.target.value ? Number(e.target.value) : null)}
+              aria-label="Enemy pet island decoration level"
+              className={`focus-ring w-24 shrink-0 rounded border bg-stone-950 px-1.5 py-1.5 text-xs focus:border-red-600 ${
+                enemyIslandLevel != null ? 'border-red-500/80 text-red-400 font-semibold' : 'border-stone-700 text-parchment-400'
+              }`}
+            >
+              <option value="">No island</option>
+              {ISLAND_LEVELS.map((lvl) => (
+                <option key={lvl} value={lvl}>
+                  Island Lv.{lvl}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <button
           type="button"

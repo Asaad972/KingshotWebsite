@@ -18,6 +18,7 @@ import {
 } from '@/lib/rally';
 import type { WorldPoint } from '@/lib/isometricMap';
 import { getPetBuffSpeedupPercent } from '@/lib/petBuffs';
+import { getIslandSpeedupPercent } from '@/lib/islandDecor';
 import PasswordGate from '@/components/PasswordGate';
 
 const FORMATION_OPTIONS_MINUTES = [5, 3, 2, 1];
@@ -57,12 +58,16 @@ function RallyTimerContent() {
   const [enemyTown, setEnemyTown] = useState<WorldPoint | null>(null);
   const [enemyMarchTimeSeconds, setEnemyMarchTimeSeconds] = useState<number | null>(null);
   const [enemyMarchSpeedPercent, setEnemyMarchSpeedPercent] = useState(0);
+  const [enemyPetBuffLevel, setEnemyPetBuffLevel] = useState<number | null>(null);
+  const [enemyIslandLevel, setEnemyIslandLevel] = useState<number | null>(null);
   const [enemyRallyOpenedAt, setEnemyRallyOpenedAt] = useState<Date | null>(null);
   const [garrisonBufferSeconds, setGarrisonBufferSeconds] = useState(1);
 
   const handleSetEnemyTown = (coord: WorldPoint, marchTimeSeconds: number) => {
     setEnemyTown(coord);
     setEnemyMarchTimeSeconds(marchTimeSeconds);
+    setEnemyPetBuffLevel(null);
+    setEnemyIslandLevel(null);
     setEnemyRallyOpenedAt(null);
   };
 
@@ -75,16 +80,20 @@ function RallyTimerContent() {
   const clearEnemy = () => {
     setEnemyTown(null);
     setEnemyMarchTimeSeconds(null);
+    setEnemyPetBuffLevel(null);
+    setEnemyIslandLevel(null);
     setEnemyRallyOpenedAt(null);
   };
 
   // Enemy Arrival = when their rally opened + the same rally formation
-  // delay + their march time -- mirrors how our own rallies and
-  // reinforcements are timed.
+  // delay + their (pet/island-buffed) march time -- mirrors how our own
+  // rallies and reinforcements are timed.
   const enemyArrivalTime = useMemo(() => {
     if (!enemyRallyOpenedAt || enemyMarchTimeSeconds == null) return null;
-    return new Date(enemyRallyOpenedAt.getTime() + formationMinutes * 60 * 1000 + enemyMarchTimeSeconds * 1000);
-  }, [enemyRallyOpenedAt, enemyMarchTimeSeconds, formationMinutes]);
+    const enemySpeedup = getPetBuffSpeedupPercent(enemyPetBuffLevel) + getIslandSpeedupPercent(enemyIslandLevel);
+    const effectiveEnemyMarchTimeSeconds = enemyMarchTimeSeconds * (1 - enemySpeedup / 100);
+    return new Date(enemyRallyOpenedAt.getTime() + formationMinutes * 60 * 1000 + effectiveEnemyMarchTimeSeconds * 1000);
+  }, [enemyRallyOpenedAt, enemyMarchTimeSeconds, enemyPetBuffLevel, enemyIslandLevel, formationMinutes]);
 
   const garrisonPlan = useMemo(() => {
     if (!enemyArrivalTime) return null;
@@ -102,7 +111,7 @@ function RallyTimerContent() {
   const maxEffectiveMarchSeconds = useMemo(() => {
     return rallyPlayers.reduce((max, p) => {
       if (p.marchTimeSeconds == null) return max;
-      const speedup = getPetBuffSpeedupPercent(p.petBuffLevel);
+      const speedup = getPetBuffSpeedupPercent(p.petBuffLevel) + getIslandSpeedupPercent(p.islandLevel);
       return Math.max(max, p.marchTimeSeconds * (1 - speedup / 100));
     }, 0);
   }, [rallyPlayers]);
@@ -369,6 +378,10 @@ function RallyTimerContent() {
           <GarrisonPanel
             enemyTown={enemyTown}
             enemyMarchTimeSeconds={enemyMarchTimeSeconds}
+            enemyPetBuffLevel={enemyPetBuffLevel}
+            enemyIslandLevel={enemyIslandLevel}
+            onChangeEnemyPetBuffLevel={setEnemyPetBuffLevel}
+            onChangeEnemyIslandLevel={setEnemyIslandLevel}
             hasRallyOpened={enemyRallyOpenedAt !== null}
             plan={garrisonPlan}
             now={now}

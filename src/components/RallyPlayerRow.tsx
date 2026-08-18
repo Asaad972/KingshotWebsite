@@ -3,7 +3,7 @@
 import type { RallyPlayerInput } from '@/lib/rally';
 import { formatCountdown } from '@/lib/rally';
 import { PET_BUFF_LEVELS, getPetBuffSpeedupPercent } from '@/lib/petBuffs';
-import { ISLAND_LEVELS } from '@/lib/islandDecor';
+import { ISLAND_LEVELS, getIslandSpeedupPercent } from '@/lib/islandDecor';
 
 interface RallyPlayerRowProps {
   player: RallyPlayerInput;
@@ -35,7 +35,7 @@ export default function RallyPlayerRow({
   onRemove,
 }: RallyPlayerRowProps) {
   const isFirst = index === 0;
-  const speedupPercent = getPetBuffSpeedupPercent(player.petBuffLevel);
+  const speedupPercent = getPetBuffSpeedupPercent(player.petBuffLevel) + getIslandSpeedupPercent(player.islandLevel);
   const marchMinutes = player.marchTimeSeconds != null ? Math.floor(player.marchTimeSeconds / 60) : 0;
   const marchSeconds = player.marchTimeSeconds != null ? player.marchTimeSeconds % 60 : 0;
   const effectiveMarchTimeSeconds =
@@ -170,7 +170,7 @@ export default function RallyPlayerRow({
       </div>
       {speedupPercent > 0 && player.marchTimeSeconds != null && (
         <p className="text-xs text-moss-500 -mt-1.5">
-          With pet buff: <span className="font-mono">{formatCountdown(effectiveMarchTimeSeconds!)}</span> (−{speedupPercent}%)
+          With buffs: <span className="font-mono">{formatCountdown(effectiveMarchTimeSeconds!)}</span> (−{speedupPercent}%)
         </p>
       )}
     </div>
