@@ -23,9 +23,9 @@ const en = {
     sr: 'Serbian',
   },
   home: {
-    welcomeTitle: 'Welcome to Kingdom #1781',
+    welcomeTitle: 'Welcome to Kingshot Nerds HQ',
     welcomeBody:
-      'This is our home base for coordinating castle appointments, rally timing, and gift codes. Use the links below to get started.',
+      "Built by nerds, for nerds -- if you've ever theory-crafted a gear upgrade at 2am, you're home. Castle appointments, rally timing, gift codes, and enough calculators to make your spreadsheets jealous.",
     intro:
       'Book your castle appointment by selecting the times that work best for you. Admins will review your application and assign you one available slot.',
     bookButton: 'Book Your Slot',
@@ -51,6 +51,7 @@ const en = {
     quickLinkCharmCalculatorSubtitle: 'Plan Governor Charm upgrades',
     heroGearCalculatorNav: 'Hero Gear Calculator',
     quickLinkHeroGearCalculatorSubtitle: 'Plan hero gear upgrades',
+    calculatorsNav: 'Calculators',
     troopCalculatorNav: 'Troop Training',
     quickLinkTroopCalculatorSubtitle: 'Training time, resources & KvK points',
     researchTreeNav: 'Research Tree',

@@ -25,8 +25,9 @@ const ar: typeof en = {
     sr: 'الصربية',
   },
   home: {
-    welcomeTitle: 'مرحبًا بكم في المملكة #1781',
-    welcomeBody: 'هذا هو مقرنا لتنسيق مواعيد القلعة وتوقيت التجمعات وأكواد الهدايا. استخدم الروابط أدناه للبدء.',
+    welcomeTitle: 'مرحبًا بكم في المقر الرئيسي لعباقرة Kingshot',
+    welcomeBody:
+      'صنعه عباقرة، من أجل عباقرة -- إذا سبق لك أن خططت لترقية عتادك في الساعة الثانية فجرًا، فأنت في بيتك. مواعيد القلعة، توقيت التجمعات، أكواد الهدايا، وحاسبات كافية لتجعل جداول بياناتك تغار.',
     intro:
       'احجز موعد قلعتك عن طريق اختيار الأوقات التي تناسبك. سيقوم المشرفون بمراجعة طلبك وتخصيص موعد واحد لك.',
     bookButton: 'احجز موعدك',
@@ -52,6 +53,7 @@ const ar: typeof en = {
     quickLinkCharmCalculatorSubtitle: 'خطط لترقيات تمائم الحاكم',
     heroGearCalculatorNav: 'حاسبة عتاد الأبطال',
     quickLinkHeroGearCalculatorSubtitle: 'خطط لترقيات عتاد الأبطال',
+    calculatorsNav: 'الحاسبات',
     troopCalculatorNav: 'تدريب الجنود',
     quickLinkTroopCalculatorSubtitle: 'وقت التدريب والموارد ونقاط KvK',
     researchTreeNav: 'شجرة الأبحاث',

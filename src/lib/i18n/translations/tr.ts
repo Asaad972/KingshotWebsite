@@ -25,9 +25,9 @@ const tr: typeof en = {
     sr: 'Sırpça',
   },
   home: {
-    welcomeTitle: 'Kingdom #1781\'e Hoş Geldiniz',
+    welcomeTitle: 'Kingshot Meraklıları Karargahına Hoş Geldiniz',
     welcomeBody:
-      'Burası kale randevularını, rally zamanlamasını ve hediye kodlarını koordine ettiğimiz ana merkezimiz. Başlamak için aşağıdaki bağlantıları kullanın.',
+      "Meraklılar tarafından, meraklılar için yapıldı -- sabahın 2'sinde ekipman yükseltmesi hesapladıysanız, evinizdesiniz. Kale randevuları, rally zamanlaması, hediye kodları ve tablolarınızı kıskandıracak kadar çok hesaplayıcı.",
     intro:
       'Size uygun zamanları seçerek kale randevunuzu oluşturun. Yöneticiler başvurunuzu inceleyip size uygun bir zaman dilimi atayacaktır.',
     bookButton: 'Randevu Al',
@@ -53,6 +53,7 @@ const tr: typeof en = {
     quickLinkCharmCalculatorSubtitle: 'Vali Tılsım yükseltmelerini planla',
     heroGearCalculatorNav: 'Kahraman Ekipman Hesaplayıcı',
     quickLinkHeroGearCalculatorSubtitle: 'Kahraman ekipman yükseltmelerini planla',
+    calculatorsNav: 'Hesaplayıcılar',
     troopCalculatorNav: 'Asker Eğitimi',
     quickLinkTroopCalculatorSubtitle: 'Eğitim süresi, kaynaklar ve KvK puanları',
     researchTreeNav: 'Araştırma Ağacı',

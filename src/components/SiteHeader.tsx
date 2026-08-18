@@ -9,20 +9,33 @@ import type { Locale } from '@/types';
 
 const LANG_LABELS: Record<Locale, string> = { en: 'EN', ar: 'AR', tr: 'TR', sr: 'SR' };
 
+const CALCULATOR_LINKS = [
+  { href: '/gear-calculator', labelKey: 'home.gearCalculatorNav' },
+  { href: '/charm-calculator', labelKey: 'home.charmCalculatorNav' },
+  { href: '/hero-gear-calculator', labelKey: 'home.heroGearCalculatorNav' },
+  { href: '/troop-calculator', labelKey: 'home.troopCalculatorNav' },
+  { href: '/research-tree', labelKey: 'home.researchTreeNav' },
+] as const;
+
 export default function SiteHeader() {
   const { locale, setLocale, t } = useI18n();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
 
   if (!locale) return null;
   if (pathname?.startsWith('/admin')) return null;
+
+  const onCalculatorPage = CALCULATOR_LINKS.some((l) => pathname === l.href);
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-700 bg-stone-950/95">
       <div className="gradient-bar" aria-hidden />
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-        <Link href="/" className="flex items-center gap-2 focus-ring rounded-md shrink-0">
-          <span className="font-display text-gradient text-xs sm:text-base font-bold tracking-wide whitespace-nowrap">K1781 By King Hero</span>
+        <Link href="/" className="flex items-center gap-2 focus-ring rounded-md shrink-0 min-w-0">
+          <span className="font-display text-gradient text-xs sm:text-base font-bold tracking-wide whitespace-nowrap truncate">
+            Kingshot Nerds HQ<span className="hidden sm:inline"> · King Hero</span>
+          </span>
         </Link>
 
         <nav className="hidden sm:flex items-center gap-4 text-sm text-parchment-300 whitespace-nowrap">
@@ -35,6 +48,41 @@ export default function SiteHeader() {
           <Link href="/schedule" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
             {t('home.viewSchedule')}
           </Link>
+          <div className="relative">
+            <button
+              onClick={() => setCalcOpen((v) => !v)}
+              className={`flex items-center gap-1 hover:text-gold-300 transition-colors focus-ring rounded-md ${
+                onCalculatorPage ? 'text-gold-300' : ''
+              }`}
+              aria-haspopup="menu"
+              aria-expanded={calcOpen}
+            >
+              {t('home.calculatorsNav')}
+              <span className={`text-[10px] transition-transform ${calcOpen ? 'rotate-180' : ''}`} aria-hidden>
+                ▾
+              </span>
+            </button>
+            {calcOpen && (
+              <ul
+                role="menu"
+                className="absolute start-0 mt-1 w-56 overflow-hidden rounded border border-stone-700 bg-stone-900 shadow-lg"
+              >
+                {CALCULATOR_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onClick={() => setCalcOpen(false)}
+                      className={`block px-3 py-2 text-sm hover:bg-stone-800 transition-colors ${
+                        pathname === link.href ? 'text-gold-300' : 'text-parchment-200'
+                      }`}
+                    >
+                      {t(link.labelKey)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <Link href="/rally-timer" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
             {t('home.rallyTimerNav')}
           </Link>

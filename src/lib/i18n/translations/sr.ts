@@ -25,9 +25,9 @@ const sr: typeof en = {
     sr: 'Srpski',
   },
   home: {
-    welcomeTitle: 'Dobrodošli u Kraljevstvo #1781',
+    welcomeTitle: 'Dobrodošli u štab Kingshot nerdova',
     welcomeBody:
-      'Ovo je naša baza za koordinaciju termina u zamku, vremena okupljanja i poklon kodova. Koristite linkove ispod da počnete.',
+      'Napravljeno od strane nerdova, za nerdove -- ako ste ikada u 2 ujutru računali nadogradnju opreme, ovde ste kod kuće. Termini u zamku, tajming okupljanja, poklon kodovi i dovoljno kalkulatora da vaše tabele postanu ljubomorne.',
     intro:
       'Zakažite termin u zamku tako što ćete izabrati vremena koja vam najviše odgovaraju. Administratori će pregledati vašu prijavu i dodeliti vam jedan dostupan termin.',
     bookButton: 'Zakaži termin',
@@ -53,6 +53,7 @@ const sr: typeof en = {
     quickLinkCharmCalculatorSubtitle: 'Planirajte nadogradnje Guvernerovih amajlija',
     heroGearCalculatorNav: 'Kalkulator opreme heroja',
     quickLinkHeroGearCalculatorSubtitle: 'Planirajte nadogradnje opreme heroja',
+    calculatorsNav: 'Kalkulatori',
     troopCalculatorNav: 'Obuka Trupa',
     quickLinkTroopCalculatorSubtitle: 'Vreme obuke, resursi i KvK poeni',
     researchTreeNav: 'Stablo Istraživanja',
