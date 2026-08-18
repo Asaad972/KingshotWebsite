@@ -22,7 +22,7 @@ export default function ScheduleSlotCell({
 
   let stateClasses = 'border-stone-700 bg-stone-900 text-parchment-200';
   if (status === 'booked') {
-    stateClasses = 'border-gold-600 bg-gold-500/10 text-gold-200 shadow-[0_0_12px_-3px_rgba(236,72,153,0.4)]';
+    stateClasses = 'border-gold-600 bg-gold-500/10 text-gold-200 shadow-[0_0_12px_-3px_rgba(240,180,41,0.4)]';
   } else if (status === 'past') {
     stateClasses = 'border-stone-800 bg-stone-900/20 text-parchment-500/40 opacity-60';
   }

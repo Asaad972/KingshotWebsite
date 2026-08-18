@@ -21,7 +21,7 @@ export default function ResearchSummaryBar({ totals }: { totals: ResearchPlanTot
                 cy="18"
                 r="15.5"
                 fill="none"
-                stroke="#f9a8d4"
+                stroke="#f6cf6b"
                 strokeWidth="4"
                 strokeLinecap="round"
                 strokeDasharray={`${(completionPercent / 100) * 97.4} 97.4`}

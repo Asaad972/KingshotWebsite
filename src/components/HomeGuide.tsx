@@ -10,7 +10,7 @@ type Tone = 'gold' | 'cyan' | 'sky' | 'moss' | 'ember';
 // reusing its color set across more cards than it has colors) so no two
 // adjacent cards look identical.
 const TONE_CARD: Record<Tone, string> = {
-  gold: 'border-gold-500/25 bg-gradient-to-br from-gold-500/[0.12] via-stone-900 to-stone-900 hover:border-gold-500/50 hover:shadow-[0_0_24px_-8px_rgba(236,72,153,0.45)]',
+  gold: 'border-gold-500/25 bg-gradient-to-br from-gold-500/[0.12] via-stone-900 to-stone-900 hover:border-gold-500/50 hover:shadow-[0_0_24px_-8px_rgba(240,180,41,0.45)]',
   cyan: 'border-cyan-500/25 bg-gradient-to-br from-cyan-500/[0.12] via-stone-900 to-stone-900 hover:border-cyan-500/50 hover:shadow-[0_0_24px_-8px_rgba(6,182,212,0.45)]',
   sky: 'border-sky-500/25 bg-gradient-to-br from-sky-500/[0.12] via-stone-900 to-stone-900 hover:border-sky-500/50 hover:shadow-[0_0_24px_-8px_rgba(59,130,246,0.45)]',
   moss: 'border-moss-500/25 bg-gradient-to-br from-moss-500/[0.12] via-stone-900 to-stone-900 hover:border-moss-500/50 hover:shadow-[0_0_24px_-8px_rgba(63,174,114,0.45)]',

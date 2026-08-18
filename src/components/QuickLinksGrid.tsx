@@ -10,7 +10,7 @@ const TONE_CLASSES: Record<Tone, string> = {
 };
 
 const TONE_CARD_HOVER: Record<Tone, string> = {
-  gold: 'hover:border-gold-500/60 hover:shadow-[0_0_28px_-8px_rgba(236,72,153,0.55)]',
+  gold: 'hover:border-gold-500/60 hover:shadow-[0_0_28px_-8px_rgba(240,180,41,0.55)]',
   cyan: 'hover:border-cyan-500/60 hover:shadow-[0_0_28px_-8px_rgba(6,182,212,0.55)]',
 };
 

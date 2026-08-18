@@ -15,16 +15,15 @@ const config: Config = {
           600: '#2b384e',
           500: '#425065',
         },
-        // Vibrant pink/magenta accent family (key kept as "gold" to avoid
-        // renaming every class across the app -- it's just the primary
-        // accent token now, paired with `cyan` below for gradients).
+        // Warm royal-gold accent family -- the primary accent token,
+        // paired with `cyan` below for gradients.
         gold: {
-          200: '#fbcfe8',
-          300: '#f9a8d4',
-          400: '#f472b6',
-          500: '#ec4899',
-          600: '#db2777',
-          700: '#be185d',
+          200: '#f5e2a8',
+          300: '#f6cf6b',
+          400: '#f0b429',
+          500: '#d99a1b',
+          600: '#b37e15',
+          700: '#8f6511',
         },
         // Cyan companion accent, used alongside `gold` in gradients and for
         // secondary highlights.
@@ -57,8 +56,8 @@ const config: Config = {
         },
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #06b6d4 100%)',
-        'gradient-primary-soft': 'linear-gradient(135deg, rgba(236,72,153,0.15) 0%, rgba(6,182,212,0.15) 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #f6cf6b 0%, #f0b429 50%, #b37e15 100%)',
+        'gradient-primary-soft': 'linear-gradient(135deg, rgba(240,180,41,0.15) 0%, rgba(179,126,21,0.15) 100%)',
       },
       fontFamily: {
         display: ['var(--font-display)', 'sans-serif'],

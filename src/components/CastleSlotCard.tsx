@@ -29,7 +29,7 @@ export default function CastleSlotCard({
   let stateClasses = 'border-stone-700 bg-stone-900 text-parchment-200 hover:border-gold-600 hover:bg-stone-800';
   if (selected) {
     stateClasses =
-      'border-gold-400 bg-gold-500 text-stone-950 font-semibold shadow-[0_0_14px_-2px_rgba(236,72,153,0.55)]';
+      'border-gold-400 bg-gold-500 text-stone-950 font-semibold shadow-[0_0_14px_-2px_rgba(240,180,41,0.55)]';
   } else if (status === 'booked') {
     stateClasses =
       'border-ember-600/30 bg-ember-500/[0.07] text-parchment-400/60 cursor-not-allowed shadow-[0_0_10px_-3px_rgba(226,80,63,0.3)]';

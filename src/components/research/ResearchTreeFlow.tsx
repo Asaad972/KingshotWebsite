@@ -142,7 +142,7 @@ export default function ResearchTreeFlow({
                 key={i}
                 d={d}
                 fill="none"
-                stroke={e.unlocked ? '#f9a8d4' : '#2b384e'}
+                stroke={e.unlocked ? '#a7b3c4' : '#2b384e'}
                 strokeWidth={compact ? 2.5 : 3.5}
                 strokeLinecap="round"
                 opacity={e.unlocked ? 0.9 : 0.6}
@@ -160,7 +160,7 @@ export default function ResearchTreeFlow({
           const selected = selectedId === tech.id;
           const hasGoal = state.target > state.current;
           const ringPct = Math.min(100, (state.current / tech.maxLevel) * 100);
-          const ringColor = maxed ? '#eab308' : hasGoal ? '#22d3ee' : unlocked ? '#f9a8d4' : '#3f4a5e';
+          const ringColor = maxed ? '#eab308' : hasGoal ? '#22d3ee' : unlocked ? '#a7b3c4' : '#3f4a5e';
 
           return (
             <div

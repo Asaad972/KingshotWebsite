@@ -22,7 +22,7 @@ body {
    automatically for Arabic. */
 
 ::selection {
-  background: rgba(236, 72, 153, 0.35);
+  background: rgba(240, 180, 41, 0.35);
 }
 
 .focus-ring {
@@ -42,7 +42,7 @@ body {
   height: 8px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(236, 72, 153, 0.35);
+  background: rgba(240, 180, 41, 0.35);
   border-radius: 8px;
 }
 
@@ -91,10 +91,10 @@ body {
 @keyframes glow-pulse-gold {
   0%,
   100% {
-    box-shadow: 0 0 14px -2px rgba(236, 72, 153, 0.5);
+    box-shadow: 0 0 14px -2px rgba(240, 180, 41, 0.5);
   }
   50% {
-    box-shadow: 0 0 22px 1px rgba(236, 72, 153, 0.75);
+    box-shadow: 0 0 22px 1px rgba(240, 180, 41, 0.75);
   }
 }
 @keyframes glow-pulse-cyan {
