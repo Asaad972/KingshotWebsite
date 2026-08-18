@@ -1,24 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { groupByDepth, CATEGORY_RESOURCE, type ResearchPlan } from '@/lib/researchCalc';
-import type { ResearchTech } from '@/lib/researchEconomyData';
-import { BreadIcon, WoodIcon, StoneIcon, IronIcon } from './ResearchIcons';
-
-const RESOURCE_ICON = { bread: BreadIcon, wood: WoodIcon, stone: StoneIcon, iron: IronIcon };
-const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
-  bread: 'text-amber-400',
-  wood: 'text-orange-400',
-  stone: 'text-parchment-300',
-  iron: 'text-cyan-400',
-};
+import { groupByDepth, type ResearchPlan } from '@/lib/researchCalc';
+import type { ResearchTech } from '@/lib/researchTypes';
+import type { TreeDef } from '@/lib/researchTrees';
+import { CATEGORY_ICON_COMPONENT, CATEGORY_ICON_COLOR } from './ResearchIcons';
 
 // Fixed vertical layout -- one row per dependency depth, up to 3 nodes wide,
 // connected by right-angle "elbow" lines. Mirrors the actual in-game
-// Academy tree's single trunk that splits and re-merges, rather than a
-// grid or a lanes-based layout. No internal scroll container and no card
-// wrapper -- this sits directly on the page background at its full natural
-// size, so the whole PAGE scrolls through it rather than a boxed-in area.
+// Academy tree's single trunk that splits and re-merges (Growth/Battle can
+// have several independent trunks, since some tiers gate on external troop
+// upgrades rather than the tree's own previous tier), rather than a grid or
+// a lanes-based layout. No internal scroll container and no card wrapper --
+// this sits directly on the page background at its full natural size, so
+// the whole PAGE scrolls through it rather than a boxed-in area.
 //
 // Two size presets, not a continuous scale: below the `compact` breakpoint
 // (phones) everything shrinks enough that a 3-wide row fits the screen
@@ -42,11 +37,13 @@ function useCompact(): boolean {
 }
 
 export default function ResearchTreeFlow({
+  tree,
   plan,
   selectedId,
   onSelect,
   onToggleMax,
 }: {
+  tree: TreeDef;
   plan: ResearchPlan;
   selectedId: string | null;
   onSelect: (techId: string) => void;
@@ -63,7 +60,7 @@ export default function ResearchTreeFlow({
     return [-COL_GAP, 0, COL_GAP];
   };
 
-  const rows = groupByDepth();
+  const rows = groupByDepth(tree.techs);
   const centerX = PADDING_X;
   const canvasWidth = PADDING_X * 2;
   const canvasHeight = PADDING_TOP + rows.length * ROW_H + NODE;
@@ -118,8 +115,8 @@ export default function ResearchTreeFlow({
         {rows.flat().map((tech) => {
           const pos = posById.get(tech.id)!;
           const state = plan[tech.id] ?? { current: 0, target: 0 };
-          const resource = CATEGORY_RESOURCE[tech.category];
-          const Icon = RESOURCE_ICON[resource];
+          const iconKey = tree.categoryIcon[tech.category];
+          const Icon = CATEGORY_ICON_COMPONENT[iconKey];
           const unlocked = isUnlocked(tech);
           const maxed = state.current >= tech.maxLevel;
           const selected = selectedId === tech.id;
@@ -147,7 +144,7 @@ export default function ResearchTreeFlow({
                 }`}
                 style={{ width: NODE, height: NODE }}
               >
-                <span className={`${nodeIcon} ${RESOURCE_COLOR[resource]} ${!unlocked ? 'opacity-60' : ''}`}>
+                <span className={`${nodeIcon} ${CATEGORY_ICON_COLOR[iconKey]} ${!unlocked ? 'opacity-60' : ''}`}>
                   <Icon />
                 </span>
               </button>

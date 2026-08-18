@@ -1,67 +1,17 @@
-// Kingshot Research Tree -- Economy branch. REAL data extracted directly from
-// kingshotdata.com/research (fetched 2026-08-18) via its own static DOM --
-// each technology renders as a native <details class="ally-tech"> element
-// whose per-level table (cost/time/power/effect%) is present in the page's
-// HTML even while collapsed, so this was read directly rather than guessed.
-//
-// A few levels show no resource cost at all in the source (rendered as "-"
-// there too, not just here) -- kept as 0 rather than invented, consistent
-// with this project's practice of flagging source gaps instead of quietly
-// filling them in. Affected: Bread Output VI Lv.1, Wood Output VI Lv.1.
-//
-// Costs above 999 are shown on the source itself in compact form (e.g.
-// "16K", "1.4M") rather than exact digits -- those are carried through at
-// that same source precision, not further approximated here.
-//
-// "category" groups the 44 techs into 8 branches (4 resources x
-// output-rate / gathering-speed) purely for the tree's visual layout and
-// icon choice -- it has no meaning in the game itself.
+// Kingshot Research Tree -- Economy branch
+// REAL data extracted directly from kingshotdata.com/research (fetched
+// 2026-08-18) via its own static DOM -- each technology renders as a native
+// <details class="ally-tech"> element whose per-level table is present in
+// the page's HTML even while collapsed, so this was read directly rather
+// than guessed. See researchTypes.ts for the shared shape.
 
-export type ResourceCost = { bread: number; wood: number; stone: number; iron: number; gold: number };
-
-export type ResearchCategory =
-  | 'bread-output'
-  | 'bread-gathering'
-  | 'wood-output'
-  | 'wood-gathering'
-  | 'stone-output'
-  | 'stone-gathering'
-  | 'iron-output'
-  | 'iron-gathering';
-
-export interface ResearchLevel {
-  level: number;
-  cost: ResourceCost;
-  timeSeconds: number;
-  power: number;
-  effectPercent: number;
-  /** Academy hall level required to unlock researching this level. */
-  academyLevel: number;
-}
-
-export interface ResearchPrereq {
-  techId: string;
-  level: number;
-}
-
-export interface ResearchTech {
-  id: string;
-  name: string;
-  category: ResearchCategory;
-  desc: string;
-  effectRange: string;
-  maxLevel: number;
-  unlockAcademyLevel: number;
-  /** Other Economy techs (+ their level) that must be researched before this one unlocks. */
-  prereqs: ResearchPrereq[];
-  levels: ResearchLevel[];
-}
+import type { ResearchTech } from './researchTypes';
 
 export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "bread-output-i",
     "name": "Bread Output I",
-    "category": "bread-output",
+    "category": "Bread Output",
     "desc": "Enhances Bread Output in Mill",
     "effectRange": "Bread Output +4% to +13.5%",
     "maxLevel": 3,
@@ -79,7 +29,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 27,
         "power": 1040,
-        "effectPercent": 4,
+        "effectValue": 4,
+        "effectIsPercent": true,
         "academyLevel": 1
       },
       {
@@ -93,7 +44,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 40,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 2
       },
       {
@@ -107,7 +59,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 3
       }
     ]
@@ -115,7 +68,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "bread-output-ii",
     "name": "Bread Output II",
-    "category": "bread-output",
+    "category": "Bread Output",
     "desc": "Enhances Bread Output in Mill",
     "effectRange": "Bread Output +4% to +13.5%",
     "maxLevel": 3,
@@ -138,7 +91,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 300,
         "power": 1040,
-        "effectPercent": 4,
+        "effectValue": 4,
+        "effectIsPercent": true,
         "academyLevel": 8
       },
       {
@@ -152,7 +106,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 420,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 9
       },
       {
@@ -166,7 +121,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 10
       }
     ]
@@ -174,7 +130,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "bread-output-iii",
     "name": "Bread Output III",
-    "category": "bread-output",
+    "category": "Bread Output",
     "desc": "Enhances Bread Output in Mill",
     "effectRange": "Bread Output +5.5% to +18%",
     "maxLevel": 3,
@@ -197,7 +153,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 1430,
-        "effectPercent": 5.5,
+        "effectValue": 5.5,
+        "effectIsPercent": true,
         "academyLevel": 13
       },
       {
@@ -211,7 +168,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1800,
         "power": 2860,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 14
       },
       {
@@ -225,7 +183,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4800,
         "power": 4680,
-        "effectPercent": 18,
+        "effectValue": 18,
+        "effectIsPercent": true,
         "academyLevel": 15
       }
     ]
@@ -233,7 +192,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "bread-output-iv",
     "name": "Bread Output IV",
-    "category": "bread-output",
+    "category": "Bread Output",
     "desc": "Enhances Bread Output in Mill",
     "effectRange": "Bread Output +7% to +22.5%",
     "maxLevel": 3,
@@ -256,7 +215,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 7980,
         "power": 1820,
-        "effectPercent": 7,
+        "effectValue": 7,
+        "effectIsPercent": true,
         "academyLevel": 18
       },
       {
@@ -270,7 +230,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 12000,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 19
       },
       {
@@ -284,7 +245,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 31980,
         "power": 5850,
-        "effectPercent": 22.5,
+        "effectValue": 22.5,
+        "effectIsPercent": true,
         "academyLevel": 20
       }
     ]
@@ -292,7 +254,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "bread-output-v",
     "name": "Bread Output V",
-    "category": "bread-output",
+    "category": "Bread Output",
     "desc": "Enhances Bread Output in Mill",
     "effectRange": "Bread Output +8% to +26%",
     "maxLevel": 3,
@@ -315,7 +277,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 49980,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 23
       },
       {
@@ -329,7 +292,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 75000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 24
       },
       {
@@ -343,7 +307,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 199980,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 25
       }
     ]
@@ -351,7 +316,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "bread-output-vi",
     "name": "Bread Output VI",
-    "category": "bread-output",
+    "category": "Bread Output",
     "desc": "Enhances Bread Output in Mill",
     "effectRange": "Bread Output +8% to +26%",
     "maxLevel": 3,
@@ -374,7 +339,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 240000,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 28
       },
       {
@@ -388,7 +354,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 360000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 29
       },
       {
@@ -402,7 +369,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 960000,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -410,7 +378,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "food-foraging-i",
     "name": "Food Foraging I",
-    "category": "bread-gathering",
+    "category": "Food Foraging",
     "desc": "Enhances Bread Collection Speed",
     "effectRange": "Bread Gathering Speed +8% to +27%",
     "maxLevel": 3,
@@ -433,7 +401,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 27,
         "power": 1000,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 5
       },
       {
@@ -447,7 +416,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 40,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 6
       },
       {
@@ -461,7 +431,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 7
       }
     ]
@@ -469,7 +440,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "food-foraging-ii",
     "name": "Food Foraging II",
-    "category": "bread-gathering",
+    "category": "Food Foraging",
     "desc": "Enhances Bread Collection Speed",
     "effectRange": "Bread Gathering Speed +8% to +27%",
     "maxLevel": 3,
@@ -492,7 +463,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 300,
         "power": 1000,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 11
       },
       {
@@ -506,7 +478,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 420,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 12
       },
       {
@@ -520,7 +493,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 13
       }
     ]
@@ -528,7 +502,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "food-foraging-iii",
     "name": "Food Foraging III",
-    "category": "bread-gathering",
+    "category": "Food Foraging",
     "desc": "Enhances Bread Collection Speed",
     "effectRange": "Bread Gathering Speed +11% to +36.5%",
     "maxLevel": 3,
@@ -551,7 +525,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 1375,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 16
       },
       {
@@ -565,7 +540,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1800,
         "power": 2750,
-        "effectPercent": 22,
+        "effectValue": 22,
+        "effectIsPercent": true,
         "academyLevel": 17
       },
       {
@@ -579,7 +555,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4800,
         "power": 4562,
-        "effectPercent": 36.5,
+        "effectValue": 36.5,
+        "effectIsPercent": true,
         "academyLevel": 18
       }
     ]
@@ -587,7 +564,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "food-foraging-iv",
     "name": "Food Foraging IV",
-    "category": "bread-gathering",
+    "category": "Food Foraging",
     "desc": "Enhances Bread Collection Speed",
     "effectRange": "Bread Gathering Speed +13.5% to +45%",
     "maxLevel": 3,
@@ -610,7 +587,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 7980,
         "power": 1687,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 21
       },
       {
@@ -624,7 +602,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 12000,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 22
       },
       {
@@ -638,7 +617,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 31980,
         "power": 5625,
-        "effectPercent": 45,
+        "effectValue": 45,
+        "effectIsPercent": true,
         "academyLevel": 23
       }
     ]
@@ -646,7 +626,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "food-foraging-v",
     "name": "Food Foraging V",
-    "category": "bread-gathering",
+    "category": "Food Foraging",
     "desc": "Enhances Bread Collection Speed",
     "effectRange": "Bread Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -669,7 +649,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 49980,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 26
       },
       {
@@ -683,7 +664,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 75000,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 27
       },
       {
@@ -697,7 +679,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 199980,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 28
       }
     ]
@@ -705,7 +688,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "food-foraging-vi",
     "name": "Food Foraging VI",
-    "category": "bread-gathering",
+    "category": "Food Foraging",
     "desc": "Enhances Bread Collection Speed",
     "effectRange": "Bread Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -728,7 +711,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 240000,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 30
       },
       {
@@ -742,7 +726,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 360000,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 0
       },
       {
@@ -756,7 +741,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 960000,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -764,7 +750,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-mining-i",
     "name": "Iron Mining I",
-    "category": "iron-gathering",
+    "category": "Iron Mining",
     "desc": "Accelerates Iron Gathering",
     "effectRange": "Iron Mining Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -791,7 +777,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 12
       },
       {
@@ -805,7 +792,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 120,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 13
       },
       {
@@ -819,7 +807,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 360,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 14
       }
     ]
@@ -827,7 +816,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-mining-ii",
     "name": "Iron Mining II",
-    "category": "iron-gathering",
+    "category": "Iron Mining",
     "desc": "Accelerates Iron Gathering",
     "effectRange": "Iron Mining Speed +11% to +36.5%",
     "maxLevel": 3,
@@ -858,7 +847,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1020,
         "power": 1375,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 17
       },
       {
@@ -872,7 +862,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1560,
         "power": 2750,
-        "effectPercent": 22,
+        "effectValue": 22,
+        "effectIsPercent": true,
         "academyLevel": 18
       },
       {
@@ -886,7 +877,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4200,
         "power": 4562,
-        "effectPercent": 36.5,
+        "effectValue": 36.5,
+        "effectIsPercent": true,
         "academyLevel": 19
       }
     ]
@@ -894,7 +886,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-mining-iii",
     "name": "Iron Mining III",
-    "category": "iron-gathering",
+    "category": "Iron Mining",
     "desc": "Accelerates Iron Gathering",
     "effectRange": "Iron Mining Speed +13.5% to +45%",
     "maxLevel": 3,
@@ -925,7 +917,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4200,
         "power": 1687,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 22
       },
       {
@@ -939,7 +932,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 6300,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 23
       },
       {
@@ -953,7 +947,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 16800,
         "power": 5625,
-        "effectPercent": 45,
+        "effectValue": 45,
+        "effectIsPercent": true,
         "academyLevel": 24
       }
     ]
@@ -961,7 +956,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-mining-iv",
     "name": "Iron Mining IV",
-    "category": "iron-gathering",
+    "category": "Iron Mining",
     "desc": "Accelerates Iron Gathering",
     "effectRange": "Iron Mining Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -992,7 +987,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 27960,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 27
       },
       {
@@ -1006,7 +1002,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 42000,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 28
       },
       {
@@ -1020,7 +1017,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 111960,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 29
       }
     ]
@@ -1028,7 +1026,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-mining-v",
     "name": "Iron Mining V",
-    "category": "iron-gathering",
+    "category": "Iron Mining",
     "desc": "Accelerates Iron Gathering",
     "effectRange": "Iron Mining Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -1059,7 +1057,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 174960,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 30
       },
       {
@@ -1073,7 +1072,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 262500,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 0
       },
       {
@@ -1087,7 +1087,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 699960,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -1095,7 +1096,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-output-i",
     "name": "Iron Output I",
-    "category": "iron-output",
+    "category": "Iron Output",
     "desc": "Enhances Iron Output at Ironworks",
     "effectRange": "Iron Output +8% to +27%",
     "maxLevel": 3,
@@ -1122,7 +1123,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 120,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 10
       },
       {
@@ -1136,7 +1138,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 180,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 11
       },
       {
@@ -1150,7 +1153,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 540,
         "power": 7020,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 12
       }
     ]
@@ -1158,7 +1162,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-output-ii",
     "name": "Iron Output II",
-    "category": "iron-output",
+    "category": "Iron Output",
     "desc": "Enhances Iron Output at Ironworks",
     "effectRange": "Iron Output +5.5% to +18%",
     "maxLevel": 3,
@@ -1189,7 +1193,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1500,
         "power": 1430,
-        "effectPercent": 5.5,
+        "effectValue": 5.5,
+        "effectIsPercent": true,
         "academyLevel": 15
       },
       {
@@ -1203,7 +1208,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 2220,
         "power": 2860,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 16
       },
       {
@@ -1217,7 +1223,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 6000,
         "power": 4680,
-        "effectPercent": 18,
+        "effectValue": 18,
+        "effectIsPercent": true,
         "academyLevel": 17
       }
     ]
@@ -1225,7 +1232,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-output-iii",
     "name": "Iron Output III",
-    "category": "iron-output",
+    "category": "Iron Output",
     "desc": "Enhances Iron Output at Ironworks",
     "effectRange": "Iron Output +7% to +22.5%",
     "maxLevel": 3,
@@ -1256,7 +1263,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 6000,
         "power": 1820,
-        "effectPercent": 7,
+        "effectValue": 7,
+        "effectIsPercent": true,
         "academyLevel": 20
       },
       {
@@ -1270,7 +1278,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 9000,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 21
       },
       {
@@ -1284,7 +1293,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 24000,
         "power": 5850,
-        "effectPercent": 22.5,
+        "effectValue": 22.5,
+        "effectIsPercent": true,
         "academyLevel": 22
       }
     ]
@@ -1292,7 +1302,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-output-iv",
     "name": "Iron Output IV",
-    "category": "iron-output",
+    "category": "Iron Output",
     "desc": "Enhances Iron Output at Ironworks",
     "effectRange": "Iron Output +7% to +22.5%",
     "maxLevel": 3,
@@ -1323,7 +1333,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 39960,
         "power": 1820,
-        "effectPercent": 7,
+        "effectValue": 7,
+        "effectIsPercent": true,
         "academyLevel": 25
       },
       {
@@ -1337,7 +1348,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60000,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 26
       },
       {
@@ -1351,7 +1363,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 159960,
         "power": 5850,
-        "effectPercent": 22.5,
+        "effectValue": 22.5,
+        "effectIsPercent": true,
         "academyLevel": 27
       }
     ]
@@ -1359,7 +1372,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "iron-output-v",
     "name": "Iron Output V",
-    "category": "iron-output",
+    "category": "Iron Output",
     "desc": "Enhances Iron Output at Ironworks",
     "effectRange": "Iron Output +8% to +26%",
     "maxLevel": 3,
@@ -1390,7 +1403,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 249960,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 30
       },
       {
@@ -1404,7 +1418,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 375000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 0
       },
       {
@@ -1418,7 +1433,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 999960,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -1426,7 +1442,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-gathering-i",
     "name": "Stone Gathering I",
-    "category": "stone-gathering",
+    "category": "Stone Gathering",
     "desc": "Enhances Stone Gathering Speed",
     "effectRange": "Stone Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -1449,7 +1465,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 7
       },
       {
@@ -1463,7 +1480,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 120,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 8
       },
       {
@@ -1477,7 +1495,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 360,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 9
       }
     ]
@@ -1485,7 +1504,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-gathering-ii",
     "name": "Stone Gathering II",
-    "category": "stone-gathering",
+    "category": "Stone Gathering",
     "desc": "Enhances Stone Gathering Speed",
     "effectRange": "Stone Gathering Speed +11% to +36.5%",
     "maxLevel": 3,
@@ -1508,7 +1527,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1020,
         "power": 1375,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 16
       },
       {
@@ -1522,7 +1542,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1560,
         "power": 2750,
-        "effectPercent": 22,
+        "effectValue": 22,
+        "effectIsPercent": true,
         "academyLevel": 17
       },
       {
@@ -1536,7 +1557,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4200,
         "power": 4562,
-        "effectPercent": 36.5,
+        "effectValue": 36.5,
+        "effectIsPercent": true,
         "academyLevel": 18
       }
     ]
@@ -1544,7 +1566,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-gathering-iii",
     "name": "Stone Gathering III",
-    "category": "stone-gathering",
+    "category": "Stone Gathering",
     "desc": "Enhances Stone Gathering Speed",
     "effectRange": "Stone Gathering Speed +13.5% to +45%",
     "maxLevel": 3,
@@ -1567,7 +1589,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4200,
         "power": 1687,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 21
       },
       {
@@ -1581,7 +1604,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 6300,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 22
       },
       {
@@ -1595,7 +1619,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 16800,
         "power": 5625,
-        "effectPercent": 45,
+        "effectValue": 45,
+        "effectIsPercent": true,
         "academyLevel": 23
       }
     ]
@@ -1603,7 +1628,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-gathering-iv",
     "name": "Stone Gathering IV",
-    "category": "stone-gathering",
+    "category": "Stone Gathering",
     "desc": "Enhances Stone Gathering Speed",
     "effectRange": "Stone Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -1626,7 +1651,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 27960,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 26
       },
       {
@@ -1640,7 +1666,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 42000,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 27
       },
       {
@@ -1654,7 +1681,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 111960,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 28
       }
     ]
@@ -1662,7 +1690,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-gathering-v",
     "name": "Stone Gathering V",
-    "category": "stone-gathering",
+    "category": "Stone Gathering",
     "desc": "Enhances Stone Gathering Speed",
     "effectRange": "Stone Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -1685,7 +1713,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 174960,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 30
       },
       {
@@ -1699,7 +1728,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 262500,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 0
       },
       {
@@ -1713,7 +1743,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 699960,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -1721,7 +1752,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-output-i",
     "name": "Stone Output I",
-    "category": "stone-output",
+    "category": "Stone Output",
     "desc": "Enhances Quarry Speed",
     "effectRange": "Stone Output +8% to +27%",
     "maxLevel": 3,
@@ -1748,7 +1779,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 120,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 6
       },
       {
@@ -1762,7 +1794,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 180,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 7
       },
       {
@@ -1776,7 +1809,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 540,
         "power": 7020,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 8
       }
     ]
@@ -1784,7 +1818,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-output-ii",
     "name": "Stone Output II",
-    "category": "stone-output",
+    "category": "Stone Output",
     "desc": "Enhances Quarry Speed",
     "effectRange": "Stone Output +5.5% to +18%",
     "maxLevel": 3,
@@ -1807,7 +1841,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1500,
         "power": 1430,
-        "effectPercent": 5.5,
+        "effectValue": 5.5,
+        "effectIsPercent": true,
         "academyLevel": 13
       },
       {
@@ -1821,7 +1856,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 2220,
         "power": 2860,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 14
       },
       {
@@ -1835,7 +1871,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 6000,
         "power": 4680,
-        "effectPercent": 18,
+        "effectValue": 18,
+        "effectIsPercent": true,
         "academyLevel": 15
       }
     ]
@@ -1843,7 +1880,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-output-iii",
     "name": "Stone Output III",
-    "category": "stone-output",
+    "category": "Stone Output",
     "desc": "Enhances Quarry Speed",
     "effectRange": "Stone Output +7% to +22.5%",
     "maxLevel": 3,
@@ -1866,7 +1903,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 6000,
         "power": 1820,
-        "effectPercent": 7,
+        "effectValue": 7,
+        "effectIsPercent": true,
         "academyLevel": 18
       },
       {
@@ -1880,7 +1918,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 9000,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 19
       },
       {
@@ -1894,7 +1933,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 24000,
         "power": 5850,
-        "effectPercent": 22.5,
+        "effectValue": 22.5,
+        "effectIsPercent": true,
         "academyLevel": 20
       }
     ]
@@ -1902,7 +1942,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-output-iv",
     "name": "Stone Output IV",
-    "category": "stone-output",
+    "category": "Stone Output",
     "desc": "Enhances Quarry Speed",
     "effectRange": "Stone Output +8% to +26%",
     "maxLevel": 3,
@@ -1925,7 +1965,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 39960,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 23
       },
       {
@@ -1939,7 +1980,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 24
       },
       {
@@ -1953,7 +1995,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 159960,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 25
       }
     ]
@@ -1961,7 +2004,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "stone-output-v",
     "name": "Stone Output V",
-    "category": "stone-output",
+    "category": "Stone Output",
     "desc": "Enhances Quarry Speed",
     "effectRange": "Stone Output +8% to +26%",
     "maxLevel": 3,
@@ -1984,7 +2027,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 249960,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 28
       },
       {
@@ -1998,7 +2042,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 375000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 29
       },
       {
@@ -2012,7 +2057,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 999960,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -2020,7 +2066,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-gathering-i",
     "name": "Wood Gathering I",
-    "category": "wood-gathering",
+    "category": "Wood Gathering",
     "desc": "Enhances Wood Gathering Speed",
     "effectRange": "Wood Gathering Speed +8% to +27%",
     "maxLevel": 3,
@@ -2043,7 +2089,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 27,
         "power": 1000,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 5
       },
       {
@@ -2057,7 +2104,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 40,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 6
       },
       {
@@ -2071,7 +2119,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 7
       }
     ]
@@ -2079,7 +2128,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-gathering-ii",
     "name": "Wood Gathering II",
-    "category": "wood-gathering",
+    "category": "Wood Gathering",
     "desc": "Enhances Wood Gathering Speed",
     "effectRange": "Wood Gathering Speed +8% to +27%",
     "maxLevel": 3,
@@ -2102,7 +2151,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 300,
         "power": 1000,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 11
       },
       {
@@ -2116,7 +2166,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 420,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 12
       },
       {
@@ -2130,7 +2181,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 13
       }
     ]
@@ -2138,7 +2190,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-gathering-iii",
     "name": "Wood Gathering III",
-    "category": "wood-gathering",
+    "category": "Wood Gathering",
     "desc": "Enhances Wood Gathering Speed",
     "effectRange": "Wood Gathering Speed +11% to +36.5%",
     "maxLevel": 3,
@@ -2161,7 +2213,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 1375,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 16
       },
       {
@@ -2175,7 +2228,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1800,
         "power": 2750,
-        "effectPercent": 22,
+        "effectValue": 22,
+        "effectIsPercent": true,
         "academyLevel": 17
       },
       {
@@ -2189,7 +2243,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4800,
         "power": 4562,
-        "effectPercent": 36.5,
+        "effectValue": 36.5,
+        "effectIsPercent": true,
         "academyLevel": 18
       }
     ]
@@ -2197,7 +2252,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-gathering-iv",
     "name": "Wood Gathering IV",
-    "category": "wood-gathering",
+    "category": "Wood Gathering",
     "desc": "Enhances Wood Gathering Speed",
     "effectRange": "Wood Gathering Speed +13.5% to +45%",
     "maxLevel": 3,
@@ -2220,7 +2275,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 7980,
         "power": 1687,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 21
       },
       {
@@ -2234,7 +2290,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 12000,
         "power": 3375,
-        "effectPercent": 27,
+        "effectValue": 27,
+        "effectIsPercent": true,
         "academyLevel": 22
       },
       {
@@ -2248,7 +2305,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 31980,
         "power": 5625,
-        "effectPercent": 45,
+        "effectValue": 45,
+        "effectIsPercent": true,
         "academyLevel": 23
       }
     ]
@@ -2256,7 +2314,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-gathering-v",
     "name": "Wood Gathering V",
-    "category": "wood-gathering",
+    "category": "Wood Gathering",
     "desc": "Enhances Wood Gathering Speed",
     "effectRange": "Wood Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -2279,7 +2337,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 49980,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 26
       },
       {
@@ -2293,7 +2352,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 75000,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 27
       },
       {
@@ -2307,7 +2367,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 199980,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 28
       }
     ]
@@ -2315,7 +2376,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-gathering-vi",
     "name": "Wood Gathering VI",
-    "category": "wood-gathering",
+    "category": "Wood Gathering",
     "desc": "Enhances Wood Gathering Speed",
     "effectRange": "Wood Gathering Speed +16% to +53.5%",
     "maxLevel": 3,
@@ -2338,7 +2399,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 240000,
         "power": 0,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 30
       },
       {
@@ -2352,7 +2414,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 360000,
         "power": 4000,
-        "effectPercent": 32,
+        "effectValue": 32,
+        "effectIsPercent": true,
         "academyLevel": 0
       },
       {
@@ -2366,7 +2429,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 960000,
         "power": 6687,
-        "effectPercent": 53.5,
+        "effectValue": 53.5,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]
@@ -2374,7 +2438,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-output-i",
     "name": "Wood Output I",
-    "category": "wood-output",
+    "category": "Wood Output",
     "desc": "Enhances Wood Output in Sawmill",
     "effectRange": "Wood Output +4% to +13.5%",
     "maxLevel": 3,
@@ -2397,7 +2461,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 27,
         "power": 1040,
-        "effectPercent": 4,
+        "effectValue": 4,
+        "effectIsPercent": true,
         "academyLevel": 3
       },
       {
@@ -2411,7 +2476,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 40,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 4
       },
       {
@@ -2425,7 +2491,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 60,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 5
       }
     ]
@@ -2433,7 +2500,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-output-ii",
     "name": "Wood Output II",
-    "category": "wood-output",
+    "category": "Wood Output",
     "desc": "Enhances Wood Output in Sawmill",
     "effectRange": "Wood Output +4% to +13.5%",
     "maxLevel": 3,
@@ -2456,7 +2523,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 300,
         "power": 1040,
-        "effectPercent": 4,
+        "effectValue": 4,
+        "effectIsPercent": true,
         "academyLevel": 8
       },
       {
@@ -2470,7 +2538,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 420,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 9
       },
       {
@@ -2484,7 +2553,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 10
       }
     ]
@@ -2492,7 +2562,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-output-iii",
     "name": "Wood Output III",
-    "category": "wood-output",
+    "category": "Wood Output",
     "desc": "Enhances Wood Output in Sawmill",
     "effectRange": "Wood Output +5.5% to +18%",
     "maxLevel": 3,
@@ -2515,7 +2585,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 0,
         "power": 1430,
-        "effectPercent": 5.5,
+        "effectValue": 5.5,
+        "effectIsPercent": true,
         "academyLevel": 13
       },
       {
@@ -2529,7 +2600,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 1800,
         "power": 2860,
-        "effectPercent": 11,
+        "effectValue": 11,
+        "effectIsPercent": true,
         "academyLevel": 14
       },
       {
@@ -2543,7 +2615,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 4800,
         "power": 4680,
-        "effectPercent": 18,
+        "effectValue": 18,
+        "effectIsPercent": true,
         "academyLevel": 15
       }
     ]
@@ -2551,7 +2624,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-output-iv",
     "name": "Wood Output IV",
-    "category": "wood-output",
+    "category": "Wood Output",
     "desc": "Enhances Wood Output in Sawmill",
     "effectRange": "Wood Output +7% to +22.5%",
     "maxLevel": 3,
@@ -2574,7 +2647,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 7980,
         "power": 1820,
-        "effectPercent": 7,
+        "effectValue": 7,
+        "effectIsPercent": true,
         "academyLevel": 18
       },
       {
@@ -2588,7 +2662,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 12000,
         "power": 3510,
-        "effectPercent": 13.5,
+        "effectValue": 13.5,
+        "effectIsPercent": true,
         "academyLevel": 19
       },
       {
@@ -2602,7 +2677,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 31980,
         "power": 5850,
-        "effectPercent": 22.5,
+        "effectValue": 22.5,
+        "effectIsPercent": true,
         "academyLevel": 20
       }
     ]
@@ -2610,7 +2686,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-output-v",
     "name": "Wood Output V",
-    "category": "wood-output",
+    "category": "Wood Output",
     "desc": "Enhances Wood Output in Sawmill",
     "effectRange": "Wood Output +8% to +26%",
     "maxLevel": 3,
@@ -2633,7 +2709,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 49980,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 23
       },
       {
@@ -2647,7 +2724,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 75000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 24
       },
       {
@@ -2661,7 +2739,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 199980,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 25
       }
     ]
@@ -2669,7 +2748,7 @@ export const ECONOMY_TECHS: ResearchTech[] = [
   {
     "id": "wood-output-vi",
     "name": "Wood Output VI",
-    "category": "wood-output",
+    "category": "Wood Output",
     "desc": "Enhances Wood Output in Sawmill",
     "effectRange": "Wood Output +8% to +26%",
     "maxLevel": 3,
@@ -2692,7 +2771,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 240000,
         "power": 2080,
-        "effectPercent": 8,
+        "effectValue": 8,
+        "effectIsPercent": true,
         "academyLevel": 28
       },
       {
@@ -2706,7 +2786,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 360000,
         "power": 4160,
-        "effectPercent": 16,
+        "effectValue": 16,
+        "effectIsPercent": true,
         "academyLevel": 29
       },
       {
@@ -2720,7 +2801,8 @@ export const ECONOMY_TECHS: ResearchTech[] = [
         },
         "timeSeconds": 960000,
         "power": 6760,
-        "effectPercent": 26,
+        "effectValue": 26,
+        "effectIsPercent": true,
         "academyLevel": 0
       }
     ]

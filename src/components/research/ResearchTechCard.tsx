@@ -1,7 +1,7 @@
 'use client';
 
 import { statLabel, type TechLevelState } from '@/lib/researchCalc';
-import { getEconomyTech, type ResearchTech } from '@/lib/researchEconomyData';
+import type { ResearchTech } from '@/lib/researchTypes';
 import { BreadIcon, WoodIcon, StoneIcon, IronIcon, GoldIcon, PowerIcon } from './ResearchIcons';
 
 const RESOURCE_ICON = { bread: BreadIcon, wood: WoodIcon, stone: StoneIcon, iron: IronIcon, gold: GoldIcon };
@@ -51,12 +51,14 @@ export default function ResearchTechCard({
   tech,
   state,
   unlocked,
+  getTech,
   onChange,
   onClose,
 }: {
   tech: ResearchTech;
   state: TechLevelState;
   unlocked: boolean;
+  getTech: (id: string) => ResearchTech | undefined;
   onChange: (next: TechLevelState) => void;
   onClose: () => void;
 }) {
@@ -100,7 +102,7 @@ export default function ResearchTechCard({
         <div className="flex flex-wrap gap-1">
           {tech.prereqs.map((p) => (
             <span key={p.techId} className="chip !border-stone-600 !text-parchment-400">
-              Needs {getEconomyTech(p.techId)?.name ?? p.techId} Lv.{p.level}
+              Needs {getTech(p.techId)?.name ?? p.techId} Lv.{p.level}
             </span>
           ))}
         </div>
@@ -152,7 +154,8 @@ export default function ResearchTechCard({
           <span className="text-[11px] text-parchment-400">Total Bonus</span>
           {targetLevel && (
             <span className="text-xs font-semibold text-moss-500">
-              {statLabel(tech)} +{targetLevel.effectPercent}%
+              {statLabel(tech)} +{targetLevel.effectValue.toLocaleString()}
+              {targetLevel.effectIsPercent ? '%' : ''}
             </span>
           )}
         </div>

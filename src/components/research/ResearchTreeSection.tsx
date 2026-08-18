@@ -3,34 +3,56 @@
 import { useEffect, useState } from 'react';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { calcResearchPlan, calcCategoryBonuses, defaultResearchPlan, type ResearchPlan, type TechLevelState } from '@/lib/researchCalc';
-import { getEconomyTech } from '@/lib/researchEconomyData';
+import { TREES, TREE_ORDER, type TreeId } from '@/lib/researchTrees';
 import ResearchTreeFlow from './ResearchTreeFlow';
 import ResearchTechCard from './ResearchTechCard';
 import ResearchSummaryBar from './ResearchSummaryBar';
 import ResearchBonusSidebar from './ResearchBonusSidebar';
 
 /**
- * Research Tree (Economy branch) -- an isolated, self-contained feature (this
- * component + src/lib/researchEconomyData.ts + src/lib/researchCalc.ts +
+ * Research Tree -- Growth, Economy, and Battle branches -- an isolated,
+ * self-contained feature (this component + src/lib/research*.ts +
  * everything in src/components/research/ + the /research-tree page). To
- * remove it entirely: delete this folder, those two lib files, and the page.
+ * remove it entirely: delete this folder, those lib files, and the page.
  * Nothing else in the app imports from here.
  *
- * Costs/time/power/effect% are real, extracted directly from
- * kingshotdata.com/research's own static markup -- see
- * researchEconomyData.ts for the sourcing note. The tree's shape (rows that
- * split and re-merge, connected by right-angle lines) mirrors the game's own
- * Academy screen layout. Development and Battle branches aren't built yet;
- * this is the Economy branch only.
+ * Costs/time/power/effect data are real, extracted directly from
+ * kingshotdata.com/research's own static markup -- see each
+ * research*Data.ts file for the sourcing note. The tree's shape (rows that
+ * split and re-merge, connected by right-angle lines) mirrors the game's
+ * own Academy screen layout.
  */
 export default function ResearchTreeSection() {
-  const [plan, setPlan] = useLocalStorageState<ResearchPlan>('researchTree:economy', defaultResearchPlan());
+  const [activeTreeId, setActiveTreeId] = useState<TreeId>('economy');
+  const tree = TREES[activeTreeId];
+
+  // One persisted plan per tree (own localStorage key, own default shape) --
+  // called unconditionally so hook order stays stable across tab switches,
+  // then the active one is selected below. A single dynamically-keyed call
+  // would leave a not-yet-saved tree showing the PREVIOUS tree's state,
+  // since the hook's hydration effect only overwrites state when it finds
+  // saved data for the new key.
+  const [economyPlan, setEconomyPlan] = useLocalStorageState<ResearchPlan>(
+    'researchTree:economy',
+    defaultResearchPlan(TREES.economy.techs)
+  );
+  const [growthPlan, setGrowthPlan] = useLocalStorageState<ResearchPlan>(
+    'researchTree:growth',
+    defaultResearchPlan(TREES.growth.techs)
+  );
+  const [battlePlan, setBattlePlan] = useLocalStorageState<ResearchPlan>(
+    'researchTree:battle',
+    defaultResearchPlan(TREES.battle.techs)
+  );
+  const [plan, setPlan] =
+    activeTreeId === 'economy' ? [economyPlan, setEconomyPlan] : activeTreeId === 'growth' ? [growthPlan, setGrowthPlan] : [battlePlan, setBattlePlan];
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bonusesOpen, setBonusesOpen] = useState(false);
 
-  const totals = calcResearchPlan(plan);
-  const bonuses = calcCategoryBonuses(plan);
-  const selectedTech = selectedId ? getEconomyTech(selectedId) : null;
+  const totals = calcResearchPlan(tree.techs, plan);
+  const bonuses = calcCategoryBonuses(tree.techs, tree.categoryOrder, plan);
+  const selectedTech = selectedId ? tree.getTech(selectedId) : null;
 
   useEffect(() => {
     if (!selectedId && !bonusesOpen) return;
@@ -44,17 +66,23 @@ export default function ResearchTreeSection() {
     return () => window.removeEventListener('keydown', onKey);
   }, [selectedId, bonusesOpen]);
 
+  const switchTree = (id: TreeId) => {
+    setActiveTreeId(id);
+    setSelectedId(null);
+    setBonusesOpen(false);
+  };
+
   const updateTech = (techId: string, next: TechLevelState) => {
     setPlan((prev) => ({ ...prev, [techId]: next }));
   };
 
   const handleReset = () => {
-    setPlan(defaultResearchPlan());
+    setPlan(defaultResearchPlan(tree.techs));
     setSelectedId(null);
   };
 
   const isUnlocked = (techId: string): boolean => {
-    const tech = getEconomyTech(techId);
+    const tech = tree.getTech(techId);
     if (!tech) return false;
     return tech.prereqs.every((p) => (plan[p.techId]?.current ?? 0) >= p.level);
   };
@@ -64,7 +92,7 @@ export default function ResearchTreeSection() {
   // checkbox inside the popup: sets current (and target, clamped up) to
   // maxLevel, or back to 0 if it was already maxed.
   const toggleMax = (techId: string) => {
-    const tech = getEconomyTech(techId);
+    const tech = tree.getTech(techId);
     if (!tech) return;
     const state = plan[techId] ?? { current: 0, target: 0 };
     const nextCurrent = state.current >= tech.maxLevel ? 0 : tech.maxLevel;
@@ -75,10 +103,10 @@ export default function ResearchTreeSection() {
     <div className="flex flex-col gap-3" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-lg font-semibold text-parchment-100">Research Tree -- Economy</h1>
+          <h1 className="text-lg font-semibold text-parchment-100">Research Tree -- {tree.label}</h1>
           <p className="text-xs text-parchment-400 mt-0.5">
-            Real cost, time, power, and effect data for all 44 Economy technologies. Tap a tech to set your level and
-            goal.
+            Real cost, time, power, and effect data for all {tree.techs.length} {tree.label} technologies. Tap a tech
+            to set your level and goal.
           </p>
         </div>
         <button
@@ -91,15 +119,20 @@ export default function ResearchTreeSection() {
       </div>
 
       <div className="flex gap-1.5">
-        <span className="rounded-t-md border border-b-0 border-stone-700 bg-stone-800 px-4 py-2 text-xs font-semibold text-parchment-500">
-          Growth (soon)
-        </span>
-        <span className="rounded-t-md border border-b-0 border-gold-500/60 bg-stone-900 px-4 py-2 text-xs font-semibold text-gold-300">
-          Economy
-        </span>
-        <span className="rounded-t-md border border-b-0 border-stone-700 bg-stone-800 px-4 py-2 text-xs font-semibold text-parchment-500">
-          Battle (soon)
-        </span>
+        {TREE_ORDER.map((id) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => switchTree(id)}
+            className={`focus-ring rounded-t-md border border-b-0 px-4 py-2 text-xs font-semibold transition-colors ${
+              activeTreeId === id
+                ? 'border-gold-500/60 bg-stone-900 text-gold-300'
+                : 'border-stone-700 bg-stone-800 text-parchment-400 hover:text-parchment-200'
+            }`}
+          >
+            {TREES[id].label}
+          </button>
+        ))}
       </div>
 
       <ResearchSummaryBar totals={totals} />
@@ -110,9 +143,9 @@ export default function ResearchTreeSection() {
           sidebar's box down to just its own content height, leaving the
           sticky panel nothing to "stick" within past the first ~400px. */}
       <div className="grid lg:grid-cols-[1fr_340px] gap-4">
-        <ResearchTreeFlow plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
+        <ResearchTreeFlow key={activeTreeId} tree={tree} plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
         <div className="hidden lg:block">
-          <ResearchBonusSidebar bonuses={bonuses} />
+          <ResearchBonusSidebar tree={tree} bonuses={bonuses} />
         </div>
       </div>
 
@@ -133,7 +166,7 @@ export default function ResearchTreeSection() {
           onClick={() => setBonusesOpen(false)}
         >
           <div className="w-full max-w-sm max-h-[80vh] overflow-y-auto scrollbar-thin" onClick={(e) => e.stopPropagation()}>
-            <ResearchBonusSidebar bonuses={bonuses} onClose={() => setBonusesOpen(false)} />
+            <ResearchBonusSidebar tree={tree} bonuses={bonuses} onClose={() => setBonusesOpen(false)} />
           </div>
         </div>
       )}
@@ -148,6 +181,7 @@ export default function ResearchTreeSection() {
               tech={selectedTech}
               state={plan[selectedTech.id] ?? { current: 0, target: 0 }}
               unlocked={isUnlocked(selectedTech.id)}
+              getTech={tree.getTech}
               onChange={(next) => updateTech(selectedTech.id, next)}
               onClose={() => setSelectedId(null)}
             />

@@ -43,7 +43,9 @@ export default function ResearchSummaryBar({ totals }: { totals: ResearchPlanTot
             <p className="text-sm font-semibold text-parchment-100">
               {totals.levelsCurrent}/{totals.levelsMax} levels researched
             </p>
-            <p className="text-[11px] text-parchment-400">{totals.techsMaxedCurrent}/44 techs maxed</p>
+            <p className="text-[11px] text-parchment-400">
+              {totals.techsMaxedCurrent}/{totals.techsTotal} techs maxed
+            </p>
           </div>
         </div>
       </div>

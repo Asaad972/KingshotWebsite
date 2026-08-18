@@ -54,7 +54,7 @@ const en = {
     troopCalculatorNav: 'Troop Training',
     quickLinkTroopCalculatorSubtitle: 'Training time, resources & KvK points',
     researchTreeNav: 'Research Tree',
-    quickLinkResearchTreeSubtitle: 'Plan your Economy research',
+    quickLinkResearchTreeSubtitle: 'Plan Growth, Economy & Battle research',
     exploreTitle: 'Explore',
     goodToKnowTitle: 'Good to Know',
     faqCalculatorsTitle: 'The Gear & Charm Calculators',

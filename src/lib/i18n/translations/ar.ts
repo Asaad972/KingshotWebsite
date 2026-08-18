@@ -55,7 +55,7 @@ const ar: typeof en = {
     troopCalculatorNav: 'تدريب الجنود',
     quickLinkTroopCalculatorSubtitle: 'وقت التدريب والموارد ونقاط KvK',
     researchTreeNav: 'شجرة الأبحاث',
-    quickLinkResearchTreeSubtitle: 'خطط أبحاث الاقتصاد',
+    quickLinkResearchTreeSubtitle: 'خطط أبحاث النمو والاقتصاد والمعارك',
     exploreTitle: 'استكشف',
     goodToKnowTitle: 'جدير بالمعرفة',
     faqCalculatorsTitle: 'حاسبات العتاد والتمائم',

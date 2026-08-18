@@ -56,7 +56,7 @@ const tr: typeof en = {
     troopCalculatorNav: 'Asker Eğitimi',
     quickLinkTroopCalculatorSubtitle: 'Eğitim süresi, kaynaklar ve KvK puanları',
     researchTreeNav: 'Araştırma Ağacı',
-    quickLinkResearchTreeSubtitle: 'Ekonomi araştırmanı planla',
+    quickLinkResearchTreeSubtitle: 'Büyüme, Ekonomi ve Savaş araştırmasını planla',
     exploreTitle: 'Keşfet',
     goodToKnowTitle: 'Bilmekte Fayda Var',
     faqCalculatorsTitle: 'Ekipman ve Tılsım Hesaplayıcıları',
