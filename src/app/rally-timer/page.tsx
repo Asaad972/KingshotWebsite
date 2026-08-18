@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import UTCClock from '@/components/UTCClock';
 import RallyMap from '@/components/RallyMap';
+import IsometricCastleMap from '@/components/rally/IsometricCastleMap';
 import RallyPlayerRow from '@/components/RallyPlayerRow';
 import RallyTimingPanel from '@/components/RallyTimingPanel';
 import RallyResults from '@/components/RallyResults';
@@ -245,6 +246,8 @@ function RallyTimerContent() {
               <RallyMap townCounts={townCounts} editingTownId={editingPlayer?.townId ?? null} onSelectTown={handleMapSelect} />
             </div>
           </div>
+
+          <IsometricCastleMap />
 
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
