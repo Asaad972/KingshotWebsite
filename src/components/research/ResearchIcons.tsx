@@ -1,69 +1,70 @@
-// Custom filled icons -- no external/game assets (those are copyrighted),
-// same convention as troop/TroopIcons.tsx and gear/GearIcons.tsx.
+// Real game icons for resources + Economy tech lines (provided by the user,
+// sourced from kingshotdata.com's own /icons/tech-*.png set for the tech
+// ones) live in public/research/. Everything else here stays a custom
+// filled SVG -- no external/game assets -- same convention as
+// troop/TroopIcons.tsx and gear/GearIcons.tsx.
 
+import Image from 'next/image';
 import type { IconKey } from '@/lib/researchTrees';
 
-export function BreadIcon() {
+function TechIconImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M4 13c0-5 3.5-9 8-9s8 4 8 9-3.5 6-8 6-8-1-8-6Z" fill="currentColor" />
-      <path
-        d="M8 10.5c1-.6 2-.9 4-.9s3 .3 4 .9M7.5 14c1.2.6 2.6.9 4.5.9s3.3-.3 4.5-.9"
-        stroke="#1c1917"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        opacity="0.3"
-        fill="none"
-      />
-    </svg>
+    <span className="relative block h-full w-full">
+      <Image src={src} alt={alt} fill sizes="64px" className="object-contain" />
+    </span>
   );
+}
+
+export function BreadIcon() {
+  return <TechIconImage src="/research/resources/bread.png" alt="Bread" />;
 }
 
 export function WoodIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <rect x="3" y="7" width="18" height="4.5" rx="2.2" fill="currentColor" />
-      <rect x="3" y="13" width="18" height="4.5" rx="2.2" fill="currentColor" opacity="0.75" />
-      <circle cx="6.5" cy="9.25" r="1.1" fill="#1c1917" opacity="0.35" />
-      <circle cx="6.5" cy="15.25" r="1.1" fill="#1c1917" opacity="0.35" />
-    </svg>
-  );
+  return <TechIconImage src="/research/resources/wood.png" alt="Wood" />;
 }
 
 export function StoneIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M4 14 7 6h10l3 8-2.5 5H6.5L4 14Z" fill="currentColor" />
-      <path
-        d="M7 6l3 4-1.5 6M17 6l-3 4 1.5 6"
-        stroke="#1c1917"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.3"
-        fill="none"
-      />
-    </svg>
-  );
+  return <TechIconImage src="/research/resources/stone.png" alt="Stone" />;
 }
 
 export function IronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <rect x="4" y="9" width="16" height="8" rx="1.5" fill="currentColor" />
-      <path d="M4 9l4-4h8l4 4" fill="currentColor" opacity="0.7" />
-      <rect x="7.5" y="11.5" width="9" height="3" rx="1" fill="#1c1917" opacity="0.3" />
-    </svg>
-  );
+  return <TechIconImage src="/research/resources/iron.png" alt="Iron" />;
 }
 
 export function GoldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <circle cx="12" cy="12" r="8.5" fill="currentColor" />
-      <circle cx="12" cy="12" r="5.5" stroke="#1c1917" strokeWidth="1.1" opacity="0.3" fill="none" />
-    </svg>
-  );
+  return <TechIconImage src="/research/resources/gold.png" alt="Gold" />;
+}
+
+// One real icon per Economy tech LINE (covers all its numbered tiers, e.g.
+// "Bread Output I-VI" all share this one), matching the source site's own
+// per-line icon convention. Iron Output has no icon file yet -- that
+// category falls back to the plain IronIcon above until one's provided.
+export function EconBreadOutputIcon() {
+  return <TechIconImage src="/research/economy/bread-output.png" alt="Bread Output" />;
+}
+
+export function EconFoodForagingIcon() {
+  return <TechIconImage src="/research/economy/food-foraging.png" alt="Food Foraging" />;
+}
+
+export function EconWoodOutputIcon() {
+  return <TechIconImage src="/research/economy/wood-output.png" alt="Wood Output" />;
+}
+
+export function EconWoodGatheringIcon() {
+  return <TechIconImage src="/research/economy/wood-gathering.png" alt="Wood Gathering" />;
+}
+
+export function EconStoneOutputIcon() {
+  return <TechIconImage src="/research/economy/stone-output.png" alt="Stone Output" />;
+}
+
+export function EconStoneGatheringIcon() {
+  return <TechIconImage src="/research/economy/stone-gathering.png" alt="Stone Gathering" />;
+}
+
+export function EconIronMiningIcon() {
+  return <TechIconImage src="/research/economy/iron-mining.png" alt="Iron Mining" />;
 }
 
 export function PowerIcon() {
@@ -182,19 +183,35 @@ export const CATEGORY_ICON_COMPONENT: Record<IconKey, () => React.JSX.Element> =
   flag: FlagIcon,
   crosshair: CrosshairIcon,
   gear: GearIcon,
+  'econ-bread-output': EconBreadOutputIcon,
+  'econ-food-foraging': EconFoodForagingIcon,
+  'econ-wood-output': EconWoodOutputIcon,
+  'econ-wood-gathering': EconWoodGatheringIcon,
+  'econ-stone-output': EconStoneOutputIcon,
+  'econ-stone-gathering': EconStoneGatheringIcon,
+  'econ-iron-mining': EconIronMiningIcon,
 };
 
 /** Tailwind text-color class per icon, so a category's icon and its "kind"
- * (output/gathering arrow, where applicable) share one accent color. */
+ * (output/gathering arrow, where applicable) share one accent color. Real
+ * photo icons (the econ-* ones and the 5 base resources) don't use
+ * currentColor, so their entries are just empty. */
 export const CATEGORY_ICON_COLOR: Record<IconKey, string> = {
-  bread: 'text-amber-400',
-  wood: 'text-orange-400',
-  stone: 'text-parchment-300',
-  iron: 'text-cyan-400',
+  bread: '',
+  wood: '',
+  stone: '',
+  iron: '',
   sword: 'text-ember-500',
   shield: 'text-sky-400',
   heart: 'text-gold-300',
   flag: 'text-moss-500',
   crosshair: 'text-cyan-400',
   gear: 'text-parchment-300',
+  'econ-bread-output': '',
+  'econ-food-foraging': '',
+  'econ-wood-output': '',
+  'econ-wood-gathering': '',
+  'econ-stone-output': '',
+  'econ-stone-gathering': '',
+  'econ-iron-mining': '',
 };

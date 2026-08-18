@@ -6,8 +6,29 @@ import type { ResearchTech } from './researchTypes';
 export type TreeId = 'economy' | 'growth' | 'battle';
 
 /** Icon key resolved to an actual component in ResearchIcons.tsx -- kept as
- * a plain string here so this data file stays framework-agnostic. */
-export type IconKey = 'bread' | 'wood' | 'stone' | 'iron' | 'sword' | 'shield' | 'heart' | 'flag' | 'crosshair' | 'gear';
+ * a plain string here so this data file stays framework-agnostic. The
+ * 'econ-*' keys are real per-tech-line icons (only Economy has these so
+ * far); the plain resource keys (bread/wood/stone/iron) double as both a
+ * fallback for categories without dedicated artwork and the cost-display
+ * icons used everywhere. */
+export type IconKey =
+  | 'bread'
+  | 'wood'
+  | 'stone'
+  | 'iron'
+  | 'sword'
+  | 'shield'
+  | 'heart'
+  | 'flag'
+  | 'crosshair'
+  | 'gear'
+  | 'econ-bread-output'
+  | 'econ-food-foraging'
+  | 'econ-wood-output'
+  | 'econ-wood-gathering'
+  | 'econ-stone-output'
+  | 'econ-stone-gathering'
+  | 'econ-iron-mining';
 
 export interface TreeDef {
   id: TreeId;
@@ -35,14 +56,16 @@ export const TREES: Record<TreeId, TreeDef> = {
       'Iron Mining',
     ],
     categoryIcon: {
-      'Bread Output': 'bread',
-      'Food Foraging': 'bread',
-      'Wood Output': 'wood',
-      'Wood Gathering': 'wood',
-      'Stone Output': 'stone',
-      'Stone Gathering': 'stone',
+      'Bread Output': 'econ-bread-output',
+      'Food Foraging': 'econ-food-foraging',
+      'Wood Output': 'econ-wood-output',
+      'Wood Gathering': 'econ-wood-gathering',
+      'Stone Output': 'econ-stone-output',
+      'Stone Gathering': 'econ-stone-gathering',
+      // No dedicated icon file for this one yet -- falls back to the plain
+      // iron resource icon until one's provided.
       'Iron Output': 'iron',
-      'Iron Mining': 'iron',
+      'Iron Mining': 'econ-iron-mining',
     },
     getTech: getEconomyTech,
   },

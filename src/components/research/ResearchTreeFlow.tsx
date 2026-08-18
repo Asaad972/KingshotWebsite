@@ -20,8 +20,26 @@ import { CATEGORY_ICON_COMPONENT, CATEGORY_ICON_COLOR } from './ResearchIcons';
 // width with no horizontal scrolling; at/above it, the roomier desktop
 // sizing kicks in.
 const SIZES = {
-  compact: { node: 60, rowH: 122, colGap: 76, paddingTop: 24, paddingX: 130, nodeIcon: 'h-6 w-6', pillText: 'text-[9px]', nameText: 'text-[10px]' },
-  roomy: { node: 104, rowH: 184, colGap: 176, paddingTop: 32, paddingX: 260, nodeIcon: 'h-9 w-9', pillText: 'text-[10px]', nameText: 'text-xs' },
+  compact: {
+    node: 60,
+    rowH: 134,
+    colGap: 76,
+    paddingTop: 24,
+    paddingX: 130,
+    nodeIcon: 'h-6 w-6',
+    pillText: 'text-xs px-3 py-1',
+    nameText: 'text-[10px]',
+  },
+  roomy: {
+    node: 104,
+    rowH: 196,
+    colGap: 176,
+    paddingTop: 32,
+    paddingX: 260,
+    nodeIcon: 'h-9 w-9',
+    pillText: 'text-sm px-3.5 py-1.5',
+    nameText: 'text-xs',
+  },
 };
 const COMPACT_BREAKPOINT = 640;
 
@@ -156,7 +174,7 @@ export default function ResearchTreeFlow({
                   onToggleMax(tech.id);
                 }}
                 title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
-                className={`focus-ring rounded-full px-2 py-0.5 ${pillText} font-bold leading-none tabular-nums transition-colors ${
+                className={`focus-ring rounded-full ${pillText} font-bold leading-none tabular-nums transition-colors ${
                   maxed
                     ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
                     : hasGoal
