@@ -160,7 +160,7 @@ export default function ResearchTreeSection() {
       <div className="grid lg:grid-cols-[1fr_340px] gap-4">
         <ResearchTreeFlow key={activeTreeId} tree={tree} plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
         <div className="hidden lg:block">
-          <ResearchBonusSidebar tree={tree} bonuses={bonuses} />
+          <ResearchBonusSidebar tree={tree} bonuses={bonuses} totals={totals} />
         </div>
       </div>
 
@@ -181,7 +181,7 @@ export default function ResearchTreeSection() {
           onClick={() => setBonusesOpen(false)}
         >
           <div className="w-full max-w-sm max-h-[80vh] overflow-y-auto scrollbar-thin" onClick={(e) => e.stopPropagation()}>
-            <ResearchBonusSidebar tree={tree} bonuses={bonuses} onClose={() => setBonusesOpen(false)} />
+            <ResearchBonusSidebar tree={tree} bonuses={bonuses} totals={totals} onClose={() => setBonusesOpen(false)} />
           </div>
         </div>
       )}
