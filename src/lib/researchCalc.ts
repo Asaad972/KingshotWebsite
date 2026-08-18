@@ -60,13 +60,27 @@ export function computeDepths(techs: ResearchTech[]): Record<string, number> {
   return depth;
 }
 
+const MAX_ROW_WIDTH = 3;
+
 /** Techs grouped into rows by depth, each row already in a stable left-to-
- * right order (source order) for consistent side-by-side branches. */
+ * right order (source order) for consistent side-by-side branches, and
+ * capped at MAX_ROW_WIDTH per row -- a depth level with more techs than that
+ * (common in Growth/Battle, where dropped external prereqs leave many techs
+ * as independent depth-0 "roots" instead of one single trunk like Economy's)
+ * simply spills into additional stacked rows rather than one wide row, so
+ * the tree layout never has to position more than 3 nodes side by side. */
 export function groupByDepth(techs: ResearchTech[]): ResearchTech[][] {
   const depth = computeDepths(techs);
   const maxDepth = Math.max(0, ...Object.values(depth));
-  const rows: ResearchTech[][] = Array.from({ length: maxDepth + 1 }, () => []);
-  for (const t of techs) rows[depth[t.id]].push(t);
+  const byDepth: ResearchTech[][] = Array.from({ length: maxDepth + 1 }, () => []);
+  for (const t of techs) byDepth[depth[t.id]].push(t);
+
+  const rows: ResearchTech[][] = [];
+  for (const group of byDepth) {
+    for (let i = 0; i < group.length; i += MAX_ROW_WIDTH) {
+      rows.push(group.slice(i, i + MAX_ROW_WIDTH));
+    }
+  }
   return rows;
 }
 

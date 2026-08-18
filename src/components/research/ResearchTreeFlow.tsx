@@ -7,13 +7,19 @@ import type { TreeDef } from '@/lib/researchTrees';
 import { TechIconImage } from './ResearchIcons';
 
 // Fixed vertical layout -- one row per dependency depth, up to 3 nodes wide,
-// connected by right-angle "elbow" lines. Mirrors the actual in-game
+// connected by smooth curved branch lines. Mirrors the actual in-game
 // Academy tree's single trunk that splits and re-merges (Growth/Battle can
 // have several independent trunks, since some tiers gate on external troop
 // upgrades rather than the tree's own previous tier), rather than a grid or
 // a lanes-based layout. No internal scroll container and no card wrapper --
 // this sits directly on the page background at its full natural size, so
 // the whole PAGE scrolls through it rather than a boxed-in area.
+//
+// Each node is a circular icon ring (real category artwork inside) with an
+// SVG progress ring around it showing current/maxLevel -- gold once maxed,
+// cyan while a goal is pending, pink once unlocked, dim gray while locked.
+// The tap-to-set-level flow and the "tap to mark as already maxed" pill
+// below the node are unchanged.
 //
 // Two size presets, not a continuous scale: below the `compact` breakpoint
 // (phones) everything shrinks enough that a 3-wide row fits the screen
@@ -22,23 +28,28 @@ import { TechIconImage } from './ResearchIcons';
 const SIZES = {
   compact: {
     node: 60,
-    rowH: 134,
-    colGap: 76,
+    rowH: 160,
+    colGap: 90,
     paddingTop: 24,
-    paddingX: 130,
+    paddingX: 140,
     nodeIcon: 'h-6 w-6',
     pillText: 'text-xs px-3 py-1',
     nameText: 'text-[10px]',
+    // Distance from a node's own center down to just past its pill + name
+    // label -- edges start here (not at the node's edge) so the connector
+    // line runs through empty space instead of drawing over the label.
+    labelClearance: 106,
   },
   roomy: {
     node: 104,
-    rowH: 196,
-    colGap: 176,
+    rowH: 220,
+    colGap: 170,
     paddingTop: 32,
     paddingX: 260,
     nodeIcon: 'h-9 w-9',
     pillText: 'text-sm px-3.5 py-1.5',
     nameText: 'text-xs',
+    labelClearance: 138,
   },
 };
 const COMPACT_BREAKPOINT = 640;
@@ -68,9 +79,17 @@ export default function ResearchTreeFlow({
   onToggleMax: (techId: string) => void;
 }) {
   const compact = useCompact();
-  const { node: NODE, rowH: ROW_H, colGap: COL_GAP, paddingTop: PADDING_TOP, paddingX: PADDING_X, nodeIcon, pillText, nameText } = compact
-    ? SIZES.compact
-    : SIZES.roomy;
+  const {
+    node: NODE,
+    rowH: ROW_H,
+    colGap: COL_GAP,
+    paddingTop: PADDING_TOP,
+    paddingX: PADDING_X,
+    nodeIcon,
+    pillText,
+    nameText,
+    labelClearance: LABEL_CLEARANCE,
+  } = compact ? SIZES.compact : SIZES.roomy;
 
   const xOffsetsFor = (count: number): number[] => {
     if (count === 1) return [0];
@@ -82,7 +101,9 @@ export default function ResearchTreeFlow({
   const centerX = PADDING_X;
   const canvasWidth = PADDING_X * 2;
   const canvasHeight = PADDING_TOP + rows.length * ROW_H + NODE;
-  const nodeColWidth = compact ? 92 : 180;
+  // Kept a hair narrower than colGap so adjacent columns' label text never
+  // touches, even before accounting for the gap between them.
+  const nodeColWidth = compact ? 86 : 162;
 
   const posById = new Map<string, { x: number; y: number }>();
   rows.forEach((row, rowIndex) => {
@@ -111,11 +132,11 @@ export default function ResearchTreeFlow({
             const to = posById.get(e.toId);
             if (!from || !to) return null;
             const x1 = from.x;
-            const y1 = from.y + NODE / 2;
+            const y1 = from.y + LABEL_CLEARANCE;
             const x2 = to.x;
             const y2 = to.y - NODE / 2;
             const midY = y1 + (y2 - y1) / 2;
-            const d = `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+            const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
             return (
               <path
                 key={i}
@@ -123,8 +144,8 @@ export default function ResearchTreeFlow({
                 fill="none"
                 stroke={e.unlocked ? '#f9a8d4' : '#2b384e'}
                 strokeWidth={compact ? 2.5 : 3.5}
-                strokeLinejoin="round"
-                opacity={e.unlocked ? 0.9 : 0.7}
+                strokeLinecap="round"
+                opacity={e.unlocked ? 0.9 : 0.6}
               />
             );
           })}
@@ -138,6 +159,8 @@ export default function ResearchTreeFlow({
           const maxed = state.current >= tech.maxLevel;
           const selected = selectedId === tech.id;
           const hasGoal = state.target > state.current;
+          const ringPct = Math.min(100, (state.current / tech.maxLevel) * 100);
+          const ringColor = maxed ? '#eab308' : hasGoal ? '#22d3ee' : unlocked ? '#f9a8d4' : '#3f4a5e';
 
           return (
             <div
@@ -145,26 +168,43 @@ export default function ResearchTreeFlow({
               className="absolute flex flex-col items-center gap-1.5"
               style={{ left: pos.x - nodeColWidth / 2, top: pos.y - NODE / 2, width: nodeColWidth }}
             >
-              <button
-                type="button"
-                onClick={() => onSelect(tech.id)}
-                className={`focus-ring relative flex items-center justify-center rounded-2xl border-2 transition-colors ${
-                  selected
-                    ? 'border-gold-300 bg-gold-500/20'
-                    : maxed
-                      ? 'border-gold-500/70 bg-gold-500/10'
-                      : hasGoal
-                        ? 'border-cyan-400/80 bg-stone-800'
-                        : !unlocked
-                          ? 'border-stone-700 bg-stone-900/60 opacity-45'
-                          : 'border-stone-600 bg-stone-800 hover:border-gold-500/60'
-                }`}
-                style={{ width: NODE, height: NODE }}
-              >
-                <span className={`${nodeIcon} ${!unlocked ? 'opacity-60' : ''}`}>
-                  <TechIconImage src={catIcon.src} alt={catIcon.alt} />
-                </span>
-              </button>
+              <div className="relative flex items-center justify-center" style={{ width: NODE, height: NODE }}>
+                <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="#2b384e" strokeWidth="7" opacity="0.7" />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke={ringColor}
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                    pathLength={100}
+                    strokeDasharray={`${ringPct} ${100 - ringPct}`}
+                    opacity={unlocked ? 0.95 : 0.5}
+                  />
+                </svg>
+                <button
+                  type="button"
+                  onClick={() => onSelect(tech.id)}
+                  className={`focus-ring relative flex items-center justify-center rounded-full border-2 transition-colors ${
+                    selected
+                      ? 'border-gold-300 bg-gold-500/20'
+                      : maxed
+                        ? 'border-gold-500/70 bg-gold-500/10'
+                        : hasGoal
+                          ? 'border-cyan-400/80 bg-stone-800'
+                          : !unlocked
+                            ? 'border-stone-700 bg-stone-900/60 opacity-45'
+                            : 'border-stone-600 bg-stone-800 hover:border-gold-500/60'
+                  }`}
+                  style={{ width: NODE - 16, height: NODE - 16 }}
+                >
+                  <span className={`${nodeIcon} ${!unlocked ? 'opacity-60' : ''}`}>
+                    <TechIconImage src={catIcon.src} alt={catIcon.alt} />
+                  </span>
+                </button>
+              </div>
 
               <button
                 type="button"
@@ -186,7 +226,9 @@ export default function ResearchTreeFlow({
                 {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : compact ? 'Max' : 'Tap max'}
               </button>
 
-              <span className={`${nameText} font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}>
+              <span
+                className={`${nameText} w-full font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}
+              >
                 {tech.name}
               </span>
             </div>
