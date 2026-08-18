@@ -165,21 +165,21 @@ export default function QuickLinksGrid({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {links.map((link) => (
         <Link
           key={link.href}
           href={link.href}
-          className="focus-ring dashboard-card p-3 flex items-center gap-3 hover:border-stone-500 transition-colors"
+          className="focus-ring dashboard-card p-4 flex items-center gap-3.5 hover:border-stone-500 hover:-translate-y-0.5 hover:shadow-lg transition-all"
         >
-          <div className={`shrink-0 h-10 w-10 rounded-md border flex items-center justify-center ${TONE_CLASSES[link.tone]}`}>
+          <div className={`shrink-0 h-11 w-11 rounded-xl border flex items-center justify-center ${TONE_CLASSES[link.tone]}`}>
             {link.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-parchment-100">{link.title}</p>
+            <p className="text-[15px] font-semibold text-parchment-100">{link.title}</p>
             <p className="text-xs text-parchment-400 truncate">{link.subtitle}</p>
           </div>
-          <span className="text-parchment-500">
+          <span className="text-parchment-500 shrink-0">
             <ArrowIcon />
           </span>
         </Link>
