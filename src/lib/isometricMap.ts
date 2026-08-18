@@ -31,10 +31,20 @@ export function unproject(point: ScreenPoint, origin: WorldPoint, tileSize: numb
   return { x: origin.x + dx, y: origin.y + dy };
 }
 
+/** Turret placement is a visual approximation (a few tiles out from the
+ * castle along each screen-cardinal direction), not confirmed exact game
+ * data -- there's no public source for the real offset, so this is styled
+ * to look right rather than measured. */
+export const TURRET_OFFSET = 3;
+
 /** Picks a "nice" grid line spacing (1/2/5/10/20/50...) that keeps roughly
  * `targetLines` lines across `range` world units, so the grid stays
  * readable whether you're zoomed in on a few tiles or zoomed out to fit a
- * city hundreds of tiles away. */
+ * city hundreds of tiles away. This is the *general* reference grid --
+ * for a step to land exactly on the turret ring (castle +/- TURRET_OFFSET)
+ * it would need to be a divisor of TURRET_OFFSET (so just 1 or 3), which
+ * can't stay readable once the view is zoomed out. The turret ring gets
+ * its own dedicated always-exact lines instead (see IsometricCastleMap). */
 export function niceGridStep(range: number, targetLines = 18): number {
   const raw = Math.max(1, range / targetLines);
   const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
@@ -44,15 +54,13 @@ export function niceGridStep(range: number, targetLines = 18): number {
   }
   return 10 * magnitude;
 }
-
-/** Turret placement is a visual approximation (a few tiles out from the
- * castle along each screen-cardinal direction), not confirmed exact game
- * data -- there's no public source for the real offset, so this is styled
- * to look right rather than measured. */
-const TURRET_OFFSET = 3;
+// Perimeter order (N -> E -> S -> W), not just a list -- callers connect
+// these in sequence to draw the boundary diamond, and N/S or E/W being
+// adjacent in the array would draw a line straight through the center
+// instead of along an edge.
 export const TURRETS: { label: string; dx: number; dy: number }[] = [
   { label: 'N Turret', dx: -TURRET_OFFSET, dy: -TURRET_OFFSET },
-  { label: 'S Turret', dx: TURRET_OFFSET, dy: TURRET_OFFSET },
   { label: 'E Turret', dx: TURRET_OFFSET, dy: -TURRET_OFFSET },
+  { label: 'S Turret', dx: TURRET_OFFSET, dy: TURRET_OFFSET },
   { label: 'W Turret', dx: -TURRET_OFFSET, dy: TURRET_OFFSET },
 ];

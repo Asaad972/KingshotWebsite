@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { project, unproject, niceGridStep, TURRETS, type WorldPoint } from '@/lib/isometricMap';
+import { project, unproject, niceGridStep, TURRETS, TURRET_OFFSET, type WorldPoint } from '@/lib/isometricMap';
 import { distanceTiles, estimateMarchTimeSeconds } from '@/lib/rallyMarch';
 import type { RallyPlayerInput } from '@/lib/rally';
 
@@ -34,8 +34,10 @@ export default function IsometricCastleMap({
   onSetPlayerTown,
   onAddPlayerAtTown,
 }: IsometricCastleMapProps) {
-  const [castle, setCastle] = useState<WorldPoint>({ x: 600, y: 600 });
-  const [castleInput, setCastleInput] = useState({ x: '600', y: '600' });
+  // 597:597 is the confirmed real King's Castle coordinate for this
+  // kingdom -- march distance is calculated from here.
+  const [castle, setCastle] = useState<WorldPoint>({ x: 597, y: 597 });
+  const [castleInput, setCastleInput] = useState({ x: '597', y: '597' });
   const [manualCoord, setManualCoord] = useState({ x: '', y: '' });
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -83,7 +85,7 @@ export default function IsometricCastleMap({
     [players]
   );
 
-  const { viewBox, castlePos, turretPositions, markerPositions, gridLines } = useMemo(() => {
+  const { viewBox, castlePos, turretPositions, markerPositions, gridLines, turretRingLines } = useMemo(() => {
     const cPos = project(castle, castle, TILE_SIZE);
     const turrets = TURRETS.map((t) => ({
       ...t,
@@ -114,19 +116,42 @@ export default function IsometricCastleMap({
     const wMaxY = Math.max(...corners.map((c) => c.y));
     const step = niceGridStep(Math.max(wMaxX - wMinX, wMaxY - wMinY));
 
+    // Anchored to the CASTLE's own coordinate (not absolute world zero) --
+    // otherwise grid lines only happen to pass through the turrets when the
+    // castle's coordinate is itself a multiple of the current step, which
+    // breaks as soon as the step grows for a more zoomed-out view.
     const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-    const firstX = Math.floor(wMinX / step) * step;
+    const firstX = castle.x + Math.floor((wMinX - castle.x) / step) * step;
     for (let wx = firstX; wx <= wMaxX; wx += step) {
       const a = project({ x: wx, y: wMinY }, castle, TILE_SIZE);
       const b = project({ x: wx, y: wMaxY }, castle, TILE_SIZE);
       lines.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
     }
-    const firstY = Math.floor(wMinY / step) * step;
+    const firstY = castle.y + Math.floor((wMinY - castle.y) / step) * step;
     for (let wy = firstY; wy <= wMaxY; wy += step) {
       const a = project({ x: wMinX, y: wy }, castle, TILE_SIZE);
       const b = project({ x: wMaxX, y: wy }, castle, TILE_SIZE);
       lines.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
     }
+
+    // The turret ring lines are always drawn exactly at castle +/- TURRET_OFFSET,
+    // independent of the general grid's step -- that's the only way to
+    // guarantee they land exactly on the turrets at every zoom level (see
+    // niceGridStep's doc comment for why the general grid step can't do this).
+    const turretRingLines = [
+      { x: castle.x - TURRET_OFFSET },
+      { x: castle.x + TURRET_OFFSET },
+    ].map(({ x }) => {
+      const a = project({ x, y: wMinY }, castle, TILE_SIZE);
+      const b = project({ x, y: wMaxY }, castle, TILE_SIZE);
+      return { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
+    }).concat(
+      [{ y: castle.y - TURRET_OFFSET }, { y: castle.y + TURRET_OFFSET }].map(({ y }) => {
+        const a = project({ x: wMinX, y }, castle, TILE_SIZE);
+        const b = project({ x: wMaxX, y }, castle, TILE_SIZE);
+        return { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
+      })
+    );
 
     return {
       viewBox: `${minX} ${minY} ${maxX - minX} ${maxY - minY}`,
@@ -134,6 +159,7 @@ export default function IsometricCastleMap({
       turretPositions: turrets,
       markerPositions: markers,
       gridLines: lines,
+      turretRingLines,
     };
   }, [castle, playerMarkers]);
 
@@ -182,6 +208,21 @@ export default function IsometricCastleMap({
           {gridLines.map((l, i) => (
             <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="currentColor" className="text-stone-700/50" strokeWidth={1} />
           ))}
+
+          {/* Always exactly at the turret ring, independent of the general
+              grid's step -- see the comment where these are computed. */}
+          {turretRingLines.map((l, i) => (
+            <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="currentColor" className="text-gold-600/40" strokeWidth={1} />
+          ))}
+
+          {/* Boundary diamond connecting the 4 turrets, same as the
+              in-game map's inner-territory outline. */}
+          <polygon
+            points={turretPositions.map((t) => `${t.pos.x},${t.pos.y}`).join(' ')}
+            fill="none"
+            className="stroke-gold-500/50"
+            strokeWidth={1.5}
+          />
 
           <g>
             <polygon
