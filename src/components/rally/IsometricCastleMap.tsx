@@ -95,13 +95,32 @@ export default function IsometricCastleMap({
   const [hoverCoord, setHoverCoord] = useState<WorldPoint | null>(null);
   const [placementError, setPlacementError] = useState(false);
   const [zoom, setZoom] = useState(1);
+  // Manual pan, in SVG user-space units, added on top of the auto-fit
+  // center computed below -- lets you drag around the map instead of only
+  // zooming. Reset alongside zoom by the "Reset View" button.
+  const [panOffset, setPanOffset] = useState<WorldPoint>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
   const [placementMode, setPlacementMode] = useState<RallyPlayerRole | 'enemy'>('rally');
   const svgRef = useRef<SVGSVGElement>(null);
+  // Captured once at pointer-down so mid-drag math never re-reads a CTM
+  // that's already shifted by this same drag's own pan updates.
+  const dragRef = useRef<{
+    startClientX: number;
+    startClientY: number;
+    startPan: WorldPoint;
+    scaleX: number;
+    scaleY: number;
+    moved: boolean;
+  } | null>(null);
 
   const ZOOM_MIN = 0.6;
   const ZOOM_MAX = 1.8;
   const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, Math.round((z + 0.2) * 100) / 100));
   const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, Math.round((z - 0.2) * 100) / 100));
+  const resetView = () => {
+    setZoom(1);
+    setPanOffset({ x: 0, y: 0 });
+  };
 
   const applyCastle = () => {
     const x = Number(castleInput.x);
@@ -140,7 +159,7 @@ export default function IsometricCastleMap({
     setManualCoord({ x: '', y: '' });
   };
 
-  const screenToWorld = (e: React.MouseEvent<SVGSVGElement>): WorldPoint | null => {
+  const screenToWorld = (e: { clientX: number; clientY: number }): WorldPoint | null => {
     const svg = svgRef.current;
     const ctm = svg?.getScreenCTM();
     if (!svg || !ctm) return null;
@@ -170,9 +189,7 @@ export default function IsometricCastleMap({
     return hit ? { type: 'player', id: hit.id } : null;
   };
 
-  const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    const world = screenToWorld(e);
-    if (!world) return;
+  const handlePlaceOrUndo = (world: WorldPoint) => {
     if (!editingPlayerId) {
       const hit = findExistingMarkerAt(world);
       if (hit?.type === 'player') {
@@ -187,9 +204,58 @@ export default function IsometricCastleMap({
     applyCoordinate(world);
   };
 
-  const handleSvgMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+  // Pointer events unify mouse and touch: press-and-drag pans the map,
+  // while a press-and-release with negligible movement still places (or
+  // undoes) a town, same as the old plain click did.
+  const DRAG_THRESHOLD_PX = 4;
+
+  const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    const ctm = svg?.getScreenCTM();
+    if (!svg || !ctm) return;
+    dragRef.current = {
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      startPan: panOffset,
+      scaleX: ctm.a,
+      scaleY: ctm.d,
+      moved: false,
+    };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const drag = dragRef.current;
+    if (drag) {
+      const dx = e.clientX - drag.startClientX;
+      const dy = e.clientY - drag.startClientY;
+      if (!drag.moved && Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) {
+        drag.moved = true;
+        setIsPanning(true);
+        setHoverCoord(null);
+      }
+      if (drag.moved) {
+        setPanOffset({ x: drag.startPan.x - dx / drag.scaleX, y: drag.startPan.y - dy / drag.scaleY });
+        return;
+      }
+    }
     setHoverCoord(screenToWorld(e));
     setPlacementError(false);
+  };
+
+  const endDrag = (e: React.PointerEvent<SVGSVGElement>) => {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    setIsPanning(false);
+    if (drag && !drag.moved) {
+      const world = screenToWorld(e);
+      if (world) handlePlaceOrUndo(world);
+    }
+  };
+
+  const cancelDrag = () => {
+    dragRef.current = null;
+    setIsPanning(false);
+    setHoverCoord(null);
   };
 
   // Numbered per-role (rally openers and reinforcements each count from #1)
@@ -239,9 +305,11 @@ export default function IsometricCastleMap({
     // Zoom scales the auto-fit view around its own center -- >1 zooms in
     // (smaller box, more magnified), <1 zooms out (larger box, more room
     // to place a distant town) -- without changing what the "fit" bounds
-    // considered in the first place.
-    const fitCenterX = (fitMinX + fitMaxX) / 2;
-    const fitCenterY = (fitMinY + fitMaxY) / 2;
+    // considered in the first place. Pan is a further manual offset from
+    // that same center, so dragging survives the auto-fit recomputing as
+    // markers are added/removed.
+    const fitCenterX = (fitMinX + fitMaxX) / 2 + panOffset.x;
+    const fitCenterY = (fitMinY + fitMaxY) / 2 + panOffset.y;
     const halfW = (fitMaxX - fitMinX) / 2 / zoom;
     const halfH = (fitMaxY - fitMinY) / 2 / zoom;
     const minX = fitCenterX - halfW;
@@ -291,7 +359,7 @@ export default function IsometricCastleMap({
       enemyPos: ePos,
       gridLines: lines,
     };
-  }, [castle, playerMarkers, enemyTown, zoom]);
+  }, [castle, playerMarkers, enemyTown, zoom, panOffset]);
 
   const hoverPos = hoverCoord ? project(hoverCoord, castle, TILE_SIZE) : null;
   const hoverBlocked = hoverCoord ? isInsideBoundary(hoverCoord, castle) : false;
@@ -317,7 +385,8 @@ export default function IsometricCastleMap({
                 : 'Hover to preview, then click the map (or type coordinates below) to add the next rally opener.'}{' '}
           {placementMode === 'enemy'
             ? 'Click the enemy town again to clear it.'
-            : `Click a ${placementMode === 'garrison' ? 'reinforcement' : 'rally opener'} already on the map to remove it -- a town shared with the other role is untouched.`}
+            : `Click a ${placementMode === 'garrison' ? 'reinforcement' : 'rally opener'} already on the map to remove it -- a town shared with the other role is untouched.`}{' '}
+          Drag (or swipe) to move around the map.
         </p>
         {placementError && (
           <p className="text-xs text-ember-500 font-semibold mt-1">
@@ -399,6 +468,19 @@ export default function IsometricCastleMap({
           </div>
         )}
         <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1 rounded-md border border-gold-400/70 bg-stone-950/90 p-1 shadow-lg">
+          {(zoom !== 1 || panOffset.x !== 0 || panOffset.y !== 0) && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                resetView();
+              }}
+              aria-label="Reset view"
+              className="focus-ring flex h-11 w-11 items-center justify-center rounded text-base text-gold-300 hover:bg-gold-500/10 active:bg-gold-500/20"
+            >
+              ⌂
+            </button>
+          )}
           <button
             type="button"
             onClick={(e) => {
@@ -428,10 +510,20 @@ export default function IsometricCastleMap({
         <svg
           ref={svgRef}
           viewBox={viewBox}
-          onClick={handleSvgClick}
-          onMouseMove={handleSvgMouseMove}
-          onMouseLeave={() => setHoverCoord(null)}
-          className={`w-full h-auto ${hoverBlocked ? 'cursor-not-allowed' : hoverRemoveTarget ? 'cursor-pointer' : 'cursor-crosshair'}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={cancelDrag}
+          onPointerLeave={cancelDrag}
+          className={`w-full h-auto touch-none select-none ${
+            isPanning
+              ? 'cursor-grabbing'
+              : hoverBlocked
+                ? 'cursor-not-allowed'
+                : hoverRemoveTarget
+                  ? 'cursor-pointer'
+                  : 'cursor-grab'
+          }`}
           style={{ maxHeight: 640 }}
         >
           {gridLines.map((l, i) => (
