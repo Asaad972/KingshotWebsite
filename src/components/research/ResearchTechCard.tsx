@@ -13,7 +13,9 @@ const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron' | 'gold', strin
   gold: 'text-gold-300',
 };
 
-function LevelSelect({
+/** A row of tap-to-select level boxes (0..maxLevel) -- easier to hit
+ * directly than opening a native dropdown, especially on phone. */
+function LevelBoxes({
   value,
   options,
   onChange,
@@ -23,17 +25,22 @@ function LevelSelect({
   onChange: (v: number) => void;
 }) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-      className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 tabular-nums focus:border-gold-600"
-    >
+    <div className="flex gap-1">
       {options.map((n) => (
-        <option key={n} value={n}>
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          className={`focus-ring flex-1 h-9 rounded-md border text-sm font-bold tabular-nums transition-colors ${
+            value === n
+              ? 'border-gold-400 bg-gold-500/20 text-gold-300'
+              : 'border-stone-700 bg-stone-950 text-parchment-300 hover:border-stone-500'
+          }`}
+        >
           {n}
-        </option>
+        </button>
       ))}
-    </select>
+    </div>
   );
 }
 
@@ -99,15 +106,10 @@ export default function ResearchTechCard({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Current</span>
-          <div className="flex items-center gap-2">
-            <LevelSelect
-              value={state.current}
-              options={levelOptions}
-              onChange={(v) => onChange({ current: v, target: Math.max(v, state.target) })}
-            />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Current</span>
             <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
               <input
                 type="checkbox"
@@ -115,19 +117,18 @@ export default function ResearchTechCard({
                 onChange={(e) => onChange({ current: e.target.checked ? tech.maxLevel : 0, target: Math.max(e.target.checked ? tech.maxLevel : 0, state.target) })}
                 className="focus-ring h-4 w-4 rounded border-stone-600 bg-stone-950 accent-gold-500"
               />
-              Max
+              Already maxed
             </label>
           </div>
-          <p className="text-[10px] text-parchment-500">Already have it? Check Max -- skips it from your goal cost.</p>
+          <LevelBoxes
+            value={state.current}
+            options={levelOptions}
+            onChange={(v) => onChange({ current: v, target: Math.max(v, state.target) })}
+          />
         </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Target</span>
-          <div className="flex items-center gap-2">
-            <LevelSelect
-              value={state.target}
-              options={levelOptions}
-              onChange={(v) => onChange({ current: state.current, target: Math.max(v, state.current) })}
-            />
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Target</span>
             <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
               <input
                 type="checkbox"
@@ -138,6 +139,11 @@ export default function ResearchTechCard({
               Max
             </label>
           </div>
+          <LevelBoxes
+            value={state.target}
+            options={levelOptions}
+            onChange={(v) => onChange({ current: state.current, target: Math.max(v, state.current) })}
+          />
         </div>
       </div>
 

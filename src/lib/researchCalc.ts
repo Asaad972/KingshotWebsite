@@ -150,27 +150,32 @@ export function calcResearchPlan(plan: ResearchPlan): ResearchPlanTotals {
 export interface CategoryBonus {
   category: ResearchCategory;
   label: string;
-  currentPercent: number;
-  targetPercent: number;
+  /** Bonus % gained specifically from techs you've set an active goal for
+   * (target > current) -- NOT the absolute total including stuff already
+   * maxed with no pending goal. Only counts what you're actually choosing
+   * to upgrade right now. */
+  gainPercent: number;
 }
 
-/** Total stat bonus per category, right now and at your goal. Tiers of the
- * same stat (e.g. Bread Output I-VI) stack additively in-game, so this sums
- * each tech's own current/target level effect% across the whole category --
- * not just the incremental cost/power the top summary bar shows. */
+/** Bonus gained per category from active upgrade goals only. A tech sitting
+ * at some current level with no goal beyond it (including one marked
+ * "already maxed" via the quick-tap pill) contributes nothing here -- this
+ * is specifically "what do I get from the upgrades I'm planning," not a
+ * running total of everything already researched. */
 export function calcCategoryBonuses(plan: ResearchPlan): CategoryBonus[] {
   return LANE_ORDER.map((category) => {
     const techs = techsInLane(category);
-    let currentPercent = 0;
-    let targetPercent = 0;
+    let gainPercent = 0;
     for (const tech of techs) {
       const state = plan[tech.id] ?? { current: 0, target: 0 };
+      if (state.target <= state.current) continue;
       const curLv = tech.levels[state.current - 1];
       const tgtLv = tech.levels[state.target - 1];
-      if (curLv) currentPercent += curLv.effectPercent;
-      if (tgtLv) targetPercent += tgtLv.effectPercent;
+      const curEffect = curLv ? curLv.effectPercent : 0;
+      const tgtEffect = tgtLv ? tgtLv.effectPercent : 0;
+      gainPercent += tgtEffect - curEffect;
     }
-    return { category, label: statLabel(techs[0]), currentPercent: round1(currentPercent), targetPercent: round1(targetPercent) };
+    return { category, label: statLabel(techs[0]), gainPercent: round1(gainPercent) };
   });
 }
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { groupByDepth, CATEGORY_RESOURCE, type ResearchPlan } from '@/lib/researchCalc';
 import type { ResearchTech } from '@/lib/researchEconomyData';
 import { BreadIcon, WoodIcon, StoneIcon, IronIcon } from './ResearchIcons';
@@ -11,12 +12,6 @@ const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
   stone: 'text-parchment-300',
   iron: 'text-cyan-400',
 };
-const RESOURCE_RING: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
-  bread: 'ring-amber-400/50',
-  wood: 'ring-orange-400/50',
-  stone: 'ring-parchment-300/50',
-  iron: 'ring-cyan-400/50',
-};
 
 // Fixed vertical layout -- one row per dependency depth, up to 3 nodes wide,
 // connected by right-angle "elbow" lines. Mirrors the actual in-game
@@ -24,16 +19,26 @@ const RESOURCE_RING: Record<'bread' | 'wood' | 'stone' | 'iron', string> = {
 // grid or a lanes-based layout. No internal scroll container and no card
 // wrapper -- this sits directly on the page background at its full natural
 // size, so the whole PAGE scrolls through it rather than a boxed-in area.
-const NODE = 104;
-const ROW_H = 184;
-const COL_GAP = 176;
-const PADDING_TOP = 32;
-const PADDING_X = 260;
+//
+// Two size presets, not a continuous scale: below the `compact` breakpoint
+// (phones) everything shrinks enough that a 3-wide row fits the screen
+// width with no horizontal scrolling; at/above it, the roomier desktop
+// sizing kicks in.
+const SIZES = {
+  compact: { node: 60, rowH: 122, colGap: 76, paddingTop: 24, paddingX: 130, nodeIcon: 'h-6 w-6', pillText: 'text-[9px]', nameText: 'text-[10px]' },
+  roomy: { node: 104, rowH: 184, colGap: 176, paddingTop: 32, paddingX: 260, nodeIcon: 'h-9 w-9', pillText: 'text-[10px]', nameText: 'text-xs' },
+};
+const COMPACT_BREAKPOINT = 640;
 
-function xOffsetsFor(count: number): number[] {
-  if (count === 1) return [0];
-  if (count === 2) return [-COL_GAP / 2, COL_GAP / 2];
-  return [-COL_GAP, 0, COL_GAP];
+function useCompact(): boolean {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const check = () => setCompact(window.innerWidth < COMPACT_BREAKPOINT);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return compact;
 }
 
 export default function ResearchTreeFlow({
@@ -47,10 +52,22 @@ export default function ResearchTreeFlow({
   onSelect: (techId: string) => void;
   onToggleMax: (techId: string) => void;
 }) {
+  const compact = useCompact();
+  const { node: NODE, rowH: ROW_H, colGap: COL_GAP, paddingTop: PADDING_TOP, paddingX: PADDING_X, nodeIcon, pillText, nameText } = compact
+    ? SIZES.compact
+    : SIZES.roomy;
+
+  const xOffsetsFor = (count: number): number[] => {
+    if (count === 1) return [0];
+    if (count === 2) return [-COL_GAP / 2, COL_GAP / 2];
+    return [-COL_GAP, 0, COL_GAP];
+  };
+
   const rows = groupByDepth();
   const centerX = PADDING_X;
   const canvasWidth = PADDING_X * 2;
   const canvasHeight = PADDING_TOP + rows.length * ROW_H + NODE;
+  const nodeColWidth = compact ? 92 : 180;
 
   const posById = new Map<string, { x: number; y: number }>();
   rows.forEach((row, rowIndex) => {
@@ -71,7 +88,7 @@ export default function ResearchTreeFlow({
   }
 
   return (
-    <div className="overflow-x-auto scrollbar-thin -mx-4 px-4">
+    <div className="overflow-x-hidden">
       <div className="relative mx-auto" style={{ width: canvasWidth, height: canvasHeight }}>
         <svg className="absolute inset-0" width={canvasWidth} height={canvasHeight}>
           {edges.map((e, i) => {
@@ -90,7 +107,7 @@ export default function ResearchTreeFlow({
                 d={d}
                 fill="none"
                 stroke={e.unlocked ? '#f9a8d4' : '#2b384e'}
-                strokeWidth={3.5}
+                strokeWidth={compact ? 2.5 : 3.5}
                 strokeLinejoin="round"
                 opacity={e.unlocked ? 0.9 : 0.7}
               />
@@ -109,7 +126,11 @@ export default function ResearchTreeFlow({
           const hasGoal = state.target > state.current;
 
           return (
-            <div key={tech.id} className="absolute flex flex-col items-center gap-2" style={{ left: pos.x - 90, top: pos.y - NODE / 2, width: 180 }}>
+            <div
+              key={tech.id}
+              className="absolute flex flex-col items-center gap-1.5"
+              style={{ left: pos.x - nodeColWidth / 2, top: pos.y - NODE / 2, width: nodeColWidth }}
+            >
               <button
                 type="button"
                 onClick={() => onSelect(tech.id)}
@@ -118,13 +139,15 @@ export default function ResearchTreeFlow({
                     ? 'border-gold-300 bg-gold-500/20'
                     : maxed
                       ? 'border-gold-500/70 bg-gold-500/10'
-                      : !unlocked
-                        ? 'border-stone-700 bg-stone-900/60 opacity-45'
-                        : 'border-stone-600 bg-stone-800 hover:border-gold-500/60'
-                } ${hasGoal ? `ring-2 ring-offset-2 ring-offset-stone-900 ${RESOURCE_RING[resource]}` : ''}`}
+                      : hasGoal
+                        ? 'border-cyan-400/80 bg-stone-800'
+                        : !unlocked
+                          ? 'border-stone-700 bg-stone-900/60 opacity-45'
+                          : 'border-stone-600 bg-stone-800 hover:border-gold-500/60'
+                }`}
                 style={{ width: NODE, height: NODE }}
               >
-                <span className={`h-9 w-9 ${RESOURCE_COLOR[resource]} ${!unlocked ? 'opacity-60' : ''}`}>
+                <span className={`${nodeIcon} ${RESOURCE_COLOR[resource]} ${!unlocked ? 'opacity-60' : ''}`}>
                   <Icon />
                 </span>
               </button>
@@ -136,7 +159,7 @@ export default function ResearchTreeFlow({
                   onToggleMax(tech.id);
                 }}
                 title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
-                className={`focus-ring -mt-3 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none tabular-nums transition-colors ${
+                className={`focus-ring rounded-full px-2 py-0.5 ${pillText} font-bold leading-none tabular-nums transition-colors ${
                   maxed
                     ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
                     : hasGoal
@@ -146,10 +169,10 @@ export default function ResearchTreeFlow({
                         : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
                 }`}
               >
-                {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : 'Tap max'}
+                {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : compact ? 'Max' : 'Tap max'}
               </button>
 
-              <span className={`text-xs font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}>
+              <span className={`${nameText} font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}>
                 {tech.name}
               </span>
             </div>
