@@ -69,7 +69,13 @@ export default function IsometricCastleMap({
   const [manualCoord, setManualCoord] = useState({ x: '', y: '' });
   const [hoverCoord, setHoverCoord] = useState<WorldPoint | null>(null);
   const [placementError, setPlacementError] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const ZOOM_MIN = 0.6;
+  const ZOOM_MAX = 1.8;
+  const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, Math.round((z + 0.2) * 100) / 100));
+  const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, Math.round((z - 0.2) * 100) / 100));
 
   const applyCastle = () => {
     const x = Number(castleInput.x);
@@ -152,10 +158,23 @@ export default function IsometricCastleMap({
     const allPoints = [cPos, ...turrets.map((t) => t.pos), ...markers.map((m) => m.pos)];
     const padX = TILE_SIZE * 2.2; // clears the largest footprint (castle) drawn around each point
     const padY = TILE_SIZE * 2.8; // extra room below markers for coordinate labels
-    const minX = Math.min(...allPoints.map((p) => p.x)) - padX;
-    const maxX = Math.max(...allPoints.map((p) => p.x)) + padX;
-    const minY = Math.min(...allPoints.map((p) => p.y)) - padX;
-    const maxY = Math.max(...allPoints.map((p) => p.y)) + padY;
+    const fitMinX = Math.min(...allPoints.map((p) => p.x)) - padX;
+    const fitMaxX = Math.max(...allPoints.map((p) => p.x)) + padX;
+    const fitMinY = Math.min(...allPoints.map((p) => p.y)) - padX;
+    const fitMaxY = Math.max(...allPoints.map((p) => p.y)) + padY;
+
+    // Zoom scales the auto-fit view around its own center -- >1 zooms in
+    // (smaller box, more magnified), <1 zooms out (larger box, more room
+    // to place a distant town) -- without changing what the "fit" bounds
+    // considered in the first place.
+    const fitCenterX = (fitMinX + fitMaxX) / 2;
+    const fitCenterY = (fitMinY + fitMaxY) / 2;
+    const halfW = (fitMaxX - fitMinX) / 2 / zoom;
+    const halfH = (fitMaxY - fitMinY) / 2 / zoom;
+    const minX = fitCenterX - halfW;
+    const maxX = fitCenterX + halfW;
+    const minY = fitCenterY - halfH;
+    const maxY = fitCenterY + halfH;
 
     // Small coordinate grid: figure out which world x/y lines actually
     // cross the visible area by unprojecting the viewBox corners, then draw
@@ -198,7 +217,7 @@ export default function IsometricCastleMap({
       markerPositions: markers,
       gridLines: lines,
     };
-  }, [castle, playerMarkers]);
+  }, [castle, playerMarkers, zoom]);
 
   const hoverPos = hoverCoord ? project(hoverCoord, castle, TILE_SIZE) : null;
   const hoverBlocked = hoverCoord ? isInsideBoundary(hoverCoord, castle) : false;
@@ -245,7 +264,41 @@ export default function IsometricCastleMap({
         </label>
       </div>
 
-      <div className="rounded border border-stone-700 bg-stone-950 overflow-hidden">
+      <div className="relative rounded border border-stone-700 bg-stone-950 overflow-hidden">
+        {hoverCoord && (
+          <div className="absolute top-3 right-3 z-10 pointer-events-none rounded-md border border-cyan-400/70 bg-stone-950/90 px-3 py-1.5 shadow-lg">
+            <span className="text-sm font-bold tabular-nums text-cyan-300">
+              {hoverCoord.x} , {hoverCoord.y}
+            </span>
+          </div>
+        )}
+        <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1 rounded-md border border-gold-400/70 bg-stone-950/90 p-1 shadow-lg">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              zoomOut();
+            }}
+            disabled={zoom <= ZOOM_MIN}
+            aria-label="Zoom out"
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded text-xl text-gold-300 font-bold hover:bg-gold-500/10 active:bg-gold-500/20 disabled:opacity-30 disabled:pointer-events-none"
+          >
+            −
+          </button>
+          <span className="w-11 text-center text-xs font-bold tabular-nums text-gold-300">{Math.round(zoom * 100)}%</span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              zoomIn();
+            }}
+            disabled={zoom >= ZOOM_MAX}
+            aria-label="Zoom in"
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded text-xl text-gold-300 font-bold hover:bg-gold-500/10 active:bg-gold-500/20 disabled:opacity-30 disabled:pointer-events-none"
+          >
+            +
+          </button>
+        </div>
         <svg
           ref={svgRef}
           viewBox={viewBox}
