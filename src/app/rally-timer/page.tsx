@@ -204,6 +204,12 @@ function RallyTimerContent() {
     ]);
   };
 
+  // Undo: clicking back on an already-placed town clears it but keeps the
+  // player (name/buffs intact) so they can just re-pick a spot.
+  const handleClearPlayerTown = (playerId: string) => {
+    updatePlayer(playerId, { townCoord: null, marchTimeSeconds: null });
+  };
+
   const editingPlayer = players.find((p) => p.id === editingPlayerId) ?? null;
 
   const plan = useMemo(() => {
@@ -308,10 +314,12 @@ function RallyTimerContent() {
               onChangeMarchSpeedPercent={setMarchSpeedPercent}
               onSetPlayerTown={handleSetPlayerTown}
               onAddPlayerAtTown={handleAddPlayerAtTown}
+              onClearPlayerTown={handleClearPlayerTown}
               enemyTown={enemyTown}
               enemyMarchSpeedPercent={enemyMarchSpeedPercent}
               onChangeEnemyMarchSpeedPercent={setEnemyMarchSpeedPercent}
               onSetEnemyTown={handleSetEnemyTown}
+              onClearEnemyTown={clearEnemy}
             />
           </div>
 

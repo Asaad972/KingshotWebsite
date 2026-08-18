@@ -31,6 +31,13 @@ function isInsideBoundary(coord: WorldPoint, castle: WorldPoint): boolean {
   return Math.max(Math.abs(coord.x - castle.x), Math.abs(coord.y - castle.y)) < BOUNDARY_RADIUS_TILES;
 }
 
+/** Same square-footprint test as the boundary check, but sized to a single
+ * marker's own footprint -- used to detect "you clicked back on a town you
+ * already placed" so that click can undo it instead of adding a new one. */
+function isWithinFootprint(coord: WorldPoint, center: WorldPoint, footprintTiles: number): boolean {
+  return Math.max(Math.abs(coord.x - center.x), Math.abs(coord.y - center.y)) <= footprintTiles / 2;
+}
+
 function footprintRadius(tiles: number): number {
   return tiles * (TILE_SIZE / 2);
 }
@@ -46,6 +53,9 @@ interface IsometricCastleMapProps {
   onChangeMarchSpeedPercent: (v: number) => void;
   onSetPlayerTown: (playerId: string, coord: WorldPoint, marchTimeSeconds: number) => void;
   onAddPlayerAtTown: (coord: WorldPoint, marchTimeSeconds: number, role: RallyPlayerRole) => void;
+  /** Clicking back on a player's already-placed town undoes it (clears the
+   * town, keeps the player) instead of adding a new one. */
+  onClearPlayerTown: (playerId: string) => void;
   /** The enemy town currently being tracked for the Garrison Timer (null if
    * none marked yet) -- only one at a time, since it represents "the"
    * incoming attacker. */
@@ -53,6 +63,8 @@ interface IsometricCastleMapProps {
   enemyMarchSpeedPercent: number;
   onChangeEnemyMarchSpeedPercent: (v: number) => void;
   onSetEnemyTown: (coord: WorldPoint, marchTimeSeconds: number) => void;
+  /** Clicking back on the already-placed enemy town undoes it. */
+  onClearEnemyTown: () => void;
 }
 
 /** The real in-game diamond kingdom layout (King's Castle center, the 4
@@ -68,10 +80,12 @@ export default function IsometricCastleMap({
   onChangeMarchSpeedPercent,
   onSetPlayerTown,
   onAddPlayerAtTown,
+  onClearPlayerTown,
   enemyTown,
   enemyMarchSpeedPercent,
   onChangeEnemyMarchSpeedPercent,
   onSetEnemyTown,
+  onClearEnemyTown,
 }: IsometricCastleMapProps) {
   // 599:599 is the confirmed real King's Castle coordinate for this
   // kingdom -- march distance is calculated from here.
@@ -138,9 +152,30 @@ export default function IsometricCastleMap({
     return { x: Math.round(world.x), y: Math.round(world.y) };
   };
 
+  // Clicking back into an already-placed town (or the enemy town) undoes
+  // it instead of adding a new one -- an explicit "editing player X" click
+  // still always sets that player's town, even on top of another marker.
+  const findExistingMarkerAt = (coord: WorldPoint): { type: 'player'; id: string } | { type: 'enemy' } | null => {
+    if (enemyTown && isWithinFootprint(coord, enemyTown, TOWN_FOOTPRINT_TILES)) return { type: 'enemy' };
+    const hit = players.find((p) => p.townCoord && isWithinFootprint(coord, p.townCoord, TOWN_FOOTPRINT_TILES));
+    return hit ? { type: 'player', id: hit.id } : null;
+  };
+
   const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const world = screenToWorld(e);
-    if (world) applyCoordinate(world);
+    if (!world) return;
+    if (!editingPlayerId) {
+      const hit = findExistingMarkerAt(world);
+      if (hit?.type === 'player') {
+        onClearPlayerTown(hit.id);
+        return;
+      }
+      if (hit?.type === 'enemy') {
+        onClearEnemyTown();
+        return;
+      }
+    }
+    applyCoordinate(world);
   };
 
   const handleSvgMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -251,6 +286,7 @@ export default function IsometricCastleMap({
 
   const hoverPos = hoverCoord ? project(hoverCoord, castle, TILE_SIZE) : null;
   const hoverBlocked = hoverCoord ? isInsideBoundary(hoverCoord, castle) : false;
+  const hoverRemoveTarget = !editingPlayerId && hoverCoord ? findExistingMarkerAt(hoverCoord) : null;
   const hoverMarchTimeSeconds = hoverCoord
     ? estimateMarchTimeSeconds(
         distanceTiles(hoverCoord, castle),
@@ -269,7 +305,8 @@ export default function IsometricCastleMap({
               ? 'Hover to preview, then click the map (or type coordinates below) to mark the enemy town.'
               : placementMode === 'garrison'
                 ? 'Hover to preview, then click the map (or type coordinates below) to add the next reinforcement.'
-                : 'Hover to preview, then click the map (or type coordinates below) to add the next rally opener.'}
+                : 'Hover to preview, then click the map (or type coordinates below) to add the next rally opener.'}{' '}
+          Click a town already on the map to undo it.
         </p>
         {placementError && (
           <p className="text-xs text-ember-500 font-semibold mt-1">
@@ -383,7 +420,7 @@ export default function IsometricCastleMap({
           onClick={handleSvgClick}
           onMouseMove={handleSvgMouseMove}
           onMouseLeave={() => setHoverCoord(null)}
-          className={`w-full h-auto ${hoverBlocked ? 'cursor-not-allowed' : 'cursor-crosshair'}`}
+          className={`w-full h-auto ${hoverBlocked ? 'cursor-not-allowed' : hoverRemoveTarget ? 'cursor-pointer' : 'cursor-crosshair'}`}
           style={{ maxHeight: 640 }}
         >
           {gridLines.map((l, i) => (
@@ -450,41 +487,47 @@ export default function IsometricCastleMap({
               <polygon
                 points={diamondPoints(hoverPos.x, hoverPos.y, footprintRadius(TOWN_FOOTPRINT_TILES))}
                 className={
-                  hoverBlocked
-                    ? 'fill-ember-500/20 stroke-ember-500'
-                    : editingPlayerId
-                      ? 'fill-gold-500/15 stroke-gold-400'
-                      : placementMode === 'enemy'
-                        ? 'fill-red-500/15 stroke-red-400'
-                        : placementMode === 'garrison'
-                          ? 'fill-moss-500/15 stroke-moss-400'
-                          : 'fill-cyan-500/15 stroke-cyan-400'
+                  hoverRemoveTarget
+                    ? 'fill-ember-500/25 stroke-ember-400'
+                    : hoverBlocked
+                      ? 'fill-ember-500/20 stroke-ember-500'
+                      : editingPlayerId
+                        ? 'fill-gold-500/15 stroke-gold-400'
+                        : placementMode === 'enemy'
+                          ? 'fill-red-500/15 stroke-red-400'
+                          : placementMode === 'garrison'
+                            ? 'fill-moss-500/15 stroke-moss-400'
+                            : 'fill-cyan-500/15 stroke-cyan-400'
                 }
-                strokeWidth={1.5}
-                strokeDasharray="4 3"
+                strokeWidth={hoverRemoveTarget ? 2 : 1.5}
+                strokeDasharray={hoverRemoveTarget ? undefined : '4 3'}
               />
               <text
                 x={hoverPos.x}
                 y={hoverPos.y + footprintRadius(TOWN_FOOTPRINT_TILES) + 12}
                 textAnchor="middle"
                 className={`text-[8px] font-semibold ${
-                  hoverBlocked
+                  hoverRemoveTarget
                     ? 'fill-ember-400'
-                    : editingPlayerId
-                      ? 'fill-gold-300'
-                      : placementMode === 'enemy'
-                        ? 'fill-red-300'
-                        : placementMode === 'garrison'
-                          ? 'fill-moss-300'
-                          : 'fill-cyan-300'
+                    : hoverBlocked
+                      ? 'fill-ember-400'
+                      : editingPlayerId
+                        ? 'fill-gold-300'
+                        : placementMode === 'enemy'
+                          ? 'fill-red-300'
+                          : placementMode === 'garrison'
+                            ? 'fill-moss-300'
+                            : 'fill-cyan-300'
                 }`}
               >
                 {hoverCoord!.x}:{hoverCoord!.y}
-                {hoverBlocked
-                  ? ' · not allowed'
-                  : hoverMarchTimeSeconds != null
-                    ? ` · ${Math.floor(hoverMarchTimeSeconds / 60)}:${String(hoverMarchTimeSeconds % 60).padStart(2, '0')}`
-                    : ''}
+                {hoverRemoveTarget
+                  ? ' · click to remove'
+                  : hoverBlocked
+                    ? ' · not allowed'
+                    : hoverMarchTimeSeconds != null
+                      ? ` · ${Math.floor(hoverMarchTimeSeconds / 60)}:${String(hoverMarchTimeSeconds % 60).padStart(2, '0')}`
+                      : ''}
               </text>
             </g>
           )}
