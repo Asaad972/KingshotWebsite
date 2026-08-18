@@ -76,6 +76,9 @@ const tr: typeof en = {
     faqGiftCodesTitle: 'Hediye Kodları',
     faqGiftCodesBody:
       "Oyuncu ID'nizi bir kez girin, aktif her kod sizin için otomatik olarak kullanılır -- yeni kodlar eklendiği anda onlar da dahil.",
+    faqResearchTreeTitle: 'Araştırma Ağacı',
+    faqResearchTreeBody:
+      'Her Büyüme, Ekonomi ve Savaş araştırma yükseltmesini planlayın -- her teknoloji için mevcut ve hedef seviyenizi belirleyin, tam olarak ne kadara mal olduğunu, ne kadar sürdüğünü ve neyin kilidini açtığını görün.',
   },
   tutorial: {
     step1Title: 'Ana hesap ekran görüntünüzü hazırlayın',

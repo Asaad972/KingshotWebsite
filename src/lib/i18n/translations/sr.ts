@@ -76,6 +76,9 @@ const sr: typeof en = {
     faqGiftCodesTitle: 'Poklon kodovi',
     faqGiftCodesBody:
       'Unesite svoj Player ID jednom i svaki aktivan kod će automatski biti iskorišćen za vas -- uključujući i nove kodove, čim se dodaju.',
+    faqResearchTreeTitle: 'Stablo istraživanja',
+    faqResearchTreeBody:
+      'Planirajte svaku nadogradnju istraživanja za Razvoj, Ekonomiju i Bitku -- postavite trenutni i ciljni nivo za svaku tehnologiju i vidite tačno koliko košta, koliko traje i šta otključava.',
   },
   tutorial: {
     step1Title: 'Pripremite snimak ekrana glavnog naloga',

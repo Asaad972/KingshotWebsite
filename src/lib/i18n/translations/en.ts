@@ -74,6 +74,9 @@ const en = {
     faqGiftCodesTitle: 'Gift Codes',
     faqGiftCodesBody:
       "Enter your Player ID once and every active code gets redeemed for you automatically -- new codes too, the moment they're added.",
+    faqResearchTreeTitle: 'Research Tree',
+    faqResearchTreeBody:
+      'Plan every Growth, Economy, and Battle research upgrade -- set your current and target level for each tech and see exactly what it costs, how long it takes, and what it unlocks.',
   },
   tutorial: {
     step1Title: 'Prepare your main account screenshot',
