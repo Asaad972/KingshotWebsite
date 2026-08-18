@@ -5,8 +5,13 @@ import Link from 'next/link';
 type Tone = 'gold' | 'cyan';
 
 const TONE_CLASSES: Record<Tone, string> = {
-  gold: 'bg-gold-500/15 border-gold-500/30 text-gold-400',
-  cyan: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400',
+  gold: 'bg-gold-500/15 border-gold-500/30 text-gold-400 icon-glow-gold',
+  cyan: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400 icon-glow-cyan',
+};
+
+const TONE_CARD_HOVER: Record<Tone, string> = {
+  gold: 'hover:border-gold-500/60 hover:shadow-[0_0_28px_-8px_rgba(236,72,153,0.55)]',
+  cyan: 'hover:border-cyan-500/60 hover:shadow-[0_0_28px_-8px_rgba(6,182,212,0.55)]',
 };
 
 interface QuickLink {
@@ -170,7 +175,7 @@ export default function QuickLinksGrid({
         <Link
           key={link.href}
           href={link.href}
-          className="focus-ring dashboard-card p-4 flex items-center gap-3.5 hover:border-stone-500 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+          className={`focus-ring dashboard-card p-4 flex items-center gap-3.5 hover:-translate-y-0.5 transition-all ${TONE_CARD_HOVER[link.tone]}`}
         >
           <div className={`shrink-0 h-11 w-11 rounded-xl border flex items-center justify-center ${TONE_CLASSES[link.tone]}`}>
             {link.icon}

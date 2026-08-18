@@ -55,9 +55,25 @@ body {
 }
 
 /* Gradient accents -- used sparingly on primary CTAs, hero sections, and
-   card/header top bars for visual "pop" against the dark neutral base. */
+   card/header top bars for visual "pop" against the dark neutral base.
+   text-gradient and gradient-bar animate their background-position slowly
+   (the "moving colors" look) -- kept to just these two recurring elements
+   rather than added everywhere, per the animate-1-2-key-elements guideline;
+   the global prefers-reduced-motion override above already disables both. */
+@keyframes gradient-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .text-gradient {
   @apply bg-gradient-primary bg-clip-text text-transparent;
+  background-size: 200% 200%;
+  animation: gradient-flow 8s ease-in-out infinite;
 }
 
 .btn-gradient {
@@ -66,4 +82,33 @@ body {
 
 .gradient-bar {
   @apply h-1 w-full bg-gradient-primary;
+  background-size: 200% 200%;
+  animation: gradient-flow 6s ease-in-out infinite;
+}
+
+/* Soft breathing glow behind an icon badge -- gold/cyan variants matching
+   the tone tokens used for Explore/quick-link cards. */
+@keyframes glow-pulse-gold {
+  0%,
+  100% {
+    box-shadow: 0 0 14px -2px rgba(236, 72, 153, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 22px 1px rgba(236, 72, 153, 0.75);
+  }
+}
+@keyframes glow-pulse-cyan {
+  0%,
+  100% {
+    box-shadow: 0 0 14px -2px rgba(6, 182, 212, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 22px 1px rgba(6, 182, 212, 0.75);
+  }
+}
+.icon-glow-gold {
+  animation: glow-pulse-gold 3s ease-in-out infinite;
+}
+.icon-glow-cyan {
+  animation: glow-pulse-cyan 3s ease-in-out infinite;
 }
