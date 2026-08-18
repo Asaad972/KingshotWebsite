@@ -146,6 +146,29 @@ function emptyCost(): ResourceCost {
   return { bread: 0, wood: 0, stone: 0, iron: 0, gold: 0 };
 }
 
+/** Research-speed buffs -- mirrors the Troop Calculator's Buffs pattern
+ * (src/lib/troopCalc.ts's SpeedBuffs): a free-form % input plus fixed-%
+ * toggles, all stacking additively before dividing the total time. KvK
+ * Skill matches the troop calculator's own KvK bonus; Appointment is the
+ * research equivalent of that calculator's Kingdom Skill toggle, but at
+ * +10% instead of +30%. */
+export interface ResearchSpeedBuffs {
+  researchSpeedPercent: number;
+  kvkSkill: boolean;
+  appointment: boolean;
+}
+
+export const KVK_SKILL_PERCENT = 25;
+export const APPOINTMENT_PERCENT = 10;
+
+export function defaultSpeedBuffs(): ResearchSpeedBuffs {
+  return { researchSpeedPercent: 0, kvkSkill: false, appointment: false };
+}
+
+export function researchSpeedMultiplier(buffs: ResearchSpeedBuffs): number {
+  return 1 + buffs.researchSpeedPercent / 100 + (buffs.kvkSkill ? KVK_SKILL_PERCENT : 0) / 100 + (buffs.appointment ? APPOINTMENT_PERCENT : 0) / 100;
+}
+
 export interface ResearchPlanTotals {
   cost: ResourceCost;
   timeSeconds: number;
@@ -159,10 +182,12 @@ export interface ResearchPlanTotals {
 
 /** Sums every level strictly after `current` up to and including `target`
  * for each tech (mirrors the incremental-cost pattern used by the gear/charm
- * calculators), plus overall completion stats across the whole tree. */
-export function calcResearchPlan(techs: ResearchTech[], plan: ResearchPlan): ResearchPlanTotals {
+ * calculators), plus overall completion stats across the whole tree. Speed
+ * buffs divide the raw summed time once at the end, same as the Troop
+ * Calculator applies its own speed multiplier. */
+export function calcResearchPlan(techs: ResearchTech[], plan: ResearchPlan, buffs: ResearchSpeedBuffs = defaultSpeedBuffs()): ResearchPlanTotals {
   const cost = emptyCost();
-  let timeSeconds = 0;
+  let rawTimeSeconds = 0;
   let powerGained = 0;
   let levelsCurrent = 0;
   let levelsTarget = 0;
@@ -186,10 +211,12 @@ export function calcResearchPlan(techs: ResearchTech[], plan: ResearchPlan): Res
       cost.stone += lv.cost.stone;
       cost.iron += lv.cost.iron;
       cost.gold += lv.cost.gold;
-      timeSeconds += lv.timeSeconds;
+      rawTimeSeconds += lv.timeSeconds;
       powerGained += lv.power;
     }
   }
+
+  const timeSeconds = Math.floor(rawTimeSeconds / researchSpeedMultiplier(buffs));
 
   return { cost, timeSeconds, powerGained, levelsCurrent, levelsTarget, levelsMax, techsMaxedCurrent, techsTotal: techs.length };
 }

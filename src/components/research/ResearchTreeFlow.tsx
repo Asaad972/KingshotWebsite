@@ -180,8 +180,10 @@ export default function ResearchTreeFlow({
                     strokeWidth="7"
                     strokeLinecap="round"
                     pathLength={100}
-                    strokeDasharray={`${ringPct} ${100 - ringPct}`}
+                    strokeDasharray={100}
+                    strokeDashoffset={100 - ringPct}
                     opacity={unlocked ? 0.95 : 0.5}
+                    style={{ transition: 'stroke-dashoffset 0.5s ease, stroke 0.35s ease' }}
                   />
                 </svg>
                 <button

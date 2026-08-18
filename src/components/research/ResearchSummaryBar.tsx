@@ -1,7 +1,7 @@
 'use client';
 
 import { formatCompact, formatResearchDuration, type ResearchPlanTotals } from '@/lib/researchCalc';
-import { BreadIcon, WoodIcon, StoneIcon, IronIcon, GoldIcon, PowerIcon, ClockIcon } from './ResearchIcons';
+import { BreadIcon, WoodIcon, StoneIcon, IronIcon, GoldIcon, PowerIcon, ClockIcon, SpeedupIcon } from './ResearchIcons';
 
 const RESOURCE_ICON = { bread: BreadIcon, wood: WoodIcon, stone: StoneIcon, iron: IronIcon, gold: GoldIcon };
 const RESOURCE_COLOR: Record<'bread' | 'wood' | 'stone' | 'iron' | 'gold', string> = {
@@ -76,6 +76,12 @@ export default function ResearchSummaryBar({ totals }: { totals: ResearchPlanTot
                 <ClockIcon />
               </span>
               {formatResearchDuration(totals.timeSeconds)}
+            </span>
+            <span className="flex items-center gap-1 text-xs font-semibold text-cyan-300 tabular-nums">
+              <span className="h-4 w-4">
+                <SpeedupIcon />
+              </span>
+              {formatCompact(Math.ceil(totals.timeSeconds / 60))} min speedups
             </span>
           </div>
         </div>

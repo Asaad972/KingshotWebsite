@@ -54,3 +54,12 @@ export function ClockIcon() {
     </svg>
   );
 }
+
+export function SpeedupIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path d="M2 5v14l9-7-9-7Z" fill="currentColor" />
+      <path d="M12 5v14l9-7-9-7Z" fill="currentColor" opacity="0.65" />
+    </svg>
+  );
+}

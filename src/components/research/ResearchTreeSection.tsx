@@ -2,11 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
-import { calcResearchPlan, calcCategoryBonuses, defaultResearchPlan, type ResearchPlan, type TechLevelState } from '@/lib/researchCalc';
+import {
+  calcResearchPlan,
+  calcCategoryBonuses,
+  defaultResearchPlan,
+  defaultSpeedBuffs,
+  type ResearchPlan,
+  type ResearchSpeedBuffs,
+  type TechLevelState,
+} from '@/lib/researchCalc';
 import { TREES, TREE_ORDER, type TreeId } from '@/lib/researchTrees';
 import ResearchTreeFlow from './ResearchTreeFlow';
 import ResearchTechCard from './ResearchTechCard';
 import ResearchSummaryBar from './ResearchSummaryBar';
+import ResearchSpeedBuffsCard from './ResearchSpeedBuffsCard';
 import ResearchBonusSidebar from './ResearchBonusSidebar';
 
 /**
@@ -50,7 +59,11 @@ export default function ResearchTreeSection() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bonusesOpen, setBonusesOpen] = useState(false);
 
-  const totals = calcResearchPlan(tree.techs, plan);
+  // One shared buffs setting across all 3 trees -- these are account-wide
+  // speed bonuses, not tree-specific ones.
+  const [speedBuffs, setSpeedBuffs] = useLocalStorageState<ResearchSpeedBuffs>('researchTree:speedBuffs', defaultSpeedBuffs());
+
+  const totals = calcResearchPlan(tree.techs, plan, speedBuffs);
   const bonuses = calcCategoryBonuses(tree.techs, tree.categoryOrder, plan);
   const selectedTech = selectedId ? tree.getTech(selectedId) : null;
 
@@ -134,6 +147,8 @@ export default function ResearchTreeSection() {
           </button>
         ))}
       </div>
+
+      <ResearchSpeedBuffsCard buffs={speedBuffs} onChange={setSpeedBuffs} />
 
       <ResearchSummaryBar totals={totals} />
 
