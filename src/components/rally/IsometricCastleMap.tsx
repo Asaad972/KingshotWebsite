@@ -7,6 +7,34 @@ import type { RallyPlayerInput } from '@/lib/rally';
 
 const TILE_SIZE = 48;
 
+// Building footprints in tiles (a diamond of radius `N * TILE_SIZE/2` traces
+// an exact N x N tile square once projected -- verified against the
+// projection math). Turret and town center are both a 2x2 footprint, same
+// as ksmapper's convention. The castle's exact footprint isn't publicly
+// confirmed, so it's set to 4x4 -- exactly enough room for four 2x2 town
+// footprints (a 2x2 arrangement of them), which also makes the castle's
+// edge land flush against each turret's edge with no gap or overlap.
+const TURRET_FOOTPRINT_TILES = 2;
+const CASTLE_FOOTPRINT_TILES = 4;
+const TOWN_FOOTPRINT_TILES = 2;
+
+// The castle's protected territory -- the diamond bounded by the turret
+// ring -- is off-limits for placing a town. In world (tile) coordinates
+// this region is exactly a Chebyshev-distance disk: |dx-dy|+|dx+dy| in
+// screen space reduces to 2*max(|dx|,|dy|) in world space (a known
+// identity), so "inside the boundary polygon" is just
+// max(|dx|,|dy|) < TURRET_OFFSET + half the turret's own footprint (the
+// polygon is tangent to each turret's outer tip, not its center).
+const BOUNDARY_RADIUS_TILES = TURRET_OFFSET + TURRET_FOOTPRINT_TILES / 2;
+
+function isInsideBoundary(coord: WorldPoint, castle: WorldPoint): boolean {
+  return Math.max(Math.abs(coord.x - castle.x), Math.abs(coord.y - castle.y)) < BOUNDARY_RADIUS_TILES;
+}
+
+function footprintRadius(tiles: number): number {
+  return tiles * (TILE_SIZE / 2);
+}
+
 function diamondPoints(cx: number, cy: number, r: number): string {
   return `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`;
 }
@@ -34,11 +62,13 @@ export default function IsometricCastleMap({
   onSetPlayerTown,
   onAddPlayerAtTown,
 }: IsometricCastleMapProps) {
-  // 597:597 is the confirmed real King's Castle coordinate for this
+  // 599:599 is the confirmed real King's Castle coordinate for this
   // kingdom -- march distance is calculated from here.
-  const [castle, setCastle] = useState<WorldPoint>({ x: 597, y: 597 });
-  const [castleInput, setCastleInput] = useState({ x: '597', y: '597' });
+  const [castle, setCastle] = useState<WorldPoint>({ x: 599, y: 599 });
+  const [castleInput, setCastleInput] = useState({ x: '599', y: '599' });
   const [manualCoord, setManualCoord] = useState({ x: '', y: '' });
+  const [hoverCoord, setHoverCoord] = useState<WorldPoint | null>(null);
+  const [placementError, setPlacementError] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const applyCastle = () => {
@@ -48,6 +78,11 @@ export default function IsometricCastleMap({
   };
 
   const applyCoordinate = (coord: WorldPoint) => {
+    if (isInsideBoundary(coord, castle)) {
+      setPlacementError(true);
+      return;
+    }
+    setPlacementError(false);
     const dist = distanceTiles(coord, castle);
     const marchTimeSeconds = estimateMarchTimeSeconds(dist, marchSpeedPercent);
     if (editingPlayerId) {
@@ -65,16 +100,26 @@ export default function IsometricCastleMap({
     setManualCoord({ x: '', y: '' });
   };
 
-  const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
+  const screenToWorld = (e: React.MouseEvent<SVGSVGElement>): WorldPoint | null => {
     const svg = svgRef.current;
     const ctm = svg?.getScreenCTM();
-    if (!svg || !ctm) return;
+    if (!svg || !ctm) return null;
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
     const svgPoint = pt.matrixTransform(ctm.inverse());
     const world = unproject(svgPoint, castle, TILE_SIZE);
-    applyCoordinate({ x: Math.round(world.x), y: Math.round(world.y) });
+    return { x: Math.round(world.x), y: Math.round(world.y) };
+  };
+
+  const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    const world = screenToWorld(e);
+    if (world) applyCoordinate(world);
+  };
+
+  const handleSvgMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    setHoverCoord(screenToWorld(e));
+    setPlacementError(false);
   };
 
   const playerMarkers = useMemo(
@@ -85,25 +130,38 @@ export default function IsometricCastleMap({
     [players]
   );
 
-  const { viewBox, castlePos, turretPositions, markerPositions, gridLines, turretRingLines } = useMemo(() => {
+  const { viewBox, castlePos, turretPositions, markerPositions, gridLines } = useMemo(() => {
     const cPos = project(castle, castle, TILE_SIZE);
-    const turrets = TURRETS.map((t) => ({
-      ...t,
-      pos: project({ x: castle.x + t.dx, y: castle.y + t.dy }, castle, TILE_SIZE),
-    }));
+    const turretRadius = footprintRadius(TURRET_FOOTPRINT_TILES);
+    const turrets = TURRETS.map((t) => {
+      const pos = project({ x: castle.x + t.dx, y: castle.y + t.dy }, castle, TILE_SIZE);
+      // The territory boundary should wrap OUTSIDE each turret, tangent to
+      // its outer tip, not cut through its center -- push the boundary
+      // corner out along the castle->turret direction by the turret's own
+      // radius. The turret itself stays drawn at `pos` (its real
+      // coordinate); only the boundary line's anchor point moves.
+      const len = Math.hypot(pos.x - cPos.x, pos.y - cPos.y) || 1;
+      const boundaryPos = {
+        x: pos.x + ((pos.x - cPos.x) / len) * turretRadius,
+        y: pos.y + ((pos.y - cPos.y) / len) * turretRadius,
+      };
+      return { ...t, pos, boundaryPos };
+    });
     const markers = playerMarkers.map((m) => ({ ...m, pos: project(m.coord, castle, TILE_SIZE) }));
 
     const allPoints = [cPos, ...turrets.map((t) => t.pos), ...markers.map((m) => m.pos)];
-    const padX = TILE_SIZE * 1.8;
-    const padY = TILE_SIZE * 2.4; // extra room below markers for coordinate labels
+    const padX = TILE_SIZE * 2.2; // clears the largest footprint (castle) drawn around each point
+    const padY = TILE_SIZE * 2.8; // extra room below markers for coordinate labels
     const minX = Math.min(...allPoints.map((p) => p.x)) - padX;
     const maxX = Math.max(...allPoints.map((p) => p.x)) + padX;
     const minY = Math.min(...allPoints.map((p) => p.y)) - padX;
     const maxY = Math.max(...allPoints.map((p) => p.y)) + padY;
 
-    // Grid: figure out which world x/y lines actually cross the visible
-    // area by unprojecting the viewBox corners, then draw a "nice" spacing
-    // of them so the grid stays readable at any zoom level.
+    // Small coordinate grid: figure out which world x/y lines actually
+    // cross the visible area by unprojecting the viewBox corners, then draw
+    // a "nice" spacing of them so real tile coordinates stay visible
+    // everywhere -- including the empty ground between the castle and the
+    // turrets -- at any zoom level.
     const corners = [
       { x: minX, y: minY },
       { x: maxX, y: minY },
@@ -118,8 +176,7 @@ export default function IsometricCastleMap({
 
     // Anchored to the CASTLE's own coordinate (not absolute world zero) --
     // otherwise grid lines only happen to pass through the turrets when the
-    // castle's coordinate is itself a multiple of the current step, which
-    // breaks as soon as the step grows for a more zoomed-out view.
+    // castle's coordinate is itself a multiple of the current step.
     const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
     const firstX = castle.x + Math.floor((wMinX - castle.x) / step) * step;
     for (let wx = firstX; wx <= wMaxX; wx += step) {
@@ -134,34 +191,20 @@ export default function IsometricCastleMap({
       lines.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
     }
 
-    // The turret ring lines are always drawn exactly at castle +/- TURRET_OFFSET,
-    // independent of the general grid's step -- that's the only way to
-    // guarantee they land exactly on the turrets at every zoom level (see
-    // niceGridStep's doc comment for why the general grid step can't do this).
-    const turretRingLines = [
-      { x: castle.x - TURRET_OFFSET },
-      { x: castle.x + TURRET_OFFSET },
-    ].map(({ x }) => {
-      const a = project({ x, y: wMinY }, castle, TILE_SIZE);
-      const b = project({ x, y: wMaxY }, castle, TILE_SIZE);
-      return { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
-    }).concat(
-      [{ y: castle.y - TURRET_OFFSET }, { y: castle.y + TURRET_OFFSET }].map(({ y }) => {
-        const a = project({ x: wMinX, y }, castle, TILE_SIZE);
-        const b = project({ x: wMaxX, y }, castle, TILE_SIZE);
-        return { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
-      })
-    );
-
     return {
       viewBox: `${minX} ${minY} ${maxX - minX} ${maxY - minY}`,
       castlePos: cPos,
       turretPositions: turrets,
       markerPositions: markers,
       gridLines: lines,
-      turretRingLines,
     };
   }, [castle, playerMarkers]);
+
+  const hoverPos = hoverCoord ? project(hoverCoord, castle, TILE_SIZE) : null;
+  const hoverBlocked = hoverCoord ? isInsideBoundary(hoverCoord, castle) : false;
+  const hoverMarchTimeSeconds = hoverCoord
+    ? estimateMarchTimeSeconds(distanceTiles(hoverCoord, castle), marchSpeedPercent)
+    : null;
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
@@ -169,9 +212,14 @@ export default function IsometricCastleMap({
         <h2 className="text-sm font-semibold text-parchment-100">Kingdom Map</h2>
         <p className="text-xs text-parchment-400 mt-0.5">
           {editingPlayerId
-            ? "Click the map (or type coordinates below) to set this player's town."
-            : 'Click the map (or type coordinates below) to add the next player.'}
+            ? "Hover to preview, then click the map (or type coordinates below) to set this player's town."
+            : 'Hover to preview, then click the map (or type coordinates below) to add the next player.'}
         </p>
+        {placementError && (
+          <p className="text-xs text-ember-500 font-semibold mt-1">
+            That spot is inside the castle's territory boundary — pick a spot outside the line.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap items-end gap-2">
@@ -202,23 +250,20 @@ export default function IsometricCastleMap({
           ref={svgRef}
           viewBox={viewBox}
           onClick={handleSvgClick}
-          className="w-full h-auto cursor-crosshair"
+          onMouseMove={handleSvgMouseMove}
+          onMouseLeave={() => setHoverCoord(null)}
+          className={`w-full h-auto ${hoverBlocked ? 'cursor-not-allowed' : 'cursor-crosshair'}`}
           style={{ maxHeight: 640 }}
         >
           {gridLines.map((l, i) => (
             <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="currentColor" className="text-stone-700/50" strokeWidth={1} />
           ))}
 
-          {/* Always exactly at the turret ring, independent of the general
-              grid's step -- see the comment where these are computed. */}
-          {turretRingLines.map((l, i) => (
-            <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="currentColor" className="text-gold-600/40" strokeWidth={1} />
-          ))}
-
           {/* Boundary diamond connecting the 4 turrets, same as the
-              in-game map's inner-territory outline. */}
+              in-game map's inner-territory outline -- tangent to each
+              turret's outer tip rather than cutting through its center. */}
           <polygon
-            points={turretPositions.map((t) => `${t.pos.x},${t.pos.y}`).join(' ')}
+            points={turretPositions.map((t) => `${t.boundaryPos.x},${t.boundaryPos.y}`).join(' ')}
             fill="none"
             className="stroke-gold-500/50"
             strokeWidth={1.5}
@@ -226,7 +271,7 @@ export default function IsometricCastleMap({
 
           <g>
             <polygon
-              points={diamondPoints(castlePos.x, castlePos.y, TILE_SIZE * 0.9)}
+              points={diamondPoints(castlePos.x, castlePos.y, footprintRadius(CASTLE_FOOTPRINT_TILES))}
               className="fill-gold-500/25 stroke-gold-400"
               strokeWidth={2}
             />
@@ -238,7 +283,7 @@ export default function IsometricCastleMap({
           {turretPositions.map((t) => (
             <g key={t.label}>
               <polygon
-                points={diamondPoints(t.pos.x, t.pos.y, TILE_SIZE * 0.55)}
+                points={diamondPoints(t.pos.x, t.pos.y, footprintRadius(TURRET_FOOTPRINT_TILES))}
                 className="fill-ember-500/20 stroke-ember-500/70"
                 strokeWidth={1.5}
               />
@@ -248,12 +293,37 @@ export default function IsometricCastleMap({
             </g>
           ))}
 
+          {hoverPos && (
+            <g className="pointer-events-none">
+              <polygon
+                points={diamondPoints(hoverPos.x, hoverPos.y, footprintRadius(TOWN_FOOTPRINT_TILES))}
+                className={hoverBlocked ? 'fill-ember-500/20 stroke-ember-500' : 'fill-parchment-100/10 stroke-parchment-100/70'}
+                strokeWidth={1.5}
+                strokeDasharray="4 3"
+              />
+              <text
+                x={hoverPos.x}
+                y={hoverPos.y + footprintRadius(TOWN_FOOTPRINT_TILES) + 12}
+                textAnchor="middle"
+                className={`text-[8px] font-semibold ${hoverBlocked ? 'fill-ember-400' : 'fill-parchment-100'}`}
+              >
+                {hoverCoord!.x}:{hoverCoord!.y}
+                {hoverBlocked
+                  ? ' · not allowed'
+                  : hoverMarchTimeSeconds != null
+                    ? ` · ${Math.floor(hoverMarchTimeSeconds / 60)}:${String(hoverMarchTimeSeconds % 60).padStart(2, '0')}`
+                    : ''}
+              </text>
+            </g>
+          )}
+
           {markerPositions.map((m) => {
             const isEditing = m.id === editingPlayerId;
+            const r = footprintRadius(TOWN_FOOTPRINT_TILES);
             return (
               <g key={m.id}>
                 <polygon
-                  points={diamondPoints(m.pos.x, m.pos.y, TILE_SIZE * 0.4)}
+                  points={diamondPoints(m.pos.x, m.pos.y, r)}
                   className={isEditing ? 'fill-moss-500/30 stroke-moss-500' : 'fill-cyan-500/25 stroke-cyan-400'}
                   strokeWidth={isEditing ? 2.5 : 1.5}
                 />
@@ -265,7 +335,7 @@ export default function IsometricCastleMap({
                 >
                   {m.label}
                 </text>
-                <text x={m.pos.x} y={m.pos.y + TILE_SIZE * 0.4 + 12} textAnchor="middle" className="fill-parchment-400 text-[7px] pointer-events-none">
+                <text x={m.pos.x} y={m.pos.y + r + 12} textAnchor="middle" className="fill-parchment-400 text-[7px] pointer-events-none">
                   {m.coord.x}:{m.coord.y}
                 </text>
               </g>
