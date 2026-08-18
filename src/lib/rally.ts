@@ -7,9 +7,15 @@ export function clampRallyOffset(v: number): number {
   return Math.max(RALLY_OFFSET_MIN, Math.min(RALLY_OFFSET_MAX, v));
 }
 
+/** Which roster this player belongs to -- 'rally' feeds the attack Rally
+ * Plan / Copy Results, 'garrison' feeds the Garrison Timer. Kept separate
+ * so copying the rally callout doesn't drag in reinforcement names too. */
+export type RallyPlayerRole = 'rally' | 'garrison';
+
 export interface RallyPlayerInput {
   id: string;
   name: string;
+  role: RallyPlayerRole;
   /** Real map coordinates for this player's town, set by tapping the
    * Kingdom Map. Null until assigned. */
   townCoord: { x: number; y: number } | null;
@@ -133,10 +139,92 @@ export function getRallyCountdownState(rallyOpenTime: Date | null, now: Date): R
   return { kind: 'late', secondsLate: lateSeconds };
 }
 
+export interface GarrisonSenderResult {
+  id: string;
+  name: string;
+  townCoord: { x: number; y: number } | null;
+  marchTimeSeconds: number | null;
+  effectiveMarchTimeSeconds: number | null;
+  /** When to send so troops land `bufferSeconds` relative to the enemy's
+   * hit -- reinforcing your own castle is a direct individual march, not a
+   * rally, so (unlike the enemy's own incoming rally) there's no formation
+   * delay to wait out first. */
+  sendTime: Date | null;
+}
+
+export interface GarrisonPlan {
+  enemyArrivalTime: Date;
+  bufferSeconds: number;
+  senders: GarrisonSenderResult[];
+}
+
+/** Garrison Send Time = Enemy Arrival + buffer (can be negative, i.e.
+ * before impact) - the sender's own (buffed) march time. No formation
+ * delay -- reinforcing your own castle marches immediately. */
+export function computeGarrisonPlan({
+  enemyArrivalTime,
+  bufferSeconds,
+  players,
+}: {
+  enemyArrivalTime: Date;
+  bufferSeconds: number;
+  players: RallyPlayerInput[];
+}): GarrisonPlan {
+  const senders: GarrisonSenderResult[] = players.map((p) => {
+    const petBuffSpeedupPercent = getPetBuffSpeedupPercent(p.petBuffLevel);
+    const effectiveMarchTimeSeconds =
+      p.marchTimeSeconds != null ? p.marchTimeSeconds * (1 - petBuffSpeedupPercent / 100) : null;
+    const sendTime =
+      effectiveMarchTimeSeconds != null
+        ? new Date(enemyArrivalTime.getTime() + bufferSeconds * 1000 - effectiveMarchTimeSeconds * 1000)
+        : null;
+    return {
+      id: p.id,
+      name: p.name,
+      townCoord: p.townCoord,
+      marchTimeSeconds: p.marchTimeSeconds,
+      effectiveMarchTimeSeconds,
+      sendTime,
+    };
+  });
+
+  return { enemyArrivalTime, bufferSeconds, senders };
+}
+
+export type GarrisonCountdownState =
+  | { kind: 'no-town' }
+  | { kind: 'waiting'; secondsUntilSend: number }
+  | { kind: 'send-now' }
+  | { kind: 'missed'; secondsMissed: number };
+
+/** Grace window (seconds) after the send time still counts as "send now" rather than "missed". */
+const SEND_NOW_GRACE_SECONDS = 3;
+
+export function getGarrisonCountdownState(sendTime: Date | null, now: Date): GarrisonCountdownState {
+  if (!sendTime) return { kind: 'no-town' };
+  const diffSeconds = (sendTime.getTime() - now.getTime()) / 1000;
+  if (diffSeconds > 0) return { kind: 'waiting', secondsUntilSend: diffSeconds };
+  const missedSeconds = -diffSeconds;
+  if (missedSeconds <= SEND_NOW_GRACE_SECONDS) return { kind: 'send-now' };
+  return { kind: 'missed', secondsMissed: missedSeconds };
+}
+
 export function buildDiscordRallyText(plan: RallyPlan): string {
   const lines: string[] = plan.players.map((p, i) => {
     const time = p.rallyOpenTime ?? p.arrivalTime;
     return `${p.name.trim() || `Player ${i + 1}`}#   ${formatUtcHms(time)}`;
+  });
+
+  lines.push('');
+  lines.push('K1781 Bot designed by Hero');
+
+  return lines.join('\n');
+}
+
+export function buildDiscordGarrisonText(plan: GarrisonPlan): string {
+  const lines: string[] = plan.senders.map((s, i) => {
+    const time = s.sendTime ?? plan.enemyArrivalTime;
+    return `${s.name.trim() || `Player ${i + 1}`}#   ${formatUtcHms(time)}`;
   });
 
   lines.push('');

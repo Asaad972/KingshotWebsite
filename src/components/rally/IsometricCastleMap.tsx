@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { project, unproject, niceGridStep, TURRETS, TURRET_OFFSET, type WorldPoint } from '@/lib/isometricMap';
 import { distanceTiles, estimateMarchTimeSeconds } from '@/lib/rallyMarch';
-import type { RallyPlayerInput } from '@/lib/rally';
+import type { RallyPlayerInput, RallyPlayerRole } from '@/lib/rally';
 
 const TILE_SIZE = 48;
 
@@ -45,7 +45,14 @@ interface IsometricCastleMapProps {
   marchSpeedPercent: number;
   onChangeMarchSpeedPercent: (v: number) => void;
   onSetPlayerTown: (playerId: string, coord: WorldPoint, marchTimeSeconds: number) => void;
-  onAddPlayerAtTown: (coord: WorldPoint, marchTimeSeconds: number) => void;
+  onAddPlayerAtTown: (coord: WorldPoint, marchTimeSeconds: number, role: RallyPlayerRole) => void;
+  /** The enemy town currently being tracked for the Garrison Timer (null if
+   * none marked yet) -- only one at a time, since it represents "the"
+   * incoming attacker. */
+  enemyTown: WorldPoint | null;
+  enemyMarchSpeedPercent: number;
+  onChangeEnemyMarchSpeedPercent: (v: number) => void;
+  onSetEnemyTown: (coord: WorldPoint, marchTimeSeconds: number) => void;
 }
 
 /** The real in-game diamond kingdom layout (King's Castle center, the 4
@@ -61,6 +68,10 @@ export default function IsometricCastleMap({
   onChangeMarchSpeedPercent,
   onSetPlayerTown,
   onAddPlayerAtTown,
+  enemyTown,
+  enemyMarchSpeedPercent,
+  onChangeEnemyMarchSpeedPercent,
+  onSetEnemyTown,
 }: IsometricCastleMapProps) {
   // 599:599 is the confirmed real King's Castle coordinate for this
   // kingdom -- march distance is calculated from here.
@@ -70,6 +81,7 @@ export default function IsometricCastleMap({
   const [hoverCoord, setHoverCoord] = useState<WorldPoint | null>(null);
   const [placementError, setPlacementError] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [placementMode, setPlacementMode] = useState<RallyPlayerRole | 'enemy'>('rally');
   const svgRef = useRef<SVGSVGElement>(null);
 
   const ZOOM_MIN = 0.6;
@@ -90,12 +102,20 @@ export default function IsometricCastleMap({
     }
     setPlacementError(false);
     const dist = distanceTiles(coord, castle);
-    const marchTimeSeconds = estimateMarchTimeSeconds(dist, marchSpeedPercent);
+    // Editing a specific existing player wins over whatever the mode toggle
+    // happens to be set to -- otherwise leaving the toggle on "Mark Enemy
+    // Town" from an earlier action would silently overwrite the enemy's
+    // town instead of the player you just clicked "+ Add" for.
     if (editingPlayerId) {
-      onSetPlayerTown(editingPlayerId, coord, marchTimeSeconds);
-    } else {
-      onAddPlayerAtTown(coord, marchTimeSeconds);
+      onSetPlayerTown(editingPlayerId, coord, estimateMarchTimeSeconds(dist, marchSpeedPercent));
+      return;
     }
+    if (placementMode === 'enemy') {
+      onSetEnemyTown(coord, estimateMarchTimeSeconds(dist, enemyMarchSpeedPercent));
+      return;
+    }
+    const marchTimeSeconds = estimateMarchTimeSeconds(dist, marchSpeedPercent);
+    onAddPlayerAtTown(coord, marchTimeSeconds, placementMode === 'garrison' ? 'garrison' : 'rally');
   };
 
   const handleManualAdd = () => {
@@ -128,15 +148,23 @@ export default function IsometricCastleMap({
     setPlacementError(false);
   };
 
-  const playerMarkers = useMemo(
-    () =>
-      players
-        .map((p, i) => (p.townCoord ? { id: p.id, index: i, label: p.name.trim() || `#${i + 1}`, coord: p.townCoord } : null))
-        .filter((m): m is { id: string; index: number; label: string; coord: WorldPoint } => m !== null),
-    [players]
-  );
+  // Numbered per-role (rally openers and reinforcements each count from #1)
+  // so a marker's label on the map matches its number in its own list below
+  // instead of its raw position in the combined roster.
+  const playerMarkers = useMemo(() => {
+    let rallyIndex = 0;
+    let garrisonIndex = 0;
+    return players
+      .map((p) => {
+        const roleIndex = p.role === 'garrison' ? garrisonIndex++ : rallyIndex++;
+        return p.townCoord
+          ? { id: p.id, label: p.name.trim() || `#${roleIndex + 1}`, coord: p.townCoord, role: p.role }
+          : null;
+      })
+      .filter((m): m is { id: string; label: string; coord: WorldPoint; role: RallyPlayerRole } => m !== null);
+  }, [players]);
 
-  const { viewBox, castlePos, turretPositions, markerPositions, gridLines } = useMemo(() => {
+  const { viewBox, castlePos, turretPositions, markerPositions, enemyPos, gridLines } = useMemo(() => {
     const cPos = project(castle, castle, TILE_SIZE);
     const turretRadius = footprintRadius(TURRET_FOOTPRINT_TILES);
     const turrets = TURRETS.map((t) => {
@@ -154,8 +182,9 @@ export default function IsometricCastleMap({
       return { ...t, pos, boundaryPos };
     });
     const markers = playerMarkers.map((m) => ({ ...m, pos: project(m.coord, castle, TILE_SIZE) }));
+    const ePos = enemyTown ? project(enemyTown, castle, TILE_SIZE) : null;
 
-    const allPoints = [cPos, ...turrets.map((t) => t.pos), ...markers.map((m) => m.pos)];
+    const allPoints = [cPos, ...turrets.map((t) => t.pos), ...markers.map((m) => m.pos), ...(ePos ? [ePos] : [])];
     const padX = TILE_SIZE * 2.2; // clears the largest footprint (castle) drawn around each point
     const padY = TILE_SIZE * 2.8; // extra room below markers for coordinate labels
     const fitMinX = Math.min(...allPoints.map((p) => p.x)) - padX;
@@ -215,14 +244,18 @@ export default function IsometricCastleMap({
       castlePos: cPos,
       turretPositions: turrets,
       markerPositions: markers,
+      enemyPos: ePos,
       gridLines: lines,
     };
-  }, [castle, playerMarkers, zoom]);
+  }, [castle, playerMarkers, enemyTown, zoom]);
 
   const hoverPos = hoverCoord ? project(hoverCoord, castle, TILE_SIZE) : null;
   const hoverBlocked = hoverCoord ? isInsideBoundary(hoverCoord, castle) : false;
   const hoverMarchTimeSeconds = hoverCoord
-    ? estimateMarchTimeSeconds(distanceTiles(hoverCoord, castle), marchSpeedPercent)
+    ? estimateMarchTimeSeconds(
+        distanceTiles(hoverCoord, castle),
+        !editingPlayerId && placementMode === 'enemy' ? enemyMarchSpeedPercent : marchSpeedPercent
+      )
     : null;
 
   return (
@@ -232,13 +265,47 @@ export default function IsometricCastleMap({
         <p className="text-xs text-parchment-400 mt-0.5">
           {editingPlayerId
             ? "Hover to preview, then click the map (or type coordinates below) to set this player's town."
-            : 'Hover to preview, then click the map (or type coordinates below) to add the next player.'}
+            : placementMode === 'enemy'
+              ? 'Hover to preview, then click the map (or type coordinates below) to mark the enemy town.'
+              : placementMode === 'garrison'
+                ? 'Hover to preview, then click the map (or type coordinates below) to add the next reinforcement.'
+                : 'Hover to preview, then click the map (or type coordinates below) to add the next rally opener.'}
         </p>
         {placementError && (
           <p className="text-xs text-ember-500 font-semibold mt-1">
             That spot is inside the castle's territory boundary — pick a spot outside the line.
           </p>
         )}
+      </div>
+
+      <div className="flex rounded-md border border-stone-700 p-1 gap-1">
+        <button
+          type="button"
+          onClick={() => setPlacementMode('rally')}
+          className={`focus-ring flex-1 rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
+            placementMode === 'rally' ? 'bg-cyan-500 text-stone-950' : 'text-parchment-300 hover:bg-stone-800'
+          }`}
+        >
+          Rally Opener
+        </button>
+        <button
+          type="button"
+          onClick={() => setPlacementMode('garrison')}
+          className={`focus-ring flex-1 rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
+            placementMode === 'garrison' ? 'bg-moss-500 text-stone-950' : 'text-parchment-300 hover:bg-stone-800'
+          }`}
+        >
+          Reinforcement
+        </button>
+        <button
+          type="button"
+          onClick={() => setPlacementMode('enemy')}
+          className={`focus-ring flex-1 rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
+            placementMode === 'enemy' ? 'bg-red-600 text-stone-950' : 'text-parchment-300 hover:bg-stone-800'
+          }`}
+        >
+          Mark Enemy Town
+        </button>
       </div>
 
       <div className="flex flex-wrap items-end gap-2">
@@ -260,6 +327,17 @@ export default function IsometricCastleMap({
             onChange={(e) => onChangeMarchSpeedPercent(Math.max(0, Number(e.target.value) || 0))}
             placeholder="0"
             className="focus-ring w-20 rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 placeholder:text-parchment-600 focus:border-gold-600"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-parchment-500">Enemy March Speed (%)</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={enemyMarchSpeedPercent || ''}
+            onChange={(e) => onChangeEnemyMarchSpeedPercent(Math.max(0, Number(e.target.value) || 0))}
+            placeholder="0"
+            className="focus-ring w-20 rounded border border-red-900/60 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 placeholder:text-parchment-600 focus:border-red-600"
           />
         </label>
       </div>
@@ -346,11 +424,42 @@ export default function IsometricCastleMap({
             </g>
           ))}
 
+          {enemyPos && (
+            <g>
+              <polygon
+                points={diamondPoints(enemyPos.x, enemyPos.y, footprintRadius(TOWN_FOOTPRINT_TILES))}
+                className="fill-red-600/30 stroke-red-500"
+                strokeWidth={2}
+              />
+              <text x={enemyPos.x} y={enemyPos.y + 3} textAnchor="middle" className="fill-red-400 text-[8px] font-bold pointer-events-none">
+                Enemy
+              </text>
+              <text
+                x={enemyPos.x}
+                y={enemyPos.y + footprintRadius(TOWN_FOOTPRINT_TILES) + 12}
+                textAnchor="middle"
+                className="fill-red-300 text-[7px] pointer-events-none"
+              >
+                {enemyTown!.x}:{enemyTown!.y}
+              </text>
+            </g>
+          )}
+
           {hoverPos && (
             <g className="pointer-events-none">
               <polygon
                 points={diamondPoints(hoverPos.x, hoverPos.y, footprintRadius(TOWN_FOOTPRINT_TILES))}
-                className={hoverBlocked ? 'fill-ember-500/20 stroke-ember-500' : 'fill-parchment-100/10 stroke-parchment-100/70'}
+                className={
+                  hoverBlocked
+                    ? 'fill-ember-500/20 stroke-ember-500'
+                    : editingPlayerId
+                      ? 'fill-gold-500/15 stroke-gold-400'
+                      : placementMode === 'enemy'
+                        ? 'fill-red-500/15 stroke-red-400'
+                        : placementMode === 'garrison'
+                          ? 'fill-moss-500/15 stroke-moss-400'
+                          : 'fill-cyan-500/15 stroke-cyan-400'
+                }
                 strokeWidth={1.5}
                 strokeDasharray="4 3"
               />
@@ -358,7 +467,17 @@ export default function IsometricCastleMap({
                 x={hoverPos.x}
                 y={hoverPos.y + footprintRadius(TOWN_FOOTPRINT_TILES) + 12}
                 textAnchor="middle"
-                className={`text-[8px] font-semibold ${hoverBlocked ? 'fill-ember-400' : 'fill-parchment-100'}`}
+                className={`text-[8px] font-semibold ${
+                  hoverBlocked
+                    ? 'fill-ember-400'
+                    : editingPlayerId
+                      ? 'fill-gold-300'
+                      : placementMode === 'enemy'
+                        ? 'fill-red-300'
+                        : placementMode === 'garrison'
+                          ? 'fill-moss-300'
+                          : 'fill-cyan-300'
+                }`}
               >
                 {hoverCoord!.x}:{hoverCoord!.y}
                 {hoverBlocked
@@ -373,19 +492,16 @@ export default function IsometricCastleMap({
           {markerPositions.map((m) => {
             const isEditing = m.id === editingPlayerId;
             const r = footprintRadius(TOWN_FOOTPRINT_TILES);
+            const polyClass = isEditing
+              ? 'fill-gold-500/30 stroke-gold-400'
+              : m.role === 'garrison'
+                ? 'fill-moss-500/25 stroke-moss-400'
+                : 'fill-cyan-500/25 stroke-cyan-400';
+            const textClass = isEditing ? 'fill-gold-300' : m.role === 'garrison' ? 'fill-moss-400' : 'fill-cyan-300';
             return (
               <g key={m.id}>
-                <polygon
-                  points={diamondPoints(m.pos.x, m.pos.y, r)}
-                  className={isEditing ? 'fill-moss-500/30 stroke-moss-500' : 'fill-cyan-500/25 stroke-cyan-400'}
-                  strokeWidth={isEditing ? 2.5 : 1.5}
-                />
-                <text
-                  x={m.pos.x}
-                  y={m.pos.y + 3}
-                  textAnchor="middle"
-                  className={`text-[8px] font-bold pointer-events-none ${isEditing ? 'fill-moss-400' : 'fill-cyan-300'}`}
-                >
+                <polygon points={diamondPoints(m.pos.x, m.pos.y, r)} className={polyClass} strokeWidth={isEditing ? 2.5 : 1.5} />
+                <text x={m.pos.x} y={m.pos.y + 3} textAnchor="middle" className={`text-[8px] font-bold pointer-events-none ${textClass}`}>
                   {m.label}
                 </text>
                 <text x={m.pos.x} y={m.pos.y + r + 12} textAnchor="middle" className="fill-parchment-400 text-[7px] pointer-events-none">
@@ -403,9 +519,17 @@ export default function IsometricCastleMap({
         <button
           type="button"
           onClick={handleManualAdd}
-          className="focus-ring rounded-md bg-gold-500 px-3 py-2 text-xs font-semibold text-stone-950 hover:bg-gold-400 transition-colors"
+          className={`focus-ring rounded-md px-3 py-2 text-xs font-semibold text-stone-950 transition-colors ${
+            !editingPlayerId && placementMode === 'enemy' ? 'bg-red-600 hover:bg-red-500' : 'bg-gold-500 hover:bg-gold-400'
+          }`}
         >
-          {editingPlayerId ? 'Set Town' : 'Add Player Here'}
+          {editingPlayerId
+            ? 'Set Town'
+            : placementMode === 'enemy'
+              ? 'Mark Enemy Here'
+              : placementMode === 'garrison'
+                ? 'Add Reinforcement Here'
+                : 'Add Rally Opener Here'}
         </button>
       </div>
     </div>

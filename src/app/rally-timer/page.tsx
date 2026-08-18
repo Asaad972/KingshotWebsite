@@ -6,7 +6,17 @@ import IsometricCastleMap from '@/components/rally/IsometricCastleMap';
 import RallyPlayerRow from '@/components/RallyPlayerRow';
 import RallyTimingPanel from '@/components/RallyTimingPanel';
 import RallyResults from '@/components/RallyResults';
-import { computeRallyPlan, formatUtcHms, formatCountdown, clampRallyOffset, type RallyPlayerInput } from '@/lib/rally';
+import GarrisonPanel from '@/components/GarrisonPanel';
+import {
+  computeRallyPlan,
+  computeGarrisonPlan,
+  formatUtcHms,
+  formatCountdown,
+  clampRallyOffset,
+  type RallyPlayerInput,
+  type RallyPlayerRole,
+} from '@/lib/rally';
+import type { WorldPoint } from '@/lib/isometricMap';
 import { getPetBuffSpeedupPercent } from '@/lib/petBuffs';
 import PasswordGate from '@/components/PasswordGate';
 
@@ -32,17 +42,70 @@ function RallyTimerContent() {
   const [players, setPlayers] = useState<RallyPlayerInput[]>([]);
   const [marchSpeedPercent, setMarchSpeedPercent] = useState(0);
 
+  // Rally openers feed the attack Rally Plan / Copy Results; reinforcements
+  // feed the Garrison Timer -- kept as two views over the same roster so
+  // copying the rally callout doesn't drag reinforcement names along.
+  const rallyPlayers = players.filter((p) => p.role === 'rally');
+  const garrisonPlayers = players.filter((p) => p.role === 'garrison');
+
+  // Garrison Timer: tracks a single incoming enemy town. Marking the town
+  // just records WHERE they are -- the countdown itself only starts once
+  // you confirm their rally has actually opened (a rally needs the same
+  // formation delay as ours before it even starts marching), which is a
+  // separate, explicit action so scouting their town early doesn't
+  // prematurely start a clock that hasn't begun yet.
+  const [enemyTown, setEnemyTown] = useState<WorldPoint | null>(null);
+  const [enemyMarchTimeSeconds, setEnemyMarchTimeSeconds] = useState<number | null>(null);
+  const [enemyMarchSpeedPercent, setEnemyMarchSpeedPercent] = useState(0);
+  const [enemyRallyOpenedAt, setEnemyRallyOpenedAt] = useState<Date | null>(null);
+  const [garrisonBufferSeconds, setGarrisonBufferSeconds] = useState(1);
+
+  const handleSetEnemyTown = (coord: WorldPoint, marchTimeSeconds: number) => {
+    setEnemyTown(coord);
+    setEnemyMarchTimeSeconds(marchTimeSeconds);
+    setEnemyRallyOpenedAt(null);
+  };
+
+  const markEnemyRallyOpened = () => setEnemyRallyOpenedAt(new Date());
+  // Rally-baiting is common -- people cancel and reopen to confuse
+  // defenders -- so canceling just rewinds to "waiting", keeping the
+  // scouted town/march time intact instead of clearing everything.
+  const cancelEnemyRally = () => setEnemyRallyOpenedAt(null);
+
+  const clearEnemy = () => {
+    setEnemyTown(null);
+    setEnemyMarchTimeSeconds(null);
+    setEnemyRallyOpenedAt(null);
+  };
+
+  // Enemy Arrival = when their rally opened + the same rally formation
+  // delay + their march time -- mirrors how our own rallies and
+  // reinforcements are timed.
+  const enemyArrivalTime = useMemo(() => {
+    if (!enemyRallyOpenedAt || enemyMarchTimeSeconds == null) return null;
+    return new Date(enemyRallyOpenedAt.getTime() + formationMinutes * 60 * 1000 + enemyMarchTimeSeconds * 1000);
+  }, [enemyRallyOpenedAt, enemyMarchTimeSeconds, formationMinutes]);
+
+  const garrisonPlan = useMemo(() => {
+    if (!enemyArrivalTime) return null;
+    return computeGarrisonPlan({
+      enemyArrivalTime,
+      bufferSeconds: garrisonBufferSeconds,
+      players: garrisonPlayers,
+    });
+  }, [enemyArrivalTime, garrisonBufferSeconds, garrisonPlayers]);
+
   // The player with the longest (buffed) march time is the one who has to
   // open earliest -- the target needs enough runway ahead of "now" for that
   // player's open time to still be in the future, or every player's Open
   // Rally time would land in the past the instant the target is set.
   const maxEffectiveMarchSeconds = useMemo(() => {
-    return players.reduce((max, p) => {
+    return rallyPlayers.reduce((max, p) => {
       if (p.marchTimeSeconds == null) return max;
       const speedup = getPetBuffSpeedupPercent(p.petBuffLevel);
       return Math.max(max, p.marchTimeSeconds * (1 - speedup / 100));
     }, 0);
-  }, [players]);
+  }, [rallyPlayers]);
 
   // Target Arrival = the moment this was captured + Preparation Delay + Rally
   // Formation Time + the longest march time among current players. It's a
@@ -87,11 +150,11 @@ function RallyTimerContent() {
     );
   };
 
-  const addBlankPlayer = () => {
+  const addBlankPlayer = (role: RallyPlayerRole) => {
     const id = makeId();
     setPlayers((prev) => [
       ...prev,
-      { id, name: '', townCoord: null, marchTimeSeconds: null, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
+      { id, name: '', role, townCoord: null, marchTimeSeconds: null, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
     ]);
     setEditingPlayerId(id);
     mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -102,13 +165,21 @@ function RallyTimerContent() {
     setEditingPlayerId((cur) => (cur === id ? null : cur));
   };
 
+  // Swaps with the nearest neighbor of the SAME role, not just the nearest
+  // array neighbor -- rally openers and reinforcements are interleaved in
+  // the underlying array, so a plain index swap could reorder across groups.
   const movePlayer = (id: string, direction: -1 | 1) => {
     setPlayers((prev) => {
-      const index = prev.findIndex((p) => p.id === id);
-      const swapWith = index + direction;
-      if (swapWith < 0 || swapWith >= prev.length) return prev;
+      const role = prev.find((p) => p.id === id)?.role;
+      if (!role) return prev;
+      const sameRoleIndices = prev.map((p, i) => (p.role === role ? i : -1)).filter((i) => i !== -1);
+      const posInGroup = sameRoleIndices.indexOf(prev.findIndex((p) => p.id === id));
+      const swapPos = posInGroup + direction;
+      if (swapPos < 0 || swapPos >= sameRoleIndices.length) return prev;
+      const iA = sameRoleIndices[posInGroup];
+      const iB = sameRoleIndices[swapPos];
       const next = [...prev];
-      [next[index], next[swapWith]] = [next[swapWith], next[index]];
+      [next[iA], next[iB]] = [next[iB], next[iA]];
       return next;
     });
   };
@@ -126,10 +197,10 @@ function RallyTimerContent() {
     setEditingPlayerId(null);
   };
 
-  const handleAddPlayerAtTown = (coord: { x: number; y: number }, marchTimeSeconds: number) => {
+  const handleAddPlayerAtTown = (coord: { x: number; y: number }, marchTimeSeconds: number, role: RallyPlayerRole) => {
     setPlayers((prev) => [
       ...prev,
-      { id: makeId(), name: '', townCoord: coord, marchTimeSeconds, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
+      { id: makeId(), name: '', role, townCoord: coord, marchTimeSeconds, offsetSeconds: 0, petBuffLevel: null, islandLevel: null },
     ]);
   };
 
@@ -141,9 +212,9 @@ function RallyTimerContent() {
       targetArrival,
       formationSeconds: formationMinutes * 60,
       preparationSeconds: prepMinutes * 60 + prepSeconds,
-      players,
+      players: rallyPlayers,
     });
-  }, [targetArrival, formationMinutes, prepMinutes, prepSeconds, players]);
+  }, [targetArrival, formationMinutes, prepMinutes, prepSeconds, rallyPlayers]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-5 pb-8" dir="ltr">
@@ -205,10 +276,10 @@ function RallyTimerContent() {
                 Set to Now + Delay
               </button>
             </div>
-            {players.length > 0 && (
+            {rallyPlayers.length > 0 && (
               <p className="text-[11px] text-parchment-500 -mt-2">
                 Longest march right now: <span className="font-mono text-parchment-300">{formatCountdown(maxEffectiveMarchSeconds)}</span> — re-press
-                the button above after adding players or changing march times so the target stays ahead of them.
+                the button above after adding rally openers or changing march times so the target stays ahead of them.
               </p>
             )}
           </div>
@@ -217,7 +288,9 @@ function RallyTimerContent() {
             {editingPlayer && (
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs text-moss-500 font-semibold">
-                  Editing {editingPlayer.name.trim() || `player #${players.findIndex((p) => p.id === editingPlayer.id) + 1}`}
+                  Editing {editingPlayer.role === 'garrison' ? 'reinforcement' : 'rally opener'}{' '}
+                  {editingPlayer.name.trim() ||
+                    `#${(editingPlayer.role === 'garrison' ? garrisonPlayers : rallyPlayers).findIndex((p) => p.id === editingPlayer.id) + 1}`}
                 </p>
                 <button
                   type="button"
@@ -235,30 +308,34 @@ function RallyTimerContent() {
               onChangeMarchSpeedPercent={setMarchSpeedPercent}
               onSetPlayerTown={handleSetPlayerTown}
               onAddPlayerAtTown={handleAddPlayerAtTown}
+              enemyTown={enemyTown}
+              enemyMarchSpeedPercent={enemyMarchSpeedPercent}
+              onChangeEnemyMarchSpeedPercent={setEnemyMarchSpeedPercent}
+              onSetEnemyTown={handleSetEnemyTown}
             />
           </div>
 
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-parchment-100">Players — hit order</h2>
+              <h2 className="text-sm font-semibold text-cyan-300">Rally Openers — hit order</h2>
               <button
                 type="button"
-                onClick={addBlankPlayer}
-                className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-gold-300 hover:border-gold-600 transition-colors"
+                onClick={() => addBlankPlayer('rally')}
+                className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:border-cyan-500 transition-colors"
               >
-                + Add Player
+                + Add Rally Opener
               </button>
             </div>
 
-            {players.length === 0 ? (
-              <p className="text-sm text-parchment-500 py-6 text-center">Tap the map above to add your first player.</p>
+            {rallyPlayers.length === 0 ? (
+              <p className="text-sm text-parchment-500 py-6 text-center">Tap the map above to add your first rally opener.</p>
             ) : (
-              players.map((player, i) => (
+              rallyPlayers.map((player, i) => (
                 <RallyPlayerRow
                   key={player.id}
                   player={player}
                   index={i}
-                  isLast={i === players.length - 1}
+                  isLast={i === rallyPlayers.length - 1}
                   isEditingTown={editingPlayerId === player.id}
                   onChangeName={(name) => updatePlayer(player.id, { name })}
                   onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}
@@ -274,13 +351,67 @@ function RallyTimerContent() {
           </div>
 
           <RallyTimingPanel
-            players={players}
+            players={rallyPlayers}
             onChangeOffset={(id, seconds) => updatePlayer(id, { offsetSeconds: seconds })}
             onStepOffset={stepOffset}
           />
+
+          {enemyTown && now && (
+            <GarrisonPanel
+              enemyTown={enemyTown}
+              enemyMarchTimeSeconds={enemyMarchTimeSeconds}
+              hasRallyOpened={enemyRallyOpenedAt !== null}
+              plan={garrisonPlan}
+              now={now}
+              bufferSeconds={garrisonBufferSeconds}
+              onChangeBufferSeconds={setGarrisonBufferSeconds}
+              onMarkRallyOpened={markEnemyRallyOpened}
+              onCancelRally={cancelEnemyRally}
+              onClearEnemy={clearEnemy}
+            />
+          )}
+
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-moss-500">Reinforcements</h2>
+              <button
+                type="button"
+                onClick={() => addBlankPlayer('garrison')}
+                className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs font-semibold text-moss-500 hover:border-moss-500 transition-colors"
+              >
+                + Add Reinforcement
+              </button>
+            </div>
+
+            {garrisonPlayers.length === 0 ? (
+              <p className="text-sm text-parchment-500 py-6 text-center">
+                Tap the map above (Reinforcement mode) to add someone who'll garrison, not rally.
+              </p>
+            ) : (
+              garrisonPlayers.map((player, i) => (
+                <RallyPlayerRow
+                  key={player.id}
+                  player={player}
+                  index={i}
+                  isLast={i === garrisonPlayers.length - 1}
+                  isEditingTown={editingPlayerId === player.id}
+                  onChangeName={(name) => updatePlayer(player.id, { name })}
+                  onChangePetBuffLevel={(level) => updatePlayer(player.id, { petBuffLevel: level })}
+                  onChangeIslandLevel={(level) => updatePlayer(player.id, { islandLevel: level })}
+                  onChangeMarchTime={(seconds) => updatePlayer(player.id, { marchTimeSeconds: seconds })}
+                  onRequestTownChange={() => requestTownChange(player.id)}
+                  onMoveUp={() => movePlayer(player.id, -1)}
+                  onMoveDown={() => movePlayer(player.id, 1)}
+                  onRemove={() => removePlayer(player.id)}
+                />
+              ))
+            )}
+          </div>
         </div>
 
-        <div className="order-2 lg:order-none">{plan && now && <RallyResults plan={plan} now={now} />}</div>
+        <div className="order-2 lg:order-none flex flex-col gap-5">
+          {plan && now && <RallyResults plan={plan} now={now} />}
+        </div>
       </div>
     </div>
   );

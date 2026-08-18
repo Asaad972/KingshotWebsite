@@ -17,7 +17,11 @@ export function project(point: WorldPoint, origin: WorldPoint, tileSize: number)
   const dy = point.y - origin.y;
   return {
     x: (dx - dy) * (tileSize / 2),
-    y: (dx + dy) * (tileSize / 2),
+    // Negated -- confirmed against a real in-game screenshot that the
+    // South Turret (both x and y below the castle's) renders BELOW the
+    // castle on screen, not above, so decreasing world x+y must move
+    // screenY positive (down), the opposite of the untouched dx+dy sign.
+    y: -(dx + dy) * (tileSize / 2),
   };
 }
 
@@ -26,13 +30,13 @@ export function project(point: WorldPoint, origin: WorldPoint, tileSize: number)
  * map click into real coordinates. */
 export function unproject(point: ScreenPoint, origin: WorldPoint, tileSize: number): WorldPoint {
   const k = tileSize / 2;
-  const dx = (point.x + point.y) / (2 * k);
-  const dy = (point.y - point.x) / (2 * k);
+  const dx = (point.x - point.y) / (2 * k);
+  const dy = -(point.x + point.y) / (2 * k);
   return { x: origin.x + dx, y: origin.y + dy };
 }
 
-/** Confirmed real turret coordinates (castle 599,599; N Turret 604,604;
- * E Turret 604,594; S Turret 594,594; W Turret 594,604). */
+/** Confirmed real turret coordinates -- castle 599,599; S Turret 594,594;
+ * W Turret 594,604; E Turret 604,594; N Turret 604,604. */
 export const TURRET_OFFSET = 5;
 
 // Perimeter order (N -> E -> S -> W), not just a list -- callers connect
