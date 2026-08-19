@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { groupByDepth, type ResearchPlan } from '@/lib/researchCalc';
+import { groupByDepth, formatCompact, type ResearchPlan } from '@/lib/researchCalc';
 import type { ResearchTech } from '@/lib/researchTypes';
 import type { TreeDef } from '@/lib/researchTrees';
 import { TechIconImage } from './ResearchIcons';
@@ -27,29 +27,33 @@ import { TechIconImage } from './ResearchIcons';
 // sizing kicks in.
 const SIZES = {
   compact: {
-    node: 60,
-    rowH: 160,
-    colGap: 90,
-    paddingTop: 24,
-    paddingX: 140,
-    nodeIcon: 'h-6 w-6',
+    node: 84,
+    rowH: 190,
+    colGap: 108,
+    paddingTop: 28,
+    paddingX: 170,
+    nodeIcon: 'h-5 w-5',
+    statLevel: 'text-[11px]',
+    statEffect: 'text-[9px]',
     pillText: 'text-xs px-3 py-1',
     nameText: 'text-[10px]',
     // Distance from a node's own center down to just past its pill + name
     // label -- edges start here (not at the node's edge) so the connector
     // line runs through empty space instead of drawing over the label.
-    labelClearance: 106,
+    labelClearance: 130,
   },
   roomy: {
-    node: 104,
-    rowH: 220,
-    colGap: 170,
-    paddingTop: 32,
-    paddingX: 260,
-    nodeIcon: 'h-9 w-9',
+    node: 160,
+    rowH: 280,
+    colGap: 210,
+    paddingTop: 40,
+    paddingX: 320,
+    nodeIcon: 'h-8 w-8',
+    statLevel: 'text-lg',
+    statEffect: 'text-xs',
     pillText: 'text-sm px-3.5 py-1.5',
-    nameText: 'text-xs',
-    labelClearance: 138,
+    nameText: 'text-sm',
+    labelClearance: 194,
   },
 };
 const COMPACT_BREAKPOINT = 640;
@@ -86,6 +90,8 @@ export default function ResearchTreeFlow({
     paddingTop: PADDING_TOP,
     paddingX: PADDING_X,
     nodeIcon,
+    statLevel,
+    statEffect,
     pillText,
     nameText,
     labelClearance: LABEL_CLEARANCE,
@@ -103,7 +109,7 @@ export default function ResearchTreeFlow({
   const canvasHeight = PADDING_TOP + rows.length * ROW_H + NODE;
   // Kept a hair narrower than colGap so adjacent columns' label text never
   // touches, even before accounting for the gap between them.
-  const nodeColWidth = compact ? 86 : 162;
+  const nodeColWidth = compact ? 110 : 210;
 
   const posById = new Map<string, { x: number; y: number }>();
   rows.forEach((row, rowIndex) => {
@@ -161,6 +167,12 @@ export default function ResearchTreeFlow({
           const hasGoal = state.target > state.current;
           const ringPct = Math.min(100, (state.current / tech.maxLevel) * 100);
           const ringColor = maxed ? '#eab308' : hasGoal ? '#22d3ee' : unlocked ? '#a7b3c4' : '#3f4a5e';
+          const curLevelData = state.current > 0 ? tech.levels[state.current - 1] : null;
+          const effectText = curLevelData
+            ? curLevelData.effectIsPercent
+              ? `+${curLevelData.effectValue.toFixed(2)}%`
+              : `+${formatCompact(curLevelData.effectValue)}`
+            : null;
 
           return (
             <div
@@ -180,10 +192,9 @@ export default function ResearchTreeFlow({
                     strokeWidth="7"
                     strokeLinecap="round"
                     pathLength={100}
-                    strokeDasharray={100}
-                    strokeDashoffset={100 - ringPct}
+                    strokeDasharray={`${ringPct} ${100 - ringPct}`}
                     opacity={unlocked ? 0.95 : 0.5}
-                    style={{ transition: 'stroke-dashoffset 0.5s ease, stroke 0.35s ease' }}
+                    style={{ transition: 'stroke-dasharray 0.5s ease, stroke 0.35s ease' }}
                   />
                 </svg>
                 <button
@@ -202,9 +213,20 @@ export default function ResearchTreeFlow({
                   }`}
                   style={{ width: NODE - 16, height: NODE - 16 }}
                 >
-                  <span className={`${nodeIcon} ${!unlocked ? 'opacity-60' : ''}`}>
-                    <TechIconImage src={catIcon.src} alt={catIcon.alt} />
-                  </span>
+                  {curLevelData ? (
+                    <span className="flex flex-col items-center leading-none gap-1">
+                      <span className={`font-bold tabular-nums ${statLevel} ${maxed ? 'text-gold-300' : 'text-parchment-100'}`}>
+                        {state.current}/{tech.maxLevel}
+                      </span>
+                      <span className={`font-semibold tabular-nums ${statEffect} ${maxed ? 'text-gold-500' : 'text-cyan-300'}`}>
+                        {effectText}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className={`${nodeIcon} ${!unlocked ? 'opacity-60' : ''}`}>
+                      <TechIconImage src={catIcon.src} alt={catIcon.alt} />
+                    </span>
+                  )}
                 </button>
               </div>
 
