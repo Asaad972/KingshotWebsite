@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
   buildPlan,
   costForBuildingRange,
@@ -11,6 +11,7 @@ import {
 } from '@/lib/buildingPlanner';
 import { BUILDINGS, DEPENDENCY_BUILDING_IDS } from '@/lib/buildings';
 import { constructionSpeedMultiplier, defaultConstructionSpeedBuffs, type ConstructionSpeedBuffs } from '@/lib/constructionBuffs';
+import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import RequiredPathView from './RequiredPathView';
 import OptionalUpgradesList from './OptionalUpgradesList';
 import PlanTotalsSidebar from './PlanTotalsSidebar';
@@ -18,23 +19,46 @@ import ConstructionSpeedBuffsCard from './ConstructionSpeedBuffsCard';
 
 const TC_LEVELS = selectableTownCenterLevels();
 
+interface PlannerState {
+  currentTC: string;
+  targetTC: string;
+  currentLevels: Record<string, string | null>;
+  levelsTouched: boolean;
+  revealed: boolean;
+  optionalAdds: Record<string, string | null>;
+  speedBuffs: ConstructionSpeedBuffs;
+}
+
+function defaultPlannerState(): PlannerState {
+  return {
+    currentTC: '10',
+    targetTC: '20',
+    currentLevels: defaultOtherLevels('10'),
+    levelsTouched: false,
+    revealed: false,
+    optionalAdds: {},
+    speedBuffs: defaultConstructionSpeedBuffs(),
+  };
+}
+
+/** Everything the user picks here is saved automatically, same as the
+ * Gear/Charm/Hero Gear calculators -- otherwise a refresh throws away a
+ * plan that can take a while to set up (multiple building levels, buffs,
+ * optional adds). */
 export default function BuildingPlannerSection() {
-  const [currentTC, setCurrentTC] = useState('10');
-  const [targetTC, setTargetTC] = useState('20');
-  const [currentLevels, setCurrentLevels] = useState<Record<string, string | null>>(() => defaultOtherLevels('10'));
-  const [levelsTouched, setLevelsTouched] = useState(false);
-  const [revealed, setRevealed] = useState(false);
-  const [optionalAdds, setOptionalAdds] = useState<Record<string, string | null>>({});
-  const [speedBuffs, setSpeedBuffs] = useState<ConstructionSpeedBuffs>(defaultConstructionSpeedBuffs());
+  const [state, setState] = useLocalStorageState<PlannerState>('buildingPlanner:state', defaultPlannerState());
+  const { currentTC, targetTC, currentLevels, levelsTouched, revealed, optionalAdds, speedBuffs } = state;
 
   const handleCurrentTCChange = (value: string) => {
-    setCurrentTC(value);
-    if (!levelsTouched) setCurrentLevels(defaultOtherLevels(value));
+    setState((prev) => ({
+      ...prev,
+      currentTC: value,
+      currentLevels: prev.levelsTouched ? prev.currentLevels : defaultOtherLevels(value),
+    }));
   };
 
   const handleLevelEdit = (buildingId: string, level: string) => {
-    setLevelsTouched(true);
-    setCurrentLevels((prev) => ({ ...prev, [buildingId]: level }));
+    setState((prev) => ({ ...prev, levelsTouched: true, currentLevels: { ...prev.currentLevels, [buildingId]: level } }));
   };
 
   const plan = useMemo(() => {
@@ -100,7 +124,7 @@ export default function BuildingPlannerSection() {
             <span className="text-sm text-parchment-300 mb-1 block">Target Town Center</span>
             <select
               value={targetTC}
-              onChange={(e) => setTargetTC(e.target.value)}
+              onChange={(e) => setState((prev) => ({ ...prev, targetTC: e.target.value }))}
               className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-parchment-100 focus:border-gold-600"
             >
               {TC_LEVELS.map((l) => (
@@ -144,7 +168,7 @@ export default function BuildingPlannerSection() {
         <button
           type="button"
           disabled={!canShow}
-          onClick={() => setRevealed(true)}
+          onClick={() => setState((prev) => ({ ...prev, revealed: true }))}
           className="focus-ring rounded-md bg-gold-500 py-2.5 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors disabled:opacity-50"
         >
           Show Upgrade Plan
@@ -156,7 +180,7 @@ export default function BuildingPlannerSection() {
           <div className="flex flex-col gap-6 min-w-0">
             <div>
               <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">Construction Speed</h2>
-              <ConstructionSpeedBuffsCard buffs={speedBuffs} onChange={setSpeedBuffs} />
+              <ConstructionSpeedBuffsCard buffs={speedBuffs} onChange={(next) => setState((prev) => ({ ...prev, speedBuffs: next }))} />
             </div>
 
             <div>
@@ -168,8 +192,8 @@ export default function BuildingPlannerSection() {
               optionalIds={plan.optionalIds}
               currentLevels={currentLevels}
               addedTargets={optionalAdds}
-              onAdd={(id, target) => setOptionalAdds((prev) => ({ ...prev, [id]: target }))}
-              onRemove={(id) => setOptionalAdds((prev) => ({ ...prev, [id]: null }))}
+              onAdd={(id, target) => setState((prev) => ({ ...prev, optionalAdds: { ...prev.optionalAdds, [id]: target } }))}
+              onRemove={(id) => setState((prev) => ({ ...prev, optionalAdds: { ...prev.optionalAdds, [id]: null } }))}
             />
           </div>
 
