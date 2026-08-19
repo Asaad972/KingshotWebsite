@@ -70,15 +70,6 @@ function ArrowIcon() {
   );
 }
 
-function ShieldIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" strokeLinejoin="round" />
-      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function TroopIcon() {
   return (
     <svg {...ICON_PROPS} className="h-5 w-5">
@@ -93,26 +84,6 @@ function CrownIcon() {
     <svg {...ICON_PROPS} className="h-5 w-5">
       <path d="M4 18h16l-1.5-9-4 4-2.5-6-2.5 6-4-4L4 18Z" strokeLinejoin="round" strokeLinecap="round" />
       <path d="M4 18h16" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function BuildingPlannerIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <path d="M5 21V9l7-5 7 5v12" strokeLinejoin="round" strokeLinecap="round" />
-      <path d="M9 21v-6h6v6M9 12h.01M15 12h.01M12 8h.01" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PawIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <circle cx="7" cy="8.5" r="1.8" />
-      <circle cx="12" cy="6.5" r="1.8" />
-      <circle cx="17" cy="8.5" r="1.8" />
-      <path d="M12 12c-3 0-5.5 2-5.5 4.5S8.5 20 12 20s5.5-1 5.5-3.5S15 12 12 12Z" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -168,7 +139,14 @@ export default function QuickLinksGrid({
     { href: '/schedule', title: scheduleTitle, subtitle: scheduleSubtitle, tone: 'cyan', icon: <ListIcon /> },
     { href: '/rally-timer', title: rallyTimerTitle, subtitle: rallyTimerSubtitle, tone: 'gold', icon: <ClockIcon /> },
     { href: '/gift-codes', title: giftCodesTitle, subtitle: giftCodesSubtitle, tone: 'cyan', icon: <GiftIcon /> },
-    { href: '/gear-calculator', title: gearCalculatorTitle, subtitle: gearCalculatorSubtitle, tone: 'gold', icon: <ShieldIcon /> },
+    {
+      href: '/gear-calculator',
+      title: gearCalculatorTitle,
+      subtitle: gearCalculatorSubtitle,
+      tone: 'gold',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/gear/materials/satin.jpg" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
     {
       href: '/charm-calculator',
       title: charmCalculatorTitle,
@@ -199,14 +177,16 @@ export default function QuickLinksGrid({
       title: 'Building Upgrade Planner',
       subtitle: 'Pick a Town Center target, see the full upgrade path',
       tone: 'cyan',
-      icon: <BuildingPlannerIcon />,
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/buildings/town-center-kingshot.png" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
     {
       href: '/pet-calculator',
       title: 'Pet Upgrade Calculator',
       subtitle: 'Pick a pet and a target level, see everything you need',
       tone: 'gold',
-      icon: <PawIcon />,
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/pets/grizzly-bear.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
     {
       href: '/master-calculator',

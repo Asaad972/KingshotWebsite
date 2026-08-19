@@ -107,6 +107,7 @@ export default function HomeGuide() {
       href: '/research-tree',
       linkLabel: t('home.researchTreeNav'),
       tone: 'cyan',
+      image: '/research/growth/command-tactics.png',
     },
     {
       id: 'buildingplanner',
@@ -133,6 +134,7 @@ export default function HomeGuide() {
       href: '/master-calculator',
       linkLabel: 'Plan a Master upgrade',
       tone: 'cyan',
+      image: '/masters/valora.webp',
     },
   ];
 
