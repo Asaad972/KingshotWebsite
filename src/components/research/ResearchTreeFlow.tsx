@@ -110,7 +110,6 @@ function NodeStepper({
       >
         {value}
       </span>
-      <span className="text-[9px] font-semibold uppercase text-parchment-500">{label.slice(0, 3)}</span>
       <button type="button" onClick={onDec} disabled={decDisabled} className={btnClass} aria-label={`Decrease ${label}`}>
         −
       </button>
