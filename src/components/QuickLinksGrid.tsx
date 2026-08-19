@@ -79,41 +79,11 @@ function ShieldIcon() {
   );
 }
 
-function GemIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <path d="M5 9l3-5h8l3 5-7 11-7-11Z" strokeLinejoin="round" />
-      <path d="M5 9h14M9.5 4 8 9l4 11 4-11-1.5-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function SwordIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <path d="M6 18 17 7" strokeLinecap="round" />
-      <path d="M14 4l6 6-2.5 2.5-6-6L14 4Z" strokeLinejoin="round" />
-      <path d="M4 20l2-4 2 2-4 2Z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function TroopIcon() {
   return (
     <svg {...ICON_PROPS} className="h-5 w-5">
       <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z" strokeLinejoin="round" />
       <path d="M9 12.5l2 2 4-4.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ResearchTreeIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <circle cx="12" cy="4.5" r="2" />
-      <circle cx="6" cy="19.5" r="2" />
-      <circle cx="18" cy="19.5" r="2" />
-      <path d="M12 6.5v5M12 11.5 6 17.5M12 11.5l6 6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -199,10 +169,31 @@ export default function QuickLinksGrid({
     { href: '/rally-timer', title: rallyTimerTitle, subtitle: rallyTimerSubtitle, tone: 'gold', icon: <ClockIcon /> },
     { href: '/gift-codes', title: giftCodesTitle, subtitle: giftCodesSubtitle, tone: 'cyan', icon: <GiftIcon /> },
     { href: '/gear-calculator', title: gearCalculatorTitle, subtitle: gearCalculatorSubtitle, tone: 'gold', icon: <ShieldIcon /> },
-    { href: '/charm-calculator', title: charmCalculatorTitle, subtitle: charmCalculatorSubtitle, tone: 'cyan', icon: <GemIcon /> },
-    { href: '/hero-gear-calculator', title: heroGearCalculatorTitle, subtitle: heroGearCalculatorSubtitle, tone: 'gold', icon: <SwordIcon /> },
+    {
+      href: '/charm-calculator',
+      title: charmCalculatorTitle,
+      subtitle: charmCalculatorSubtitle,
+      tone: 'cyan',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/charm/materials/design.png" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
+    {
+      href: '/hero-gear-calculator',
+      title: heroGearCalculatorTitle,
+      subtitle: heroGearCalculatorSubtitle,
+      tone: 'gold',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/heroGear/pieces/helm.png" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
     { href: '/troop-calculator', title: troopCalculatorTitle, subtitle: troopCalculatorSubtitle, tone: 'cyan', icon: <TroopIcon /> },
-    { href: '/research-tree', title: researchTreeTitle, subtitle: researchTreeSubtitle, tone: 'gold', icon: <ResearchTreeIcon /> },
+    {
+      href: '/research-tree',
+      title: researchTreeTitle,
+      subtitle: researchTreeSubtitle,
+      tone: 'gold',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/research/growth/command-tactics.png" alt="" className="h-9 w-9 object-contain" />,
+    },
     {
       href: '/building-planner',
       title: 'Building Upgrade Planner',
