@@ -6,6 +6,7 @@ import { I18nProvider } from '@/lib/i18n';
 import LocaleGate from '@/components/LocaleGate';
 import SiteHeader from '@/components/SiteHeader';
 import MobileNavigation from '@/components/MobileNavigation';
+import StarfieldBackground from '@/components/StarfieldBackground';
 
 const display = Rajdhani({
   subsets: ['latin'],
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="font-body antialiased">
+        <StarfieldBackground />
         <I18nProvider>
           <LocaleGate>
             <SiteHeader />
