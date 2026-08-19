@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ARMOR_MAX_LEVEL, MASTERY_MAX_LEVEL, ARMOR_THRESHOLD_VARIANT, type ArmorSlotId } from '@/lib/heroGearData';
+import { ARMOR_MAX_LEVEL, MASTERY_MAX_LEVEL, ARMOR_THRESHOLD_VARIANT, type ArmorSlotId, type TroopType } from '@/lib/heroGearData';
 import type { ArmorSelection } from '@/lib/heroGearCalc';
 import LevelSlider from './LevelSlider';
 import ThresholdBadgeList from './ThresholdBadgeList';
@@ -12,15 +12,21 @@ export default function ArmorSlotCard({
   slotId,
   label,
   icon,
+  troop,
   selection,
   onChange,
 }: {
   slotId: ArmorSlotId;
   label: string;
   icon: string;
+  troop: TroopType;
   selection: ArmorSelection;
   onChange: (slotId: ArmorSlotId, next: ArmorSelection) => void;
 }) {
+  // The real Mythic Gear art for this exact piece + troop type -- shown
+  // next to "Level" since that's the upgrade path Mythic Gear pieces feed
+  // into (see armorLevelCost in heroGearData.ts).
+  const mythicIcon = `/heroGear/mythic/${troop}-${slotId}.png`;
   const { currentLevel, targetLevel, currentMastery, targetMastery } = selection;
   // Past level 100 the piece is Red tier in-game instead of Gold -- we don't
   // have real red photos, so tint the gold ones toward red with a filter.
@@ -65,7 +71,7 @@ export default function ArmorSlotCard({
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
-          <Image src="/heroGear/materials/xp.webp" alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
+          <Image src={mythicIcon} alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
           <p className="text-[10px] font-medium text-parchment-400">Level (0-{ARMOR_MAX_LEVEL})</p>
         </div>
         <LevelSlider

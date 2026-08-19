@@ -5,8 +5,17 @@ import type { HeroGearMaterials } from '@/lib/heroGearCalc';
 
 const OTHER_MATERIALS: { id: keyof HeroGearMaterials; label: string; icon: string }[] = [
   { id: 'mithril', label: 'Mithril', icon: '/heroGear/materials/mithril.png' },
-  { id: 'mythicGears', label: 'Mythic Gears', icon: '/heroGear/pieces/chestplate.png' },
   { id: 'forgehammers', label: 'Forgehammers', icon: '/heroGear/materials/forgehammers.png' },
+];
+
+// Mythic Gear pieces are troop-specific in-game (Infantry/Cavalry/Archers
+// each have their own set), even though this panel tracks one combined
+// count -- shown as all three real icons together instead of one generic
+// placeholder, so it reads as "this comes in 3 flavors" at a glance.
+const MYTHIC_GEAR_ICONS = [
+  { troop: 'Infantry', icon: '/heroGear/mythic/infantry-chestplate.png' },
+  { troop: 'Cavalry', icon: '/heroGear/mythic/cavalry-chestplate.png' },
+  { troop: 'Archers', icon: '/heroGear/mythic/archers-chestplate.png' },
 ];
 
 // KvK event: spending these materials on upgrades also earns event points.
@@ -102,6 +111,64 @@ export default function HeroGearMaterialsPanel({
               : `Need ${xpNeeded.toLocaleString()} more`}
           </div>
         </div>
+
+        {(() => {
+          const req = required.mythicGears;
+          const own = owned.mythicGears ?? 0;
+          const needed = Math.max(0, req - own);
+          const extra = Math.max(0, own - req);
+          const ready = needed === 0;
+          return (
+            <div className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-2.5">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2 shrink-0">
+                  {MYTHIC_GEAR_ICONS.map((g) => (
+                    <Image
+                      key={g.troop}
+                      src={g.icon}
+                      alt={`Mythic Gear (${g.troop})`}
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-lg object-cover ring-2 ring-stone-800"
+                    />
+                  ))}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-parchment-100 truncate">Mythic Gears</p>
+                  <p className="text-xs text-parchment-400">
+                    Need <span className="text-gold-300 font-bold text-sm tabular-nums">{req.toLocaleString()}</span> total{' '}
+                    <span className="text-parchment-600">(Infantry + Cavalry + Archers)</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-parchment-400 shrink-0" htmlFor="owned-mythicGears">
+                  I have:
+                </label>
+                <input
+                  id="owned-mythicGears"
+                  type="number"
+                  min={0}
+                  value={own || ''}
+                  onChange={(e) => onChangeOwned('mythicGears', Math.max(0, Number(e.target.value) || 0))}
+                  placeholder="0"
+                  className="focus-ring flex-1 min-w-0 rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 tabular-nums placeholder:text-parchment-600 focus:border-gold-600"
+                />
+              </div>
+              <div
+                className={`rounded px-2.5 py-2 text-sm font-semibold text-center ${
+                  ready ? 'bg-moss-500/15 text-moss-500' : 'bg-ember-500/15 text-ember-500'
+                }`}
+              >
+                {ready
+                  ? extra > 0
+                    ? `You're ready ✓ (+${extra.toLocaleString()} extra)`
+                    : "You're ready ✓"
+                  : `Need ${needed.toLocaleString()} more`}
+              </div>
+            </div>
+          );
+        })()}
 
         {OTHER_MATERIALS.map((m) => {
           const req = required[m.id];
