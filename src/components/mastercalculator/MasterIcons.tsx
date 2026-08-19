@@ -1,6 +1,6 @@
-/** Real in-game icons (user-provided) for Master Emblems, Manuscripts,
- * Affinity, and Power now live in public/masters/ -- LearningXP, Research,
- * and Skill/Talent placeholders stay custom SVGs until real art for those
+/** Real in-game icons (user-provided) for Master Emblems, Manuscripts, and
+ * Power now live in public/masters/ -- Affinity, LearningXP, Research, and
+ * Skill/Talent placeholders stay custom SVGs until real art for those
  * arrives, same "swap out once provided" pattern used for Pet Food/Growth
  * Manual before real pet icons arrived. */
 
@@ -18,7 +18,15 @@ export function ManuscriptIcon() {
 }
 
 export function AffinityIcon() {
-  return <MasterImageIcon src="/masters/affinity.webp" alt="Affinity" />;
+  return (
+    <svg viewBox="0 0 24 24" className="h-full w-full">
+      <path
+        d="M12 20.5s-7.5-4.6-7.5-10.2C4.5 6.9 6.9 4.5 9.7 4.5c1.6 0 3.1.8 4.3 2.1 1.2-1.3 2.7-2.1 4.3-2.1 2.8 0 5.2 2.4 5.2 5.8 0 5.6-7.5 10.2-7.5 10.2Z"
+        fill="currentColor"
+        className="text-ember-500"
+      />
+    </svg>
+  );
 }
 
 export function PowerIcon() {

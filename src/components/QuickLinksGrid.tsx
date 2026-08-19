@@ -175,7 +175,7 @@ export default function QuickLinksGrid({
       subtitle: charmCalculatorSubtitle,
       tone: 'cyan',
       // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
-      icon: <img src="/charm/materials/design.png" alt="" className="h-full w-full rounded-xl object-cover" />,
+      icon: <img src="/charm/charm.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
     {
       href: '/hero-gear-calculator',
