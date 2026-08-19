@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { project, unproject, niceGridStep, TURRETS, TURRET_OFFSET, type WorldPoint } from '@/lib/isometricMap';
 import { distanceTiles, estimateMarchTimeSeconds, type MarchZone } from '@/lib/rallyMarch';
 import type { RallyPlayerInput, RallyPlayerRole } from '@/lib/rally';
@@ -119,6 +119,11 @@ export default function IsometricCastleMap({
     scaleY: number;
     moved: boolean;
   } | null>(null);
+  // Active touch points by pointerId, for pinch-to-zoom -- a second finger
+  // touching down switches from pan (dragRef) to pinch entirely, since
+  // trying to do both from the same gesture fights the math.
+  const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
 
   const ZOOM_MIN = 0.6;
   const ZOOM_MAX = 1.8;
@@ -128,6 +133,22 @@ export default function IsometricCastleMap({
     setZoom(1);
     setPanOffset({ x: 0, y: 0 });
   };
+
+  // Native (non-passive) wheel listener -- React's synthetic onWheel is
+  // passive by default, so e.preventDefault() there silently fails to stop
+  // the page itself from scrolling while the cursor is over the map.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.92 : 1 / 0.92;
+      setZoom((z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * factor * 100) / 100)));
+    };
+    svg.addEventListener('wheel', onWheel, { passive: false });
+    return () => svg.removeEventListener('wheel', onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const applyCastle = () => {
     const x = Number(castleInput.x);
@@ -216,10 +237,25 @@ export default function IsometricCastleMap({
   // undoes) a town, same as the old plain click did.
   const DRAG_THRESHOLD_PX = 4;
 
+  const pinchDistance = (): number => {
+    const pts = Array.from(activePointers.current.values());
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  };
+
   const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     const svg = svgRef.current;
     const ctm = svg?.getScreenCTM();
     if (!svg || !ctm) return;
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activePointers.current.size === 2) {
+      // A second finger just landed -- hand off from single-finger pan to
+      // two-finger pinch, discarding whatever pan gesture was mid-flight.
+      dragRef.current = null;
+      setIsPanning(false);
+      setHoverCoord(null);
+      pinchRef.current = { startDist: pinchDistance() || 1, startZoom: zoom };
+      return;
+    }
     dragRef.current = {
       startClientX: e.clientX,
       startClientY: e.clientY,
@@ -231,6 +267,14 @@ export default function IsometricCastleMap({
   };
 
   const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (activePointers.current.has(e.pointerId)) {
+      activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+    if (activePointers.current.size === 2 && pinchRef.current) {
+      const scale = pinchDistance() / pinchRef.current.startDist;
+      setZoom(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(pinchRef.current.startZoom * scale * 100) / 100)));
+      return;
+    }
     const drag = dragRef.current;
     if (drag) {
       const dx = e.clientX - drag.startClientX;
@@ -250,6 +294,8 @@ export default function IsometricCastleMap({
   };
 
   const endDrag = (e: React.PointerEvent<SVGSVGElement>) => {
+    activePointers.current.delete(e.pointerId);
+    if (activePointers.current.size < 2) pinchRef.current = null;
     const drag = dragRef.current;
     dragRef.current = null;
     setIsPanning(false);
@@ -259,7 +305,9 @@ export default function IsometricCastleMap({
     }
   };
 
-  const cancelDrag = () => {
+  const cancelDrag = (e: React.PointerEvent<SVGSVGElement>) => {
+    activePointers.current.delete(e.pointerId);
+    if (activePointers.current.size < 2) pinchRef.current = null;
     dragRef.current = null;
     setIsPanning(false);
     setHoverCoord(null);
