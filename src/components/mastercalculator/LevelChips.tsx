@@ -13,6 +13,7 @@ export default function LevelChips({
   onSelect,
   tone = 'gold',
   milestoneLevels,
+  milestoneNotes,
 }: {
   levels: number[];
   value: number;
@@ -20,6 +21,8 @@ export default function LevelChips({
   onSelect: (v: number) => void;
   tone?: 'gold' | 'cyan';
   milestoneLevels?: number[];
+  /** Per-level tooltip text for a milestone dot, e.g. "Lv.5 needs Affinity 80". */
+  milestoneNotes?: Record<number, string>;
 }) {
   return (
     <div className="flex gap-1.5 flex-wrap">
@@ -33,6 +36,7 @@ export default function LevelChips({
             type="button"
             disabled={disabled}
             onClick={() => onSelect(m)}
+            title={isMilestone ? milestoneNotes?.[m] : undefined}
             className={`focus-ring relative rounded px-2.5 py-1.5 text-xs font-semibold transition-colors min-h-[32px] min-w-[32px] ${
               disabled
                 ? 'bg-stone-900 border border-stone-800 text-parchment-600 opacity-50 cursor-not-allowed'

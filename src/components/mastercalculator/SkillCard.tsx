@@ -9,19 +9,23 @@ import LevelChips from './LevelChips';
 
 /** Levels where this skill's own requirement gate first steps up -- e.g.
  * the level an Affinity gate jumps from 30 to 70. Flagged as chip
- * "milestones" so the checkpoints the spec asked for are visible without a
- * separate chain view. */
-function gateChangeLevels(skill: Skill): number[] {
-  const out: number[] = [];
+ * "milestones" (the small red dot) so the checkpoints the spec asked for
+ * are visible without a separate chain view. Each one carries its
+ * requirement's own text so the dot's tooltip says what actually changes,
+ * not just that something did. */
+function gateChangeLevels(skill: Skill): { levels: number[]; notes: Record<number, string> } {
+  const levels: number[] = [];
+  const notes: Record<number, string> = {};
   let lastKey: string | null = null;
   for (const l of skill.levels) {
     const key = l.requirement ? `${l.requirement.type}:${l.requirement.value}` : null;
     if (key && key !== lastKey) {
-      out.push(l.level);
+      levels.push(l.level);
+      notes[l.level] = `Lv.${l.level} needs ${l.requirement!.text}`;
       lastKey = key;
     }
   }
-  return out;
+  return { levels, notes };
 }
 
 export default function SkillCard({
@@ -43,7 +47,7 @@ export default function SkillCard({
 }) {
   const maxLevel = skill.levels.length;
   const levels = Array.from({ length: maxLevel + 1 }, (_, i) => i);
-  const milestones = gateChangeLevels(skill);
+  const { levels: milestones, notes: milestoneNotes } = gateChangeLevels(skill);
   const result = costForSkillRange(skill, current, target);
   const slug = skill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const iconSrc = `/masters/skills/${slug}.webp`;
@@ -68,10 +72,24 @@ export default function SkillCard({
 
       <div className="flex flex-col gap-2">
         <LevelSlider label="Current" value={current} min={0} max={maxLevel} onChange={setCurrent} />
-        <LevelChips levels={levels} value={current} onSelect={setCurrent} milestoneLevels={milestones} />
+        <LevelChips levels={levels} value={current} onSelect={setCurrent} milestoneLevels={milestones} milestoneNotes={milestoneNotes} />
 
         <LevelSlider label="Target" value={target} min={0} max={maxLevel} onChange={setTarget} tone="cyan" />
-        <LevelChips levels={levels} value={target} disabledBelow={current} onSelect={setTarget} tone="cyan" milestoneLevels={milestones} />
+        <LevelChips
+          levels={levels}
+          value={target}
+          disabledBelow={current}
+          onSelect={setTarget}
+          tone="cyan"
+          milestoneLevels={milestones}
+          milestoneNotes={milestoneNotes}
+        />
+        {milestones.length > 0 && (
+          <p className="flex items-center gap-1.5 text-[10px] text-parchment-500">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ember-500" />
+            marks a level where the requirement changes -- hover or tap a dot for details
+          </p>
+        )}
       </div>
 
       {!result ? (
