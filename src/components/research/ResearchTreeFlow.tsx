@@ -64,6 +64,8 @@ const COMPACT_BREAKPOINT = 640;
 function NodeStepper({
   side,
   label,
+  value,
+  tone,
   onInc,
   onDec,
   incDisabled,
@@ -71,6 +73,8 @@ function NodeStepper({
 }: {
   side: 'left' | 'right';
   label: string;
+  value: number;
+  tone: 'gold' | 'cyan';
   onInc: () => void;
   onDec: () => void;
   incDisabled: boolean;
@@ -86,6 +90,16 @@ function NodeStepper({
       <button type="button" onClick={onInc} disabled={incDisabled} className={btnClass} aria-label={`Increase ${label}`}>
         +
       </button>
+      {/* Keyed on value so the pop animation replays every change -- the
+          number lives right here at the stepper, not just in the pill
+          below, since that's easy to miss while your eyes are still on
+          the +/- buttons. */}
+      <span
+        key={value}
+        className={`target-pop text-base font-bold tabular-nums leading-none ${tone === 'gold' ? 'text-gold-300' : 'text-cyan-300'}`}
+      >
+        {value}
+      </span>
       <span className="text-[9px] font-semibold uppercase tracking-wide text-parchment-500">{label}</span>
       <button type="button" onClick={onDec} disabled={decDisabled} className={btnClass} aria-label={`Decrease ${label}`}>
         −
@@ -227,6 +241,8 @@ export default function ResearchTreeFlow({
                     <NodeStepper
                       side="left"
                       label="Current"
+                      value={state.current}
+                      tone="gold"
                       onInc={() => onStep(tech.id, 'current', 1)}
                       onDec={() => onStep(tech.id, 'current', -1)}
                       incDisabled={state.current >= tech.maxLevel}
@@ -235,6 +251,8 @@ export default function ResearchTreeFlow({
                     <NodeStepper
                       side="right"
                       label="Target"
+                      value={state.target}
+                      tone="cyan"
                       onInc={() => onStep(tech.id, 'target', 1)}
                       onDec={() => onStep(tech.id, 'target', -1)}
                       incDisabled={state.target >= tech.maxLevel}
@@ -292,13 +310,14 @@ export default function ResearchTreeFlow({
               </div>
 
               <button
+                key={state.target}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleMax(tech.id);
                 }}
                 title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
-                className={`focus-ring rounded-full ${pillText} font-bold leading-none tabular-nums transition-colors ${
+                className={`focus-ring target-pop rounded-full ${pillText} font-bold leading-none tabular-nums transition-colors ${
                   maxed
                     ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
                     : hasGoal
