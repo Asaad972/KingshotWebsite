@@ -10,7 +10,12 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   if (!admin) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   const { supabase } = admin;
 
-  const { data: slot, error: slotError } = await supabase.from('castle_slots').select('*').eq('slot_id', params.id).single();
+  const { data: slot, error: slotError } = await supabase
+    .from('castle_slots')
+    .select('*')
+    .eq('slot_id', params.id)
+    .is('kingdom_id', null)
+    .single();
   if (slotError || !slot) {
     return NextResponse.json({ error: 'slot_not_found' }, { status: 404 });
   }

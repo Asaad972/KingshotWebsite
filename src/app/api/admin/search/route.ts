@@ -19,6 +19,7 @@ export async function GET(request: Request) {
       `application_id, player_name, player_id, alliance, status, created_at,
        application_slots ( status, slot:castle_slots ( slot_id, start_time_utc, status, accepted_application_id ) )`
     )
+    .is('kingdom_id', null)
     .order('created_at', { ascending: false })
     .limit(200);
 

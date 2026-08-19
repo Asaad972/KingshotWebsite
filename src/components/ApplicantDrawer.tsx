@@ -11,10 +11,14 @@ export default function ApplicantDrawer({
   slotId,
   onClose,
   onChanged,
+  apiBase = '/api',
 }: {
   slotId: string | null;
   onClose: () => void;
   onChanged: () => void;
+  /** Lets a kingdom-scoped dashboard point this at /api/k/[slug] instead
+   * of the legacy /api root, without duplicating this whole component. */
+  apiBase?: string;
 }) {
   const { t, locale } = useI18n();
 
@@ -29,7 +33,7 @@ export default function ApplicantDrawer({
     setLoading(true);
     setMessage(null);
     try {
-      const res = await fetch(`/api/admin/slot/${id}`, { cache: 'no-store' });
+      const res = await fetch(`${apiBase}/admin/slot/${id}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('failed');
       const data = await res.json();
       setSlot(data.slot);
@@ -39,7 +43,7 @@ export default function ApplicantDrawer({
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, apiBase]);
 
   useEffect(() => {
     if (slotId) load(slotId);
@@ -60,7 +64,7 @@ export default function ApplicantDrawer({
     if (!pendingAccept || !slot) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/applications/${pendingAccept.application.application_id}/accept`, {
+      const res = await fetch(`${apiBase}/applications/${pendingAccept.application.application_id}/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slot_id: slot.slot_id }),
@@ -92,7 +96,7 @@ export default function ApplicantDrawer({
     if (!slot) return;
     setBusy(true);
     try {
-      await fetch(`/api/applications/${applicant.application.application_id}/reject`, {
+      await fetch(`${apiBase}/applications/${applicant.application.application_id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slot_id: slot.slot_id }),

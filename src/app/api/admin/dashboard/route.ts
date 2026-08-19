@@ -16,10 +16,19 @@ export async function GET() {
           `slot_id, slot_index, start_time_utc, status, accepted_application_id,
            application_slots:application_slots ( status, application:applications ( application_id, player_name, alliance ) )`
         )
+        .is('kingdom_id', null)
         .order('slot_index', { ascending: true }),
-      supabase.from('applications').select('application_id', { count: 'exact', head: true }),
-      supabase.from('applications').select('application_id', { count: 'exact', head: true }).eq('status', 'accepted'),
-      supabase.from('applications').select('application_id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('applications').select('application_id', { count: 'exact', head: true }).is('kingdom_id', null),
+      supabase
+        .from('applications')
+        .select('application_id', { count: 'exact', head: true })
+        .is('kingdom_id', null)
+        .eq('status', 'accepted'),
+      supabase
+        .from('applications')
+        .select('application_id', { count: 'exact', head: true })
+        .is('kingdom_id', null)
+        .eq('status', 'pending'),
       supabase.from('event_settings').select('slot_duration_minutes, lock_past_slots').eq('id', 1).single(),
     ]);
 

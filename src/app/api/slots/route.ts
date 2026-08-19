@@ -8,7 +8,7 @@ export async function GET() {
 
   const [{ data: settings, error: settingsError }, { data: slots, error: slotsError }] = await Promise.all([
     supabase.from('event_settings').select('*').eq('id', 1).single(),
-    supabase.from('castle_slots').select('*').order('slot_index', { ascending: true }),
+    supabase.from('castle_slots').select('*').is('kingdom_id', null).order('slot_index', { ascending: true }),
   ]);
 
   if (settingsError || slotsError) {

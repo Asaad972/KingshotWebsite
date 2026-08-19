@@ -15,6 +15,7 @@ export async function GET() {
     supabase
       .from('castle_slots')
       .select('slot_id, slot_index, start_time_utc, status, accepted_application_id, created_at, applications:accepted_application_id ( player_name, alliance )')
+      .is('kingdom_id', null)
       .order('slot_index', { ascending: true }),
   ]);
 
