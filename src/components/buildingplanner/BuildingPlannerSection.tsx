@@ -155,6 +155,11 @@ export default function BuildingPlannerSection() {
         <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
           <div className="flex flex-col gap-6 min-w-0">
             <div>
+              <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">Construction Speed</h2>
+              <ConstructionSpeedBuffsCard buffs={speedBuffs} onChange={setSpeedBuffs} />
+            </div>
+
+            <div>
               <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">Required Path</h2>
               <RequiredPathView plan={plan} />
             </div>
@@ -166,11 +171,6 @@ export default function BuildingPlannerSection() {
               onAdd={(id, target) => setOptionalAdds((prev) => ({ ...prev, [id]: target }))}
               onRemove={(id) => setOptionalAdds((prev) => ({ ...prev, [id]: null }))}
             />
-
-            <div>
-              <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">Construction Speed</h2>
-              <ConstructionSpeedBuffsCard buffs={speedBuffs} onChange={setSpeedBuffs} />
-            </div>
           </div>
 
           <PlanTotalsSidebar total={displayTotal} />

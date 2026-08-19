@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useI18n } from '@/lib/i18n';
 
@@ -45,7 +46,7 @@ function ArrowIcon() {
 export default function HomeGuide() {
   const { t } = useI18n();
 
-  const items: { id: string; title: string; body: string; href?: string; linkLabel?: string; tone: Tone; featured?: boolean }[] = [
+  const items: { id: string; title: string; body: string; href?: string; linkLabel?: string; tone: Tone; featured?: boolean; image?: string }[] = [
     {
       id: 'kingdoms',
       title: 'Why we use castle appointments',
@@ -114,6 +115,7 @@ export default function HomeGuide() {
       href: '/building-planner',
       linkLabel: 'Plan your upgrade',
       tone: 'sky',
+      image: '/buildings/town-center-kingshot.png',
     },
   ];
 
@@ -126,21 +128,28 @@ export default function HomeGuide() {
         {items.map((item) => (
           <div
             key={item.id}
-            className={`rounded-md border p-4 flex flex-col gap-2 transition-all ${
+            className={`rounded-md border p-4 flex gap-3.5 transition-all ${
               item.featured ? 'card-featured sm:col-span-2' : TONE_CARD[item.tone]
             }`}
           >
-            <p className="text-sm font-semibold text-parchment-100">{item.title}</p>
-            <p className="text-xs text-parchment-400 leading-relaxed flex-1">{item.body}</p>
-            {item.href && (
-              <Link
-                href={item.href}
-                className={`focus-ring inline-flex items-center gap-1 self-start text-xs font-semibold transition-colors ${TONE_LINK[item.tone]}`}
-              >
-                {item.linkLabel}
-                <ArrowIcon />
-              </Link>
+            {item.image && (
+              <div className="relative h-16 w-16 shrink-0 rounded-md border border-stone-700/60 bg-stone-950/50">
+                <Image src={item.image} alt="" fill sizes="64px" className="object-contain p-1.5" />
+              </div>
             )}
+            <div className="flex flex-col gap-2 flex-1 min-w-0">
+              <p className="text-sm font-semibold text-parchment-100">{item.title}</p>
+              <p className="text-xs text-parchment-400 leading-relaxed flex-1">{item.body}</p>
+              {item.href && (
+                <Link
+                  href={item.href}
+                  className={`focus-ring inline-flex items-center gap-1 self-start text-xs font-semibold transition-colors ${TONE_LINK[item.tone]}`}
+                >
+                  {item.linkLabel}
+                  <ArrowIcon />
+                </Link>
+              )}
+            </div>
           </div>
         ))}
       </div>
