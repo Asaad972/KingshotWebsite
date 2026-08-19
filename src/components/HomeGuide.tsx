@@ -126,6 +126,14 @@ export default function HomeGuide() {
       tone: 'gold',
       image: '/pets/grizzly-bear.webp',
     },
+    {
+      id: 'mastercalculator',
+      title: 'Plan a Master’s Affinity, Skills, Talent, and Research',
+      body: 'Pick a Master and set a current and target Affinity, and it works out the points and Master Emblems needed, the relationship status you’ll reach, and the stat gain — with the same idea carried through Skills, Talent, and Special Research. If a skill level you want needs higher Affinity than you’ve set, it tells you exactly how much and can add that to the plan automatically. Enter what you already own and one combined summary shows exactly what’s still missing.',
+      href: '/master-calculator',
+      linkLabel: 'Plan a Master upgrade',
+      tone: 'cyan',
+    },
   ];
 
   return (

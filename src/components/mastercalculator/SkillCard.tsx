@@ -40,7 +40,7 @@ export default function SkillCard({
           <p className="text-sm font-semibold text-parchment-100 truncate">
             Skill {index + 1}: {skill.name}
           </p>
-          <p className="text-[11px] text-parchment-500">Unlocks at Affinity {skill.unlockAffinity} -- max Lv.{maxLevel}</p>
+          <p className="text-[11px] text-parchment-500">Unlocks at Affinity {skill.unlockAffinity} -- max Lv.{maxLevel} (higher levels can need more)</p>
         </div>
       </div>
 
@@ -109,7 +109,9 @@ export default function SkillCard({
 
           {affinityShort && (
             <div className="rounded-md border border-ember-600/40 bg-ember-500/10 p-2 flex items-center justify-between gap-2">
-              <span className="text-xs font-semibold text-ember-500">Requires Affinity {result.requiredAffinity}</span>
+              <span className="text-xs font-semibold text-ember-500">
+                Reaching Lv.{target} needs Affinity {result.requiredAffinity} -- you&apos;re at {currentAffinity}
+              </span>
               <button
                 type="button"
                 onClick={() => onRequireAffinity(result.requiredAffinity)}
