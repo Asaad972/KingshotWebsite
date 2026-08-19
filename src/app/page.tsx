@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useI18n } from '@/lib/i18n';
 import QuickLinksGrid from '@/components/QuickLinksGrid';
 import HomeGuide from '@/components/HomeGuide';
@@ -43,21 +42,6 @@ export default function HomePage() {
 
       <div className="mt-8">
         <HomeGuide />
-      </div>
-
-      <div className="mt-8 dashboard-card p-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-parchment-100">Run this for your own kingdom</p>
-          <p className="text-xs text-parchment-400 mt-0.5">
-            Get your own booking link and admin link in a few seconds — no setup on our end.
-          </p>
-        </div>
-        <Link
-          href="/start"
-          className="focus-ring shrink-0 rounded-md bg-gold-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors"
-        >
-          Set up your kingdom
-        </Link>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ export default function AdminSidebar() {
     { href: '/admin/dashboard', label: t('admin.overviewTitle') },
     { href: '/admin/search', label: t('admin.playersNav') },
     { href: '/admin/gift-codes', label: 'Gift Codes' },
+    { href: '/admin/kingdoms', label: 'Kingdoms' },
     { href: '/admin/settings', label: t('admin.settings') },
   ];
 

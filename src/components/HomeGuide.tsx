@@ -47,6 +47,14 @@ export default function HomeGuide() {
 
   const items: { id: string; title: string; body: string; href?: string; linkLabel?: string; tone: Tone }[] = [
     {
+      id: 'kingdoms',
+      title: 'Other kingdoms can use this too',
+      body: "Any kingdom can set up its own castle-appointment booking page here — a link to share with your players and a private admin link for you, ready in seconds. Both links are permanent: the booking link never expires, and the admin link only stops working if you deliberately generate a new one. No account or password needed — the admin link itself is your login, so keep it safe.",
+      href: '/start',
+      linkLabel: 'Set up your kingdom',
+      tone: 'moss',
+    },
+    {
       id: 'calculators',
       title: t('home.faqCalculatorsTitle'),
       body: t('home.faqCalculatorsBody'),

@@ -118,6 +118,15 @@ function ResearchTreeIcon() {
   );
 }
 
+function CrownIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M4 18h16l-1.5-9-4 4-2.5-6-2.5 6-4-4L4 18Z" strokeLinejoin="round" strokeLinecap="round" />
+      <path d="M4 18h16" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -158,6 +167,13 @@ export default function QuickLinksGrid({
   researchTreeSubtitle: string;
 }) {
   const links: QuickLink[] = [
+    {
+      href: '/start',
+      title: 'Set Up Your Own Kingdom',
+      subtitle: 'Get a free booking link + admin link, ready in seconds',
+      tone: 'gold',
+      icon: <CrownIcon />,
+    },
     { href: '/book', title: bookTitle, subtitle: bookSubtitle, tone: 'gold', icon: <CalendarIcon /> },
     { href: '/schedule', title: scheduleTitle, subtitle: scheduleSubtitle, tone: 'cyan', icon: <ListIcon /> },
     { href: '/rally-timer', title: rallyTimerTitle, subtitle: rallyTimerSubtitle, tone: 'gold', icon: <ClockIcon /> },
