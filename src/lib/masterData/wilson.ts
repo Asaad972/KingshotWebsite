@@ -5,7 +5,7 @@ export const wilsonMaster: Master = {
   "id": "wilson",
   "name": "Wilson",
   "type": "Royal Herald",
-  "image": "/masters/wilson.png",
+  "image": "/masters/wilson.webp",
   "maxAffinity": 100,
   "maxStatus": "Kindred Soul",
   "affinity": [

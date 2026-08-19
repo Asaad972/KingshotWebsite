@@ -5,7 +5,7 @@ export const panMaster: Master = {
   "id": "pan",
   "name": "Pan",
   "type": "Palace Administrator",
-  "image": "/masters/pan.png",
+  "image": "/masters/pan.webp",
   "maxAffinity": 100,
   "maxStatus": "Kindred Soul",
   "affinity": [

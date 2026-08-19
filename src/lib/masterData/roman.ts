@@ -5,7 +5,7 @@ export const romanMaster: Master = {
   "id": "roman",
   "name": "Roman",
   "type": "Arena Champion",
-  "image": "/masters/roman.png",
+  "image": "/masters/roman.webp",
   "maxAffinity": 100,
   "maxStatus": "Kindred Soul",
   "affinity": [

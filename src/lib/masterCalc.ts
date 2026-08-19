@@ -1,5 +1,21 @@
 import type { Master, Skill, Talent, AffinityLevel, ResearchMilestone } from './masterTypes';
 
+/** Skills learn passively over real time from Learning XP, same idea as
+ * research/training. Rate isn't published directly, but kingshot.net's
+ * calculator shows the same total (1,509,917 XP -> ~17d 11h) which only
+ * lines up at ~3600 XP/hour (1 XP/sec) -- cross-checked, not guessed. */
+export const LEARNING_XP_PER_HOUR = 3600;
+
+export function formatLearnDuration(xp: number): string {
+  if (xp <= 0) return '0h';
+  const totalHours = xp / LEARNING_XP_PER_HOUR;
+  if (totalHours < 1) return `${Math.max(1, Math.round(totalHours * 60))}m`;
+  const days = Math.floor(totalHours / 24);
+  const hours = Math.round(totalHours - days * 24);
+  if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+  return `${hours}h`;
+}
+
 /** Parses a raw cumulative stat string like "Squad ATK +1.58%, Squad DEF +1.58%"
  * into named percent values -- masters differ in which stat(s) they grant
  * and how many, so this never assumes a single fixed stat. */

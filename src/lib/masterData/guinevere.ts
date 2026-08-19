@@ -5,7 +5,7 @@ export const guinevereMaster: Master = {
   "id": "guinevere",
   "name": "Guinevere",
   "type": "Queen of Holy Sword",
-  "image": "/masters/guinevere.png",
+  "image": "/masters/guinevere.webp",
   "maxAffinity": 100,
   "maxStatus": "Kindred Soul",
   "affinity": [

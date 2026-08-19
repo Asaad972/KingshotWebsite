@@ -1,6 +1,7 @@
 'use client';
 
-import { EmblemIcon, ManuscriptIcon, LearningXpIcon } from './MasterIcons';
+import { formatLearnDuration } from '@/lib/masterCalc';
+import { EmblemIcon, ManuscriptIcon, LearningXpIcon, ClockIcon } from './MasterIcons';
 
 const MATERIALS = [
   { id: 'emblems' as const, label: 'Master Emblems', Icon: EmblemIcon },
@@ -67,6 +68,14 @@ export default function MasterResultsSidebar({
               </div>
             );
           })}
+          {(required.learningXp ?? 0) > 0 && (
+            <p className="flex items-center justify-end gap-1.5 text-[11px] text-parchment-500">
+              <span className="h-3.5 w-3.5 shrink-0">
+                <ClockIcon />
+              </span>
+              Time to learn: <span className="text-parchment-200 font-semibold">~{formatLearnDuration(required.learningXp)}</span>
+            </p>
+          )}
         </div>
       )}
     </div>

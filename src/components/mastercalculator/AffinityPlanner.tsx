@@ -11,14 +11,6 @@ function milestonesFor(maxLevel: number): number[] {
   return out;
 }
 
-function ArrowIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 text-parchment-500">
-      <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 export default function AffinityPlanner({
   master,
   current,
@@ -91,26 +83,6 @@ export default function AffinityPlanner({
         <p className="text-xs text-ember-500">Target must be higher than current Affinity.</p>
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm">
-            <span className="rounded border border-stone-700 bg-stone-950 px-2.5 py-1 font-semibold text-parchment-100 tabular-nums">
-              Lv.{current}
-            </span>
-            {result.checkpoints.map((cp) => (
-              <span key={cp.level} className="flex items-center gap-1.5">
-                <ArrowIcon />
-                <span className="text-[10px] uppercase tracking-wide text-gold-400">Advance</span>
-                <ArrowIcon />
-                <span className="rounded border border-gold-600/50 bg-gold-500/10 px-2.5 py-1 font-semibold text-gold-300 tabular-nums">
-                  Lv.{cp.level}
-                </span>
-              </span>
-            ))}
-            <ArrowIcon />
-            <span className="rounded border border-cyan-600/50 bg-cyan-500/10 px-2.5 py-1 font-semibold text-cyan-300 tabular-nums">
-              Lv.{target}
-            </span>
-          </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
             <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-parchment-100">
               <span className="h-4 w-4 shrink-0 text-ember-500">

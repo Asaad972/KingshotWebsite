@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
-import { MASTERS, MASTER_ORDER } from '@/lib/masters';
+import { useMemo, useState } from 'react';
+import { MASTERS } from '@/lib/masters';
 import { costForAffinityRange, costForSkillRange, costForResearchRange } from '@/lib/masterCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import MasterPicker from './MasterPicker';
@@ -11,6 +11,7 @@ import SkillCard from './SkillCard';
 import ResearchPlanner from './ResearchPlanner';
 import MasterMaterialsPanel from './MasterMaterialsPanel';
 import MasterResultsSidebar from './MasterResultsSidebar';
+import CompareMasters from './CompareMasters';
 
 interface LevelRange {
   current: number;
@@ -34,6 +35,7 @@ function defaultProgress(): MasterProgress {
 }
 
 export default function MasterCalculatorSection() {
+  const [view, setView] = useState<'plan' | 'compare'>('plan');
   const [selectedId, setSelectedId] = useLocalStorageState<string | null>('masterCalculator:selected', null);
   const [progressByMaster, setProgressByMaster] = useLocalStorageState<Record<string, MasterProgress>>('masterCalculator:progress', {});
   const [owned, setOwned] = useLocalStorageState<Record<string, number>>('masterCalculator:owned', {});
@@ -90,16 +92,34 @@ export default function MasterCalculatorSection() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-5 pb-8 flex flex-col gap-5">
-      <div>
-        <h1 className="section-title">Masters Calculator</h1>
-        <p className="text-xs text-parchment-400 mt-0.5">
-          Pick a Master, then plan Affinity, Talent, Skills, and Special Research -- see exactly what you need.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="section-title">Masters Calculator</h1>
+          <p className="text-xs text-parchment-400 mt-0.5">
+            Pick a Master, then plan Affinity, Talent, Skills, and Special Research -- see exactly what you need.
+          </p>
+        </div>
+        <div className="flex gap-1.5 rounded-lg border border-stone-700 bg-stone-900 p-1">
+          {(['plan', 'compare'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={`focus-ring rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
+                view === v ? 'bg-gold-500 text-stone-950' : 'text-parchment-400 hover:text-parchment-100'
+              }`}
+            >
+              {v === 'plan' ? 'Plan a Master' : 'Compare Masters'}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <MasterPicker selectedId={selectedId} onSelect={setSelectedId} />
+      {view === 'compare' && <CompareMasters />}
 
-      {master && (
+      {view === 'plan' && <MasterPicker selectedId={selectedId} onSelect={setSelectedId} />}
+
+      {view === 'plan' && master && (
         <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
           <div className="flex flex-col gap-5 min-w-0">
             <MasterMaterialsPanel owned={owned} onChangeOwned={(id, value) => setOwned((prev) => ({ ...prev, [id]: value }))} />
@@ -112,7 +132,6 @@ export default function MasterCalculatorSection() {
             />
 
             <TalentCard
-              masterId={master.id}
               talent={master.talent}
               current={progress.talent.current}
               target={progress.talent.target}
@@ -124,7 +143,6 @@ export default function MasterCalculatorSection() {
               {master.skills.map((skill, i) => (
                 <SkillCard
                   key={skill.name}
-                  masterId={master.id}
                   skill={skill}
                   index={i}
                   current={progress.skills[i]?.current ?? 0}

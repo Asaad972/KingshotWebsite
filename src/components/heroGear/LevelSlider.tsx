@@ -51,25 +51,24 @@ export default function LevelSlider({
   const pct = ((value - min) / range) * 100;
   const fillColor = tone === 'gold' ? '#d4a94a' : '#22d3ee';
   const accentClass = tone === 'gold' ? 'accent-gold-500' : 'accent-cyan-400';
+  const step = (v: number) => onChange(Math.min(max, Math.max(min, value + v)));
 
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between">
         <span className="label-eyebrow">{label}</span>
         <div className="flex items-center gap-1">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-3 w-3 shrink-0 text-parchment-600"
-            aria-hidden
+          <button
+            type="button"
+            onClick={() => step(-1)}
+            disabled={value <= min}
+            aria-label={`Decrease ${label}`}
+            className="focus-ring flex h-6 w-6 shrink-0 items-center justify-center rounded border border-stone-700 text-parchment-400 hover:border-gold-600 hover:text-parchment-100 disabled:opacity-30 disabled:hover:border-stone-700 disabled:hover:text-parchment-400"
           >
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
-          </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" className="h-3 w-3">
+              <path d="M5 12h14" />
+            </svg>
+          </button>
           <input
             type="number"
             min={min}
@@ -79,8 +78,19 @@ export default function LevelSlider({
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commit}
             onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-            className="focus-ring w-14 rounded border border-transparent bg-transparent px-1 py-0.5 text-right text-sm font-bold text-parchment-100 tabular-nums hover:border-stone-700 focus:border-gold-600 focus:bg-stone-950"
+            className="focus-ring w-12 rounded border border-transparent bg-transparent px-1 py-0.5 text-right text-sm font-bold text-parchment-100 tabular-nums hover:border-stone-700 focus:border-gold-600 focus:bg-stone-950"
           />
+          <button
+            type="button"
+            onClick={() => step(1)}
+            disabled={value >= max}
+            aria-label={`Increase ${label}`}
+            className="focus-ring flex h-6 w-6 shrink-0 items-center justify-center rounded border border-stone-700 text-parchment-400 hover:border-gold-600 hover:text-parchment-100 disabled:opacity-30 disabled:hover:border-stone-700 disabled:hover:text-parchment-400"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" className="h-3 w-3">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
         </div>
       </div>
       <input

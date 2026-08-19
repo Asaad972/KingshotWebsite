@@ -6,6 +6,7 @@ import { calcTroopPlan, tiersAbove, formatDuration, type CalcMode, type CalcType
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { BreadIcon, WoodIcon, StoneIcon, IronIcon, InfantryIcon, CavalryIcon, ArcherIcon } from './TroopIcons';
 import StatCard from '@/components/ui/StatCard';
+import SpeedupIcon from '@/components/SpeedupIcon';
 
 interface TroopFormState {
   calcType: CalcType;
@@ -334,7 +335,12 @@ export default function TroopCalculatorSection() {
                     <span className="text-lg font-bold text-gold-300 tabular-nums">{result.quantity.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-parchment-300">Time</span>
+                    <span className="flex items-center gap-1.5 text-sm text-parchment-300">
+                      <span className="h-3.5 w-3.5 shrink-0">
+                        <SpeedupIcon />
+                      </span>
+                      Time
+                    </span>
                     <span className="text-sm font-bold text-gold-300 tabular-nums">{formatDuration(result.timeSeconds)}</span>
                   </div>
                 </div>

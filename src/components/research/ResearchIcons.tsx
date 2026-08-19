@@ -46,20 +46,13 @@ export function PowerIcon() {
   );
 }
 
+// Real in-game Speedup item icon (user-provided) -- used for both of these
+// so any time value reads as "speedup-able" at a glance, same icon players
+// already recognize from the game.
 export function ClockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" fill="none" />
-      <path d="M12 7v5l3.5 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  );
+  return <TechIconImage src="/icons/speedup.webp" alt="Time" />;
 }
 
 export function SpeedupIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full">
-      <path d="M2 5v14l9-7-9-7Z" fill="currentColor" />
-      <path d="M12 5v14l9-7-9-7Z" fill="currentColor" opacity="0.65" />
-    </svg>
-  );
+  return <TechIconImage src="/icons/speedup.webp" alt="Speedup" />;
 }

@@ -5,7 +5,7 @@ export const valoraMaster: Master = {
   "id": "valora",
   "name": "Valora",
   "type": "Bear Hunter",
-  "image": "/masters/valora.png",
+  "image": "/masters/valora.webp",
   "maxAffinity": 100,
   "maxStatus": "Kindred Soul",
   "affinity": [

@@ -5,7 +5,7 @@ export const cassiaMaster: Master = {
   "id": "cassia",
   "name": "Cassia",
   "type": "Battle Master",
-  "image": "/masters/cassia.png",
+  "image": "/masters/cassia.webp",
   "maxAffinity": 100,
   "maxStatus": "Kindred Soul",
   "affinity": [

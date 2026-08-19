@@ -2,25 +2,30 @@
 
 import type { Talent } from '@/lib/masterTypes';
 import { costForTalentRange } from '@/lib/masterCalc';
+import LevelSlider from '@/components/heroGear/LevelSlider';
 import { PowerIcon, TalentGenericIcon } from './MasterIcons';
 import MasterPortrait from './MasterPortrait';
+import LevelChips from './LevelChips';
 
 export default function TalentCard({
-  masterId,
   talent,
   current,
   target,
   onChange,
 }: {
-  masterId: string;
   talent: Talent;
   current: number;
   target: number;
   onChange: (next: { current: number; target: number }) => void;
 }) {
   const maxLevel = talent.levels.length;
+  const levels = Array.from({ length: maxLevel + 1 }, (_, i) => i);
   const result = costForTalentRange(talent, current, target);
-  const iconSrc = `/masters/talents/${masterId}.png`;
+  const slug = talent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const iconSrc = `/masters/talents/${slug}.webp`;
+
+  const setCurrent = (v: number) => onChange({ current: v, target: Math.max(target, v) });
+  const setTarget = (v: number) => onChange({ current, target: Math.max(v, current) });
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
@@ -37,36 +42,12 @@ export default function TalentCard({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-parchment-500">Current</span>
-          <select
-            value={current}
-            onChange={(e) => onChange({ current: Number(e.target.value), target: Math.max(target, Number(e.target.value)) })}
-            className="focus-ring rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100"
-          >
-            <option value={0}>Not learned</option>
-            {talent.levels.map((l) => (
-              <option key={l.level} value={l.level}>
-                Lv.{l.level}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-parchment-500">Target</span>
-          <select
-            value={target}
-            onChange={(e) => onChange({ current, target: Math.max(current, Number(e.target.value)) })}
-            className="focus-ring rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100"
-          >
-            {talent.levels.map((l) => (
-              <option key={l.level} value={l.level} disabled={l.level < current}>
-                Lv.{l.level}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="flex flex-col gap-2">
+        <LevelSlider label="Current" value={current} min={0} max={maxLevel} onChange={setCurrent} />
+        <LevelChips levels={levels} value={current} onSelect={setCurrent} />
+
+        <LevelSlider label="Target" value={target} min={0} max={maxLevel} onChange={setTarget} tone="cyan" />
+        <LevelChips levels={levels} value={target} disabledBelow={current} onSelect={setTarget} tone="cyan" />
       </div>
 
       {!result ? (
