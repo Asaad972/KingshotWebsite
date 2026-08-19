@@ -45,7 +45,11 @@ const SIZES = {
   roomy: {
     node: 160,
     rowH: 280,
-    colGap: 210,
+    // Wide enough that two adjacent nodes' flanking steppers never touch:
+    // each stepper protrudes button(28) + margin(10) = 38px past its own
+    // node's edge, so two facing steppers need 76px of clearance -- node
+    // size (160) + 76 + a few px of breathing room.
+    colGap: 242,
     paddingTop: 100,
     paddingX: 320,
     nodeIcon: 'h-8 w-8',
@@ -83,8 +87,14 @@ function NodeStepper({
   const btnClass =
     'focus-ring flex h-7 w-7 items-center justify-center rounded-full border border-stone-600 bg-stone-900 text-sm font-bold text-parchment-200 hover:border-gold-500 hover:text-gold-300 disabled:opacity-30 disabled:hover:border-stone-600 disabled:hover:text-parchment-200';
   return (
+    // Fixed w-7 (matches the buttons) is load-bearing, not decorative: the
+    // spacing between adjacent nodes (colGap in SIZES) is sized assuming
+    // this column never grows wider than its buttons -- an unconstrained
+    // width here let the "CURRENT"/"TARGET" caption silently widen it and
+    // made neighboring nodes' steppers overlap.
     <div
-      className={`absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 ${side === 'left' ? 'right-full mr-2.5' : 'left-full ml-2.5'}`}
+      className="absolute top-1/2 -translate-y-1/2 flex w-7 flex-col items-center gap-1"
+      style={side === 'left' ? { right: 'calc(100% + 10px)' } : { left: 'calc(100% + 10px)' }}
       onClick={(e) => e.stopPropagation()}
     >
       <button type="button" onClick={onInc} disabled={incDisabled} className={btnClass} aria-label={`Increase ${label}`}>
@@ -100,7 +110,7 @@ function NodeStepper({
       >
         {value}
       </span>
-      <span className="text-[9px] font-semibold uppercase tracking-wide text-parchment-500">{label}</span>
+      <span className="text-[9px] font-semibold uppercase text-parchment-500">{label.slice(0, 3)}</span>
       <button type="button" onClick={onDec} disabled={decDisabled} className={btnClass} aria-label={`Decrease ${label}`}>
         −
       </button>
@@ -225,9 +235,13 @@ export default function ResearchTreeFlow({
               ? `+${curLevelData.effectValue.toFixed(2)}%`
               : `+${formatCompact(curLevelData.effectValue)}`
             : null;
-          // Prototype flanking steppers -- only on the root tech for now,
-          // to try the feel before it goes on every node.
-          const isStepperPrototype = tech.id === rows[0]?.[0]?.id;
+          // Flanking Current/Target steppers on every node -- desktop/tablet
+          // only. There isn't room for two tappable flanking buttons plus
+          // the gap needed between neighbors at compact/mobile widths
+          // without either shrinking them below a usable touch size or
+          // making the tree noticeably wider on a phone screen, so mobile
+          // keeps the existing tap-to-open popup instead.
+          const showSteppers = !compact;
 
           return (
             <div
@@ -236,7 +250,7 @@ export default function ResearchTreeFlow({
               style={{ left: pos.x - nodeColWidth / 2, top: pos.y - NODE / 2, width: nodeColWidth }}
             >
               <div className="relative flex items-center justify-center" style={{ width: NODE, height: NODE }}>
-                {isStepperPrototype && (
+                {showSteppers && (
                   <>
                     <NodeStepper
                       side="left"
