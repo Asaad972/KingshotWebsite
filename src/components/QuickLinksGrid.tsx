@@ -127,6 +127,15 @@ function CrownIcon() {
   );
 }
 
+function BuildingPlannerIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M5 21V9l7-5 7 5v12" strokeLinejoin="round" strokeLinecap="round" />
+      <path d="M9 21v-6h6v6M9 12h.01M15 12h.01M12 8h.01" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -183,6 +192,13 @@ export default function QuickLinksGrid({
     { href: '/hero-gear-calculator', title: heroGearCalculatorTitle, subtitle: heroGearCalculatorSubtitle, tone: 'gold', icon: <SwordIcon /> },
     { href: '/troop-calculator', title: troopCalculatorTitle, subtitle: troopCalculatorSubtitle, tone: 'cyan', icon: <TroopIcon /> },
     { href: '/research-tree', title: researchTreeTitle, subtitle: researchTreeSubtitle, tone: 'gold', icon: <ResearchTreeIcon /> },
+    {
+      href: '/building-planner',
+      title: 'Building Upgrade Planner',
+      subtitle: 'Pick a Town Center target, see the full upgrade path',
+      tone: 'cyan',
+      icon: <BuildingPlannerIcon />,
+    },
   ];
 
   return (

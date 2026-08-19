@@ -107,6 +107,14 @@ export default function HomeGuide() {
       linkLabel: t('home.researchTreeNav'),
       tone: 'cyan',
     },
+    {
+      id: 'buildingplanner',
+      title: 'Plan your Town Center upgrade path',
+      body: "Pick your current Town Center level and the level you want to reach, and it works out everything that actually gates that path — Embassy, Academy, Barracks, Range, Stable, and Command Center included, with the exact resource costs and build times for each. No manual building-by-building lookups: it splits what's required for your target from what's optional, and adds up a running total including every Truegold and Tempered Truegold tier along the way.",
+      href: '/building-planner',
+      linkLabel: 'Plan your upgrade',
+      tone: 'sky',
+    },
   ];
 
   return (
