@@ -1,0 +1,166 @@
+'use client';
+
+import type { Master } from '@/lib/masterTypes';
+import { costForAffinityRange } from '@/lib/masterCalc';
+import LevelSlider from '@/components/heroGear/LevelSlider';
+import { AffinityIcon, EmblemIcon } from './MasterIcons';
+
+function milestonesFor(maxLevel: number): number[] {
+  const out: number[] = [];
+  for (let m = 10; m <= maxLevel; m += 10) out.push(m);
+  return out;
+}
+
+function ArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 text-parchment-500">
+      <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export default function AffinityPlanner({
+  master,
+  current,
+  target,
+  onChange,
+}: {
+  master: Master;
+  current: number;
+  target: number;
+  onChange: (next: { current: number; target: number }) => void;
+}) {
+  const milestones = milestonesFor(master.maxAffinity);
+  const result = costForAffinityRange(master, current, target);
+
+  const setCurrent = (v: number) => onChange({ current: v, target: Math.max(target, v) });
+  const setTarget = (v: number) => onChange({ current, target: Math.max(v, current) });
+
+  return (
+    <div className="dashboard-card p-4 flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <span className="h-6 w-6 shrink-0">
+          <AffinityIcon />
+        </span>
+        <h2 className="card-title">Affinity</h2>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <LevelSlider label="Current" value={current} min={0} max={master.maxAffinity} onChange={setCurrent} />
+        <div className="flex gap-1.5 flex-wrap">
+          {milestones.map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setCurrent(m)}
+              className={`focus-ring rounded px-2.5 py-1.5 text-xs font-semibold transition-colors min-h-[32px] ${
+                current === m ? 'bg-gold-500 text-stone-950' : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-gold-600'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
+        <LevelSlider label="Target" value={target} min={0} max={master.maxAffinity} onChange={setTarget} tone="cyan" />
+        <div className="flex gap-1.5 flex-wrap">
+          {milestones.map((m) => {
+            const disabled = m < current;
+            return (
+              <button
+                key={m}
+                type="button"
+                disabled={disabled}
+                onClick={() => setTarget(m)}
+                className={`focus-ring rounded px-2.5 py-1.5 text-xs font-semibold transition-colors min-h-[32px] ${
+                  disabled
+                    ? 'bg-stone-900 border border-stone-800 text-parchment-600 opacity-50 cursor-not-allowed'
+                    : target === m
+                      ? 'bg-cyan-500 text-stone-950'
+                      : 'bg-stone-800 border border-stone-700 text-parchment-400 hover:border-cyan-600'
+                }`}
+              >
+                {m}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {!result ? (
+        <p className="text-xs text-ember-500">Target must be higher than current Affinity.</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm">
+            <span className="rounded border border-stone-700 bg-stone-950 px-2.5 py-1 font-semibold text-parchment-100 tabular-nums">
+              Lv.{current}
+            </span>
+            {result.checkpoints.map((cp) => (
+              <span key={cp.level} className="flex items-center gap-1.5">
+                <ArrowIcon />
+                <span className="text-[10px] uppercase tracking-wide text-gold-400">Advance</span>
+                <ArrowIcon />
+                <span className="rounded border border-gold-600/50 bg-gold-500/10 px-2.5 py-1 font-semibold text-gold-300 tabular-nums">
+                  Lv.{cp.level}
+                </span>
+              </span>
+            ))}
+            <ArrowIcon />
+            <span className="rounded border border-cyan-600/50 bg-cyan-500/10 px-2.5 py-1 font-semibold text-cyan-300 tabular-nums">
+              Lv.{target}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
+            <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-parchment-100">
+              <span className="h-4 w-4 shrink-0 text-ember-500">
+                <AffinityIcon />
+              </span>
+              {result.totalPoints.toLocaleString()}
+              <span className="text-parchment-500 font-normal text-xs">Affinity Points</span>
+            </div>
+            {result.totalEmblems > 0 && (
+              <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-gold-300">
+                <span className="h-4 w-4 shrink-0">
+                  <EmblemIcon />
+                </span>
+                {result.totalEmblems.toLocaleString()}
+                <span className="text-parchment-500 font-normal text-xs">Master Emblems</span>
+              </div>
+            )}
+          </div>
+
+          {result.statusReached && (
+            <p className="text-xs text-parchment-400">
+              Reaches relationship status <span className="text-parchment-100 font-semibold">{result.statusReached}</span>
+            </p>
+          )}
+
+          {result.statsDelta.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-parchment-400">
+              {result.statsDelta.map((s) => (
+                <span key={s.name}>
+                  <span className="text-parchment-100 font-semibold">{s.name}</span> +{s.percent.toFixed(2)}%
+                </span>
+              ))}
+            </div>
+          )}
+
+          <details className="text-xs">
+            <summary className="cursor-pointer text-parchment-500 hover:text-gold-300 transition-colors select-none">
+              Show every level ({current + 1}-{target})
+            </summary>
+            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-64 overflow-y-auto pr-1">
+              {master.affinity.slice(current + 1, target + 1).map((lvl) => (
+                <div key={lvl.level} className="flex items-center justify-between rounded bg-stone-950/60 px-2 py-1">
+                  <span className="text-parchment-400">Lv.{lvl.level}</span>
+                  <span className="text-parchment-300 tabular-nums">{lvl.cost.toLocaleString()} pts</span>
+                </div>
+              ))}
+            </div>
+          </details>
+        </>
+      )}
+    </div>
+  );
+}
