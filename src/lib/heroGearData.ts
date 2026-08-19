@@ -46,11 +46,13 @@ export const TROOP_LABELS: Record<TroopType, string> = {
 export type ArmorSlotId = 'helm' | 'chestplate' | 'gloves' | 'boots';
 
 // Order matches the in-game layout (Helm/Gloves on top, Chestplate/Boots below).
-export const ARMOR_SLOTS: { id: ArmorSlotId; label: string; icon: string }[] = [
-  { id: 'helm', label: 'Helm', icon: '/heroGear/pieces/helm.png' },
-  { id: 'gloves', label: 'Gloves', icon: '/heroGear/pieces/gloves.jpg' },
-  { id: 'chestplate', label: 'Chestplate', icon: '/heroGear/pieces/chestplate.png' },
-  { id: 'boots', label: 'Boots', icon: '/heroGear/pieces/boots.jpg' },
+// No icon field here anymore -- ArmorSlotCard derives its (troop-specific)
+// icon from the real Mythic Gear art instead of a static placeholder.
+export const ARMOR_SLOTS: { id: ArmorSlotId; label: string }[] = [
+  { id: 'helm', label: 'Helm' },
+  { id: 'gloves', label: 'Gloves' },
+  { id: 'chestplate', label: 'Chestplate' },
+  { id: 'boots', label: 'Boots' },
 ];
 
 export type PrimaryStat = 'lethality' | 'health';

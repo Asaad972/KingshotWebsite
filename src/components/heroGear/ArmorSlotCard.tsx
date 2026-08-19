@@ -11,21 +11,21 @@ const MILESTONE_LEVELS = [50, 75, 100, 120, 140, 160, 180, 200];
 export default function ArmorSlotCard({
   slotId,
   label,
-  icon,
   troop,
   selection,
   onChange,
 }: {
   slotId: ArmorSlotId;
   label: string;
-  icon: string;
   troop: TroopType;
   selection: ArmorSelection;
   onChange: (slotId: ArmorSlotId, next: ArmorSelection) => void;
 }) {
-  // The real Mythic Gear art for this exact piece + troop type -- shown
-  // next to "Level" since that's the upgrade path Mythic Gear pieces feed
-  // into (see armorLevelCost in heroGearData.ts).
+  // The real Mythic Gear art for this exact piece + troop type -- used for
+  // both the card's own header icon and the small "Level" section icon
+  // (that's the upgrade path Mythic Gear pieces feed into, see
+  // armorLevelCost in heroGearData.ts), replacing the old generic
+  // troop-agnostic placeholder art.
   const mythicIcon = `/heroGear/mythic/${troop}-${slotId}.png`;
   const { currentLevel, targetLevel, currentMastery, targetMastery } = selection;
   // Past level 100 the piece is Red tier in-game instead of Gold -- we don't
@@ -56,11 +56,11 @@ export default function ArmorSlotCard({
     <div className="dashboard-card p-3 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <div
-          className={`relative isolate h-14 w-14 shrink-0 rounded-lg overflow-hidden border bg-stone-800 ${
+          className={`relative isolate h-24 w-24 shrink-0 rounded-lg overflow-hidden border bg-stone-800 ${
             isRedTier ? 'border-red-500/60' : 'border-stone-700'
           }`}
         >
-          <Image src={icon} alt={label} width={56} height={56} className="h-full w-full object-cover" />
+          <Image src={mythicIcon} alt={label} width={96} height={96} className="h-full w-full object-cover" />
           {isRedTier && <div className="absolute inset-0 bg-red-600" style={{ mixBlendMode: 'hue' }} aria-hidden />}
         </div>
         <div>
@@ -71,7 +71,7 @@ export default function ArmorSlotCard({
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
-          <Image src={mythicIcon} alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
+          <Image src="/heroGear/materials/xp.webp" alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
           <p className="text-[10px] font-medium text-parchment-400">Level (0-{ARMOR_MAX_LEVEL})</p>
         </div>
         <LevelSlider

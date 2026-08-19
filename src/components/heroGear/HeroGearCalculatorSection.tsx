@@ -152,7 +152,6 @@ export default function HeroGearCalculatorSection() {
               key={slot.id}
               slotId={slot.id}
               label={slot.label}
-              icon={slot.icon}
               troop={activeTroop}
               selection={activePlan.armor[slot.id]}
               onChange={handleArmorChange}
