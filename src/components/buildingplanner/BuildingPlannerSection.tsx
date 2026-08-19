@@ -136,10 +136,14 @@ export default function BuildingPlannerSection() {
           </label>
         </div>
 
-        <details className="text-sm">
-          <summary className="cursor-pointer text-parchment-300 hover:text-gold-300 transition-colors select-none">
+        <div className="text-sm">
+          <p className="text-parchment-300">
             Current Building Levels {levelsTouched && <span className="text-gold-400">(edited)</span>}
-          </summary>
+          </p>
+          <p className="text-[11px] text-parchment-500 mt-0.5">
+            Set what you already have -- the plan skips anything you've already built instead of assuming you're
+            starting from zero.
+          </p>
           <div className="mt-3 grid sm:grid-cols-2 gap-3">
             {DEPENDENCY_BUILDING_IDS.map((id) => (
               <label key={id} className="flex items-center justify-between gap-2 text-xs">
@@ -159,7 +163,7 @@ export default function BuildingPlannerSection() {
               </label>
             ))}
           </div>
-        </details>
+        </div>
 
         {!canShow && (
           <p className="text-xs text-ember-500">Target must be a higher level than your current Town Center.</p>
