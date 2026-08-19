@@ -4,7 +4,6 @@ import { PETS } from '@/lib/pets';
 import type { PetRangeResult } from '@/lib/petCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import PetPicker from './PetPicker';
-import PetUpgradePathView from './PetUpgradePathView';
 import { PetFoodIcon, GrowthManualIcon, NutrientPotionIcon, PromotionMedallionIcon } from './PetIcons';
 
 const COST_ROWS = [
@@ -15,9 +14,8 @@ const COST_ROWS = [
 ];
 
 /** Milestone chips are every 10 levels -- the same points where a tier
- * advancement is paid, so they line up with the Upgrade Path checkpoints
- * below. Computed per-pet from its own real max level, never a shared
- * constant, since that varies pet to pet. */
+ * advancement is paid. Computed per-pet from its own real max level, never
+ * a shared constant, since that varies pet to pet. */
 function milestonesFor(maxLevel: number): number[] {
   const out: number[] = [];
   for (let m = 10; m <= maxLevel; m += 10) out.push(m);
@@ -120,21 +118,17 @@ export default function PetEntryCard({
       {!result ? (
         <p className="text-xs text-ember-500">Target must be higher than current level.</p>
       ) : (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2">
-            {COST_ROWS.filter((r) => result.total[r.key] > 0).map((r) => (
-              <div key={r.key} className={`flex items-center gap-1.5 text-sm font-semibold tabular-nums ${r.tone}`}>
-                <span className="h-4 w-4 shrink-0">
-                  <r.Icon />
-                </span>
-                {result.total[r.key].toLocaleString()}
-                <span className="text-parchment-500 font-normal text-xs">{r.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <PetUpgradePathView petId={petId} currentLevel={currentLevel} targetLevel={targetLevel} checkpoints={result.checkpoints} />
-        </>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2">
+          {COST_ROWS.filter((r) => result.total[r.key] > 0).map((r) => (
+            <div key={r.key} className={`flex items-center gap-1.5 text-sm font-semibold tabular-nums ${r.tone}`}>
+              <span className="h-4 w-4 shrink-0">
+                <r.Icon />
+              </span>
+              {result.total[r.key].toLocaleString()}
+              <span className="text-parchment-500 font-normal text-xs">{r.label}</span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

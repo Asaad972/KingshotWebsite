@@ -1,6 +1,6 @@
 'use client';
 
-import { PetFoodIcon, GrowthManualIcon, NutrientPotionIcon, PromotionMedallionIcon } from './PetIcons';
+import { PetFoodIcon, GrowthManualIcon, NutrientPotionIcon, PromotionMedallionIcon, ChestIcon } from './PetIcons';
 
 const MATERIALS = [
   { id: 'petFood' as const, label: 'Pet Food', Icon: PetFoodIcon },
@@ -9,79 +9,64 @@ const MATERIALS = [
   { id: 'promotionMedallion' as const, label: 'Promotion Medallion', Icon: PromotionMedallionIcon },
 ];
 
-/** Same Required/I Have/Still Need pattern as the Gear/Charm Calculators'
- * GearMaterialsPanel -- one shared inventory across every added pet, since
- * these materials are account-wide, not pet-specific stockpiles. */
+/** Pure inputs, side by side -- materials plus chests owned in one grid, so
+ * everything you can type in lives in one place. What it adds up to (Need/
+ * Missing, chest recommendation) lives in the results sidebar instead,
+ * mirroring the Building Planner's input-card/sticky-sidebar split. */
 export default function PetMaterialsPanel({
-  required,
   owned,
   onChangeOwned,
+  chestsOwned,
+  onChangeChestsOwned,
 }: {
-  required: Record<string, number>;
   owned: Record<string, number>;
   onChangeOwned: (materialId: string, value: number) => void;
+  chestsOwned: number;
+  onChangeChestsOwned: (value: number) => void;
 }) {
   return (
-    <div className="dashboard-card p-4 flex flex-col gap-4">
+    <div className="dashboard-card p-4 flex flex-col gap-3">
       <div>
-        <h2 className="text-base font-semibold text-parchment-100">Total Materials Needed</h2>
-        <p className="text-[11px] text-parchment-400 mt-0.5">Enter what you already have -- we'll tell you how much more you need, combined across every pet above.</p>
+        <h2 className="text-base font-semibold text-parchment-100">Materials &amp; Chests</h2>
+        <p className="text-[11px] text-parchment-400 mt-0.5">Enter what you already have -- shortfalls update live on the right.</p>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        {MATERIALS.map((m) => {
-          const req = required[m.id] ?? 0;
-          const own = owned[m.id] ?? 0;
-          const needed = Math.max(0, req - own);
-          const extra = Math.max(0, own - req);
-          const ready = needed === 0;
-          return (
-            <div key={m.id} className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-2.5">
-              <div className="flex items-center gap-3">
-                <div className="h-11 w-11 shrink-0 rounded-lg bg-stone-950 p-2">
-                  <m.Icon />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-parchment-100 truncate">{m.label}</p>
-                  <p className="text-xs text-parchment-400">
-                    Need <span className="text-gold-300 font-bold text-sm tabular-nums">{req.toLocaleString()}</span> total
-                  </p>
-                </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        {MATERIALS.map((m) => (
+          <label key={m.id} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 shrink-0 rounded-lg bg-stone-950 p-1.5">
+                <m.Icon />
               </div>
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-parchment-400 shrink-0" htmlFor={`pet-owned-${m.id}`}>
-                  I have:
-                </label>
-                <input
-                  id={`pet-owned-${m.id}`}
-                  type="number"
-                  min={0}
-                  value={own || ''}
-                  onChange={(e) => onChangeOwned(m.id, Math.max(0, Number(e.target.value) || 0))}
-                  placeholder="0"
-                  className="focus-ring flex-1 min-w-0 rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 tabular-nums placeholder:text-parchment-600 focus:border-gold-600"
-                />
-              </div>
-              {req === 0 ? (
-                <div className="rounded px-2.5 py-2 text-sm font-semibold text-center bg-stone-700/40 text-parchment-500">
-                  Not needed for your current picks{extra > 0 ? ` (${extra.toLocaleString()} banked)` : ''}
-                </div>
-              ) : (
-                <div
-                  className={`rounded px-2.5 py-2 text-sm font-semibold text-center ${
-                    ready ? 'bg-moss-500/15 text-moss-500' : 'bg-ember-500/15 text-ember-500'
-                  }`}
-                >
-                  {ready
-                    ? extra > 0
-                      ? `You're ready ✓ (+${extra.toLocaleString()} extra)`
-                      : "You're ready ✓"
-                    : `Need ${needed.toLocaleString()} more`}
-                </div>
-              )}
+              <p className="text-xs font-semibold text-parchment-100 leading-tight truncate">{m.label}</p>
             </div>
-          );
-        })}
+            <input
+              type="number"
+              min={0}
+              value={owned[m.id] || ''}
+              onChange={(e) => onChangeOwned(m.id, Math.max(0, Number(e.target.value) || 0))}
+              placeholder="0"
+              className="focus-ring w-full rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 tabular-nums placeholder:text-parchment-600 focus:border-gold-600"
+            />
+          </label>
+        ))}
+
+        <label className="rounded-md border border-gold-600/40 bg-gold-500/[0.06] p-2.5 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 shrink-0 rounded-lg bg-stone-950 p-1.5">
+              <ChestIcon />
+            </div>
+            <p className="text-xs font-semibold text-gold-300 leading-tight truncate">Chests I Own</p>
+          </div>
+          <input
+            type="number"
+            min={0}
+            value={chestsOwned || ''}
+            onChange={(e) => onChangeChestsOwned(Math.max(0, Number(e.target.value) || 0))}
+            placeholder="0"
+            className="focus-ring w-full rounded border border-gold-600/40 bg-stone-950 px-2 py-1.5 text-sm text-parchment-100 tabular-nums placeholder:text-parchment-600 focus:border-gold-600"
+          />
+        </label>
       </div>
     </div>
   );

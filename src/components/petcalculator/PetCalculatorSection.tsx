@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { PET_ORDER, PETS } from '@/lib/pets';
 import { costForPetRange, emptyPetTotal, recommendChestUse, type PetTotal } from '@/lib/petCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import PetEntryCard from './PetEntryCard';
 import PetMaterialsPanel from './PetMaterialsPanel';
+import PetResultsSidebar from './PetResultsSidebar';
 import PetChestPanel from './PetChestPanel';
 
 interface PetEntry {
@@ -15,16 +16,19 @@ interface PetEntry {
   targetLevel: number;
 }
 
-let nextLocalId = 1;
-
-function defaultEntry(): PetEntry {
+function newEntry(localId: number): PetEntry {
   const petId = PET_ORDER[0];
   const maxLevel = PETS[petId].maxLevel;
-  return { localId: nextLocalId++, petId, currentLevel: 1, targetLevel: Math.min(10, maxLevel) };
+  return { localId, petId, currentLevel: 1, targetLevel: Math.min(10, maxLevel) };
 }
 
+/** Every added pet, its levels, inventory, and chest count are all saved
+ * automatically -- same as the Gear/Charm/Hero Gear calculators -- so a
+ * refresh doesn't throw away a multi-pet plan. localId is derived from the
+ * current max on each add rather than a module-level counter, since that
+ * counter would reset on reload while persisted entries wouldn't. */
 export default function PetCalculatorSection() {
-  const [entries, setEntries] = useState<PetEntry[]>([defaultEntry()]);
+  const [entries, setEntries] = useLocalStorageState<PetEntry[]>('petCalculator:entries', [newEntry(1)]);
   const [owned, setOwned] = useLocalStorageState<Record<string, number>>('petCalculator:owned', {});
   const [chestsOwned, setChestsOwned] = useLocalStorageState<number>('petCalculator:chests', 0);
 
@@ -65,7 +69,7 @@ export default function PetCalculatorSection() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-5 pb-8 flex flex-col gap-5">
+    <div className="max-w-6xl mx-auto px-4 py-5 pb-8 flex flex-col gap-5">
       <div>
         <h1 className="text-lg font-semibold text-parchment-100">Pet Upgrade Calculator</h1>
         <p className="text-xs text-parchment-400 mt-0.5">
@@ -73,39 +77,52 @@ export default function PetCalculatorSection() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {results.map(({ entry, result }) => (
-          <PetEntryCard
-            key={entry.localId}
-            petId={entry.petId}
-            currentLevel={entry.currentLevel}
-            targetLevel={entry.targetLevel}
-            result={result}
-            onPetChange={(id) => {
-              const maxLevel = PETS[id].maxLevel;
-              updateEntry(entry.localId, {
-                petId: id,
-                currentLevel: 1,
-                targetLevel: Math.min(10, maxLevel),
-              });
-            }}
-            onLevelsChange={(next) => updateEntry(entry.localId, next)}
-            onRemove={() => setEntries((prev) => prev.filter((e) => e.localId !== entry.localId))}
-            showRemove={entries.length > 1}
+      <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
+        <div className="flex flex-col gap-5 min-w-0">
+          <PetMaterialsPanel
+            owned={owned}
+            onChangeOwned={(id, value) => setOwned((prev) => ({ ...prev, [id]: value }))}
+            chestsOwned={chestsOwned}
+            onChangeChestsOwned={setChestsOwned}
           />
-        ))}
+
+          <div className="flex flex-col gap-4">
+            {results.map(({ entry, result }) => (
+              <PetEntryCard
+                key={entry.localId}
+                petId={entry.petId}
+                currentLevel={entry.currentLevel}
+                targetLevel={entry.targetLevel}
+                result={result}
+                onPetChange={(id) => {
+                  const maxLevel = PETS[id].maxLevel;
+                  updateEntry(entry.localId, {
+                    petId: id,
+                    currentLevel: 1,
+                    targetLevel: Math.min(10, maxLevel),
+                  });
+                }}
+                onLevelsChange={(next) => updateEntry(entry.localId, next)}
+                onRemove={() => setEntries((prev) => prev.filter((e) => e.localId !== entry.localId))}
+                showRemove={entries.length > 1}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setEntries((prev) => [...prev, newEntry(Math.max(0, ...prev.map((e) => e.localId)) + 1)])}
+            className="focus-ring self-start rounded-md border border-gold-600/50 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/10 transition-colors"
+          >
+            + Add Another Pet
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5 lg:sticky lg:top-20">
+          <PetResultsSidebar required={requiredRecord} owned={owned} />
+          <PetChestPanel recommendation={chestRecommendation} />
+        </div>
       </div>
-
-      <button
-        type="button"
-        onClick={() => setEntries((prev) => [...prev, defaultEntry()])}
-        className="focus-ring self-start rounded-md border border-gold-600/50 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/10 transition-colors"
-      >
-        + Add Another Pet
-      </button>
-
-      <PetMaterialsPanel required={requiredRecord} owned={owned} onChangeOwned={(id, value) => setOwned((prev) => ({ ...prev, [id]: value }))} />
-      <PetChestPanel chestsOwned={chestsOwned} onChangeChestsOwned={setChestsOwned} recommendation={chestRecommendation} />
     </div>
   );
 }

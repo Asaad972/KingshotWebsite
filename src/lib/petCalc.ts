@@ -8,14 +8,8 @@ export interface PetTotal {
   promotionMedallion: number;
 }
 
-export interface PetCheckpoint {
-  atLevel: number;
-  cost: PetTotal;
-}
-
 export interface PetRangeResult {
   total: PetTotal;
-  checkpoints: PetCheckpoint[];
 }
 
 export function emptyPetTotal(): PetTotal {
@@ -30,30 +24,20 @@ function addPetCost(a: PetTotal, b: PetCost): void {
 }
 
 /** Sums every level strictly after `currentLevel` up to and including
- * `targetLevel`, and separately collects each crossed tier-boundary level
- * (11, 21, 31...) as its own checkpoint for the Upgrade Path view. Mirrors
- * the Building Planner's sumRange -- a single flat walk, since each tier's
- * advancement cost is already merged onto that tier's first level. */
+ * `targetLevel` -- mirrors the Building Planner's sumRange, since each
+ * tier's advancement cost is already merged onto that tier's first level. */
 export function costForPetRange(petId: string, currentLevel: number, targetLevel: number): PetRangeResult | null {
   const pet = PETS[petId];
   if (!pet) return null;
   if (targetLevel <= currentLevel || targetLevel > pet.maxLevel || currentLevel < 1) return null;
 
   const total = emptyPetTotal();
-  const checkpoints: PetCheckpoint[] = [];
-
   for (let level = currentLevel + 1; level <= targetLevel; level++) {
     const data = pet.levels[level - 1];
-    if (!data) continue;
-    addPetCost(total, data.cost);
-    if (data.isTierBoundary) {
-      const cost = emptyPetTotal();
-      addPetCost(cost, data.cost);
-      checkpoints.push({ atLevel: level, cost });
-    }
+    if (data) addPetCost(total, data.cost);
   }
 
-  return { total, checkpoints };
+  return { total };
 }
 
 export const CHEST_YIELD = {
