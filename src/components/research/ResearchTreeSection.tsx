@@ -94,6 +94,17 @@ export default function ResearchTreeSection() {
     setSelectedId(null);
   };
 
+  // Same "current = target = maxLevel for every tech" toggleMax already
+  // applies one at a time, just for the whole tree in one click.
+  const handleMaxAll = () => {
+    const next: ResearchPlan = {};
+    for (const t of tree.techs) {
+      next[t.id] = { current: t.maxLevel, target: t.maxLevel };
+    }
+    setPlan(next);
+    setSelectedId(null);
+  };
+
   const isUnlocked = (techId: string): boolean => {
     const tech = tree.getTech(techId);
     if (!tech) return false;
@@ -122,13 +133,22 @@ export default function ResearchTreeSection() {
             to set your level and goal.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
-        >
-          Reset all
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleMaxAll}
+            className="focus-ring rounded border border-gold-600/50 px-3 py-1.5 text-xs text-gold-300 hover:bg-gold-500/10 transition-colors"
+          >
+            Max all
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
+          >
+            Reset all
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-1.5">

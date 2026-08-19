@@ -97,7 +97,7 @@ export default function ResearchTreeFlow({
     return [-COL_GAP, 0, COL_GAP];
   };
 
-  const rows = groupByDepth(tree.techs);
+  const rows = groupByDepth(tree.techs, tree.categoryOrder);
   const centerX = PADDING_X;
   const canvasWidth = PADDING_X * 2;
   const canvasHeight = PADDING_TOP + rows.length * ROW_H + NODE;

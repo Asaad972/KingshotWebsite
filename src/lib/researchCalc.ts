@@ -77,10 +77,16 @@ const MAX_ROW_WIDTH = 3;
  * each independent trunk lays out on its own, then within a component walk
  * depth by depth, ordering each depth's techs by where their prerequisite
  * sat in the previous row (so real siblings stay adjacent and a merge sits
- * next to both its parents) before chunking into rows of MAX_ROW_WIDTH. */
-export function groupByDepth(techs: ResearchTech[]): ResearchTech[][] {
+ * next to both its parents) before chunking into rows of MAX_ROW_WIDTH.
+ * Siblings that share the exact same single prerequisite (e.g. three techs
+ * that all just require "Regimental Expansion I") tie on that rank, so a
+ * `categoryOrder`-based tie-break decides between them -- without it,
+ * ties fall back to raw data-file array order, which doesn't necessarily
+ * match the real in-game left-to-right order. */
+export function groupByDepth(techs: ResearchTech[], categoryOrder: string[] = []): ResearchTech[][] {
   const byId = new Map(techs.map((t) => [t.id, t]));
   const depth = computeDepths(techs);
+  const categoryRank = new Map(categoryOrder.map((c, i) => [c, i]));
 
   const parent = new Map<string, string>();
   const find = (id: string): string => {
@@ -130,7 +136,10 @@ export function groupByDepth(techs: ResearchTech[]): ResearchTech[][] {
         level = [...level].sort((a, b) => {
           const ra = Math.min(...a.prereqs.map((p) => prevRank.get(p.techId) ?? Infinity));
           const rb = Math.min(...b.prereqs.map((p) => prevRank.get(p.techId) ?? Infinity));
-          return ra - rb;
+          if (ra !== rb) return ra - rb;
+          const ca = categoryRank.get(a.category) ?? Infinity;
+          const cb = categoryRank.get(b.category) ?? Infinity;
+          return ca - cb;
         });
       }
       for (let i = 0; i < level.length; i += MAX_ROW_WIDTH) {

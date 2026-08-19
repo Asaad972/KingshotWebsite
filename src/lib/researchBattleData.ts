@@ -5,9 +5,13 @@
 // the page's HTML even while collapsed, so this was read directly rather
 // than guessed. See researchTypes.ts for the shared shape.
 //
-// Excluded (source itself has no level data for these -- confirmed via
-// the page's own "No level cost rows for this tech" placeholder, not a
-// scrape gap): Fortified Mail VI.
+// Fortified Mail VI is the one exception: kingshotdata.com had no level
+// data for it, so this entry was instead built from real in-game numbers
+// the user read off another in-game calculator (current/target deltas
+// across levels 0-1 and 1-6), not scraped -- levels 1-3 cost the same per
+// step, then 4, 5, and 6 each step up individually, matching the stepped
+// per-level cost pattern already seen elsewhere in this file rather than a
+// smooth curve.
 
 import type { ResearchTech } from './researchTypes';
 
@@ -5477,6 +5481,113 @@ export const BATTLE_TECHS: ResearchTech[] = [
         "timeSeconds": 7200000,
         "power": 127800,
         "effectValue": 36.5,
+        "effectIsPercent": true,
+        "academyLevel": 0
+      }
+    ]
+  },
+  {
+    "id": "fortified-mail-vi",
+    "name": "Fortified Mail VI",
+    "category": "Fortified Mail",
+    "desc": "Enhances Cavalry Health",
+    "effectRange": "Cavalry Health +5.25% to +35.25%",
+    "maxLevel": 6,
+    "unlockAcademyLevel": 30,
+    "prereqs": [
+      {
+        "techId": "lance-upgrade-vi",
+        "level": 1
+      }
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "cost": {
+          "bread": 3100000,
+          "wood": 3100000,
+          "stone": 620000,
+          "iron": 150000,
+          "gold": 51000
+        },
+        "timeSeconds": 960000,
+        "power": 13200,
+        "effectValue": 5.25,
+        "effectIsPercent": true,
+        "academyLevel": 30
+      },
+      {
+        "level": 2,
+        "cost": {
+          "bread": 3100000,
+          "wood": 3100000,
+          "stone": 620000,
+          "iron": 150000,
+          "gold": 51000
+        },
+        "timeSeconds": 960000,
+        "power": 13200,
+        "effectValue": 10.5,
+        "effectIsPercent": true,
+        "academyLevel": 0
+      },
+      {
+        "level": 3,
+        "cost": {
+          "bread": 3100000,
+          "wood": 3100000,
+          "stone": 620000,
+          "iron": 150000,
+          "gold": 51000
+        },
+        "timeSeconds": 1056000,
+        "power": 13200,
+        "effectValue": 15.75,
+        "effectIsPercent": true,
+        "academyLevel": 0
+      },
+      {
+        "level": 4,
+        "cost": {
+          "bread": 3700000,
+          "wood": 3700000,
+          "stone": 740000,
+          "iron": 180000,
+          "gold": 61000
+        },
+        "timeSeconds": 1680000,
+        "power": 13200,
+        "effectValue": 21,
+        "effectIsPercent": true,
+        "academyLevel": 0
+      },
+      {
+        "level": 5,
+        "cost": {
+          "bread": 4300000,
+          "wood": 4300000,
+          "stone": 870000,
+          "iron": 210000,
+          "gold": 71000
+        },
+        "timeSeconds": 2016000,
+        "power": 13200,
+        "effectValue": 26.25,
+        "effectIsPercent": true,
+        "academyLevel": 0
+      },
+      {
+        "level": 6,
+        "cost": {
+          "bread": 8500000,
+          "wood": 8500000,
+          "stone": 1700000,
+          "iron": 420000,
+          "gold": 140000
+        },
+        "timeSeconds": 4800000,
+        "power": 21600,
+        "effectValue": 35.25,
         "effectIsPercent": true,
         "academyLevel": 0
       }
