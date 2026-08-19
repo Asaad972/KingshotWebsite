@@ -123,6 +123,23 @@ export default function ResearchTreeSection() {
     updateTech(techId, { current: nextCurrent, target: Math.max(nextCurrent, state.target) });
   };
 
+  // Prototype: +/- steppers flanking a single node (see ResearchTreeFlow),
+  // testing whether that's an easier way to set Current/Target than opening
+  // the popup. Current can't pass Target going up (bumps it along); Target
+  // can't drop below Current going down.
+  const stepTech = (techId: string, field: 'current' | 'target', delta: number) => {
+    const tech = tree.getTech(techId);
+    if (!tech) return;
+    const state = plan[techId] ?? { current: 0, target: 0 };
+    if (field === 'current') {
+      const nextCurrent = Math.max(0, Math.min(tech.maxLevel, state.current + delta));
+      updateTech(techId, { current: nextCurrent, target: Math.max(nextCurrent, state.target) });
+    } else {
+      const nextTarget = Math.max(state.current, Math.min(tech.maxLevel, state.target + delta));
+      updateTech(techId, { current: state.current, target: nextTarget });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -178,7 +195,15 @@ export default function ResearchTreeSection() {
           sidebar's box down to just its own content height, leaving the
           sticky panel nothing to "stick" within past the first ~400px. */}
       <div className="grid lg:grid-cols-[1fr_340px] gap-4">
-        <ResearchTreeFlow key={activeTreeId} tree={tree} plan={plan} selectedId={selectedId} onSelect={setSelectedId} onToggleMax={toggleMax} />
+        <ResearchTreeFlow
+          key={activeTreeId}
+          tree={tree}
+          plan={plan}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          onToggleMax={toggleMax}
+          onStep={stepTech}
+        />
         <div className="hidden lg:block">
           <ResearchBonusSidebar tree={tree} bonuses={bonuses} totals={totals} />
         </div>

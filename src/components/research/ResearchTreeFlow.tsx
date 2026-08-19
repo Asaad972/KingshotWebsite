@@ -58,6 +58,42 @@ const SIZES = {
 };
 const COMPACT_BREAKPOINT = 640;
 
+/** Prototype: a small +/- column flanking one side of a node -- left for
+ * Current, right for Target -- testing whether that's a faster way to set
+ * a level than opening the tap-to-edit popup. */
+function NodeStepper({
+  side,
+  label,
+  onInc,
+  onDec,
+  incDisabled,
+  decDisabled,
+}: {
+  side: 'left' | 'right';
+  label: string;
+  onInc: () => void;
+  onDec: () => void;
+  incDisabled: boolean;
+  decDisabled: boolean;
+}) {
+  const btnClass =
+    'focus-ring flex h-7 w-7 items-center justify-center rounded-full border border-stone-600 bg-stone-900 text-sm font-bold text-parchment-200 hover:border-gold-500 hover:text-gold-300 disabled:opacity-30 disabled:hover:border-stone-600 disabled:hover:text-parchment-200';
+  return (
+    <div
+      className={`absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 ${side === 'left' ? 'right-full mr-2.5' : 'left-full ml-2.5'}`}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button type="button" onClick={onInc} disabled={incDisabled} className={btnClass} aria-label={`Increase ${label}`}>
+        +
+      </button>
+      <span className="text-[9px] font-semibold uppercase tracking-wide text-parchment-500">{label}</span>
+      <button type="button" onClick={onDec} disabled={decDisabled} className={btnClass} aria-label={`Decrease ${label}`}>
+        −
+      </button>
+    </div>
+  );
+}
+
 function useCompact(): boolean {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
@@ -75,12 +111,14 @@ export default function ResearchTreeFlow({
   selectedId,
   onSelect,
   onToggleMax,
+  onStep,
 }: {
   tree: TreeDef;
   plan: ResearchPlan;
   selectedId: string | null;
   onSelect: (techId: string) => void;
   onToggleMax: (techId: string) => void;
+  onStep: (techId: string, field: 'current' | 'target', delta: number) => void;
 }) {
   const compact = useCompact();
   const {
@@ -173,6 +211,9 @@ export default function ResearchTreeFlow({
               ? `+${curLevelData.effectValue.toFixed(2)}%`
               : `+${formatCompact(curLevelData.effectValue)}`
             : null;
+          // Prototype flanking steppers -- only on the root tech for now,
+          // to try the feel before it goes on every node.
+          const isStepperPrototype = tech.id === rows[0]?.[0]?.id;
 
           return (
             <div
@@ -181,6 +222,26 @@ export default function ResearchTreeFlow({
               style={{ left: pos.x - nodeColWidth / 2, top: pos.y - NODE / 2, width: nodeColWidth }}
             >
               <div className="relative flex items-center justify-center" style={{ width: NODE, height: NODE }}>
+                {isStepperPrototype && (
+                  <>
+                    <NodeStepper
+                      side="left"
+                      label="Current"
+                      onInc={() => onStep(tech.id, 'current', 1)}
+                      onDec={() => onStep(tech.id, 'current', -1)}
+                      incDisabled={state.current >= tech.maxLevel}
+                      decDisabled={state.current <= 0}
+                    />
+                    <NodeStepper
+                      side="right"
+                      label="Target"
+                      onInc={() => onStep(tech.id, 'target', 1)}
+                      onDec={() => onStep(tech.id, 'target', -1)}
+                      incDisabled={state.target >= tech.maxLevel}
+                      decDisabled={state.target <= state.current}
+                    />
+                  </>
+                )}
                 <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="45" fill="none" stroke="#2b384e" strokeWidth="7" opacity="0.7" />
                   <circle
