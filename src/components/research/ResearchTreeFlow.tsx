@@ -117,6 +117,35 @@ function NodeStepper({
   );
 }
 
+/** One-time onboarding hint pointing at a stepper -- shown on the root
+ * node only, not on every node, so it explains the pattern once without
+ * turning into permanent clutter. */
+function NodeStepperHint({ side, text, tone }: { side: 'left' | 'right'; text: string; tone: 'gold' | 'cyan' }) {
+  const color = tone === 'gold' ? 'text-gold-300' : 'text-cyan-300';
+  const arrow =
+    side === 'left' ? (
+      <svg viewBox="0 0 32 16" className={`h-4 w-8 shrink-0 ${color}`} fill="none">
+        <path d="M2 9c8-4 16-4 24-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M19 3.5 27 8l-6.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+    ) : (
+      <svg viewBox="0 0 32 16" className={`h-4 w-8 shrink-0 ${color}`} fill="none">
+        <path d="M30 9c-8-4-16-4-24-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M13 3.5 5 8l6.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+    );
+  return (
+    <div
+      className="absolute top-1/2 -translate-y-1/2 flex items-center gap-1.5"
+      style={side === 'left' ? { right: 'calc(100% + 56px)' } : { left: 'calc(100% + 56px)' }}
+    >
+      {side === 'left' && <span className={`w-28 text-right text-xs font-semibold leading-snug ${color}`}>{text}</span>}
+      {arrow}
+      {side === 'right' && <span className={`w-28 text-left text-xs font-semibold leading-snug ${color}`}>{text}</span>}
+    </div>
+  );
+}
+
 function useCompact(): boolean {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
@@ -241,6 +270,7 @@ export default function ResearchTreeFlow({
           // making the tree noticeably wider on a phone screen, so mobile
           // keeps the existing tap-to-open popup instead.
           const showSteppers = !compact;
+          const showHint = showSteppers && tech.id === rows[0]?.[0]?.id;
 
           return (
             <div
@@ -271,6 +301,12 @@ export default function ResearchTreeFlow({
                       incDisabled={state.target >= tech.maxLevel}
                       decDisabled={state.target <= state.current}
                     />
+                    {showHint && (
+                      <>
+                        <NodeStepperHint side="left" tone="gold" text="Click here to choose your current progress" />
+                        <NodeStepperHint side="right" tone="cyan" text="Click here to choose your target" />
+                      </>
+                    )}
                   </>
                 )}
                 <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
