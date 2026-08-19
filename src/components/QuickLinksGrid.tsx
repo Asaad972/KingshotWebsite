@@ -147,16 +147,6 @@ function PawIcon() {
   );
 }
 
-function MasterIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4.5 21c0-4 3.5-6.5 7.5-6.5S19.5 17 19.5 21" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M12 2.5l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3L12 2.5Z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -232,7 +222,8 @@ export default function QuickLinksGrid({
       title: 'Masters Calculator',
       subtitle: 'Plan Affinity, Talent, Skills, and Special Research in one place',
       tone: 'cyan',
-      icon: <MasterIcon />,
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/masters/valora.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
   ];
 
