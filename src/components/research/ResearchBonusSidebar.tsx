@@ -83,34 +83,34 @@ export default function ResearchBonusSidebar({
       )}
 
       {hasGoal && (
-        <div className="flex flex-col gap-2 rounded-md border border-cyan-500/30 bg-cyan-500/5 p-2.5">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-cyan-400">To reach your goals</p>
-          <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2.5 rounded-md border border-cyan-500/30 bg-cyan-500/5 p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-cyan-400">To reach your goals</p>
+          <div className="flex flex-col gap-2">
             {costEntries.map((k) => {
               const Icon = RESOURCE_ICON[k];
               return (
-                <span key={k} className={`flex items-center gap-1.5 text-xs font-semibold tabular-nums ${RESOURCE_COLOR[k]}`}>
-                  <span className="h-4 w-4 shrink-0">
+                <span key={k} className={`flex items-center gap-2 text-base font-semibold tabular-nums ${RESOURCE_COLOR[k]}`}>
+                  <span className="h-5 w-5 shrink-0">
                     <Icon />
                   </span>
                   {formatCompact(totals.cost[k])}
                 </span>
               );
             })}
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-sky-400 tabular-nums">
-              <span className="h-4 w-4 shrink-0">
+            <span className="flex items-center gap-2 text-base font-semibold text-sky-400 tabular-nums">
+              <span className="h-5 w-5 shrink-0">
                 <PowerIcon />
               </span>
               +{formatCompact(totals.powerGained)} Power
             </span>
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-parchment-400 tabular-nums">
-              <span className="h-4 w-4 shrink-0">
+            <span className="flex items-center gap-2 text-xl font-bold text-parchment-100 tabular-nums mt-0.5">
+              <span className="h-6 w-6 shrink-0">
                 <ClockIcon />
               </span>
               {formatResearchDuration(totals.timeSeconds)}
             </span>
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-cyan-300 tabular-nums">
-              <span className="h-4 w-4 shrink-0">
+            <span className="flex items-center gap-2 text-base font-semibold text-cyan-300 tabular-nums">
+              <span className="h-5 w-5 shrink-0">
                 <SpeedupIcon />
               </span>
               {formatCompact(Math.ceil(totals.timeSeconds / 60))} min speedups

@@ -167,7 +167,7 @@ export interface ResearchSpeedBuffs {
   appointment: boolean;
 }
 
-export const KVK_SKILL_PERCENT = 25;
+export const KVK_SKILL_PERCENT = 15;
 export const APPOINTMENT_PERCENT = 10;
 
 export function defaultSpeedBuffs(): ResearchSpeedBuffs {

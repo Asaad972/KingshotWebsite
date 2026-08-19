@@ -45,14 +45,15 @@ function ArrowIcon() {
 export default function HomeGuide() {
   const { t } = useI18n();
 
-  const items: { id: string; title: string; body: string; href?: string; linkLabel?: string; tone: Tone }[] = [
+  const items: { id: string; title: string; body: string; href?: string; linkLabel?: string; tone: Tone; featured?: boolean }[] = [
     {
       id: 'kingdoms',
-      title: 'Other kingdoms can use this too',
-      body: "Any kingdom can set up its own castle-appointment booking page here — a link to share with your players and a private admin link for you, ready in seconds. Both links are permanent: the booking link never expires, and the admin link only stops working if you deliberately generate a new one. No account or password needed — the admin link itself is your login, so keep it safe.",
+      title: 'Why we use castle appointments',
+      body: "King's Castle only has a handful of appointment slots, so a kingdom needs a fair way to decide who gets one. Players apply with proof of their account strength and available speedups; an admin reviews every application and assigns each slot to the player who's the best fit for that time, instead of it being first-come-first-served or decided by who shouts loudest. Any kingdom can run this same system for themselves too — a booking link to share with players and a private admin link for you, ready in seconds. Both are permanent: the booking link never expires, and the admin link only stops working if you deliberately generate a new one. No account or password needed — the admin link itself is your login, so keep it safe.",
       href: '/start',
       linkLabel: 'Set up your kingdom',
-      tone: 'moss',
+      tone: 'gold',
+      featured: true,
     },
     {
       id: 'calculators',
@@ -115,7 +116,12 @@ export default function HomeGuide() {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map((item) => (
-          <div key={item.id} className={`rounded-md border p-4 flex flex-col gap-2 transition-all ${TONE_CARD[item.tone]}`}>
+          <div
+            key={item.id}
+            className={`rounded-md border p-4 flex flex-col gap-2 transition-all ${
+              item.featured ? 'card-featured sm:col-span-2' : TONE_CARD[item.tone]
+            }`}
+          >
             <p className="text-sm font-semibold text-parchment-100">{item.title}</p>
             <p className="text-xs text-parchment-400 leading-relaxed flex-1">{item.body}</p>
             {item.href && (

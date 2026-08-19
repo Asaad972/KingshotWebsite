@@ -112,3 +112,35 @@ body {
 .icon-glow-cyan {
   animation: glow-pulse-cyan 3s ease-in-out infinite;
 }
+
+/* One deliberately louder treatment for a single featured card (the
+   multi-kingdom promo on the home page) -- a slowly shifting gold/cyan/moss
+   wash plus a pulsing multi-color glow, reusing gradient-flow rather than a
+   new animation. Not meant to be reused broadly; this is the "1 key
+   element" exception, same spirit as text-gradient/gradient-bar above. */
+@keyframes glow-pulse-featured {
+  0%,
+  100% {
+    box-shadow:
+      0 0 24px -4px rgba(240, 180, 41, 0.5),
+      0 0 42px -14px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 34px 0px rgba(240, 180, 41, 0.8),
+      0 0 58px -10px rgba(63, 174, 114, 0.5);
+  }
+}
+.card-featured {
+  background: linear-gradient(
+    135deg,
+    rgba(240, 180, 41, 0.22) 0%,
+    rgba(6, 182, 212, 0.12) 45%,
+    rgba(63, 174, 114, 0.16) 100%
+  );
+  background-size: 200% 200%;
+  border: 1px solid rgba(240, 180, 41, 0.55);
+  animation:
+    gradient-flow 10s ease-in-out infinite,
+    glow-pulse-featured 3.5s ease-in-out infinite;
+}
