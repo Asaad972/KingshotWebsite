@@ -17,7 +17,7 @@ export default function HomePage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-parchment-400 mb-3">{t('home.exploreTitle')}</h2>
+        <h2 className="label-eyebrow mb-3">{t('home.exploreTitle')}</h2>
         <QuickLinksGrid
           bookTitle={t('home.bookButton')}
           bookSubtitle={t('home.quickLinkBookSubtitle')}

@@ -98,7 +98,7 @@ export default function BuildingPlannerSection() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-5 pb-8">
       <div className="mb-5">
-        <h1 className="text-lg font-semibold text-parchment-100">Building Upgrade Planner</h1>
+        <h1 className="section-title">Building Upgrade Planner</h1>
         <p className="text-xs text-parchment-400 mt-0.5">
           Pick where you are and where you want to be -- the plan works out the whole dependency chain for you.
         </p>

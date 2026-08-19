@@ -123,7 +123,7 @@ export default function GearCalculatorSection() {
     <div className="flex flex-col gap-2" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-lg font-semibold text-parchment-100">Governor Gear Calculator</h1>
+          <h1 className="section-title">Governor Gear Calculator</h1>
           <p className="text-xs text-parchment-400 mt-0.5">Experimental -- material costs and % bonuses are real, sourced from the gear database.</p>
         </div>
         <div className="flex items-center gap-2">

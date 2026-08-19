@@ -33,7 +33,7 @@ export default function AdminSlotGrid({ slots, onOpenSlot }: { slots: DashboardS
     <div className="space-y-5">
       {groups.map(([dateKey, dateSlots]) => (
         <div key={dateKey}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-parchment-400 sticky top-0 bg-stone-950 py-1 z-10">
+          <p className="mb-2 label-eyebrow sticky top-0 bg-stone-950 py-1 z-10">
             {formatUtcWeekdayDate(`${dateKey}T00:00:00.000Z`, locale ?? 'en')}
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">

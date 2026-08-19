@@ -127,7 +127,7 @@ export default function ResearchTreeSection() {
     <div className="flex flex-col gap-3" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-lg font-semibold text-parchment-100">Research Tree -- {tree.label}</h1>
+          <h1 className="section-title">Research Tree -- {tree.label}</h1>
           <p className="text-xs text-parchment-400 mt-0.5">
             Real cost, time, power, and effect data for all {tree.techs.length} {tree.label} technologies. Tap a tech
             to set your level and goal.

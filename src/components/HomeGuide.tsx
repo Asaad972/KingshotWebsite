@@ -130,7 +130,7 @@ export default function HomeGuide() {
 
   return (
     <div>
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-parchment-400 mb-3">
+      <h2 className="label-eyebrow mb-3">
         {t('home.goodToKnowTitle')}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

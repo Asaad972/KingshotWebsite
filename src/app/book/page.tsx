@@ -285,7 +285,7 @@ export default function BookPage() {
         <UTCClock />
       </div>
 
-      <h1 className="text-lg font-semibold text-parchment-100 mb-4">{t('booking.pageTitle')}</h1>
+      <h1 className="section-title mb-4">{t('booking.pageTitle')}</h1>
 
       <BookingGuide />
 

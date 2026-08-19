@@ -1,6 +1,7 @@
 'use client';
 
 import { useI18n } from '@/lib/i18n';
+import StatCard, { type StatCardTone } from '@/components/ui/StatCard';
 
 interface AdminStatsProps {
   totalApplications: number;
@@ -12,20 +13,17 @@ interface AdminStatsProps {
 export default function AdminStats({ totalApplications, assigned, unassigned, availableSlots }: AdminStatsProps) {
   const { t } = useI18n();
 
-  const cards = [
-    { label: t('admin.totalApplications'), value: totalApplications, tone: 'text-parchment-100' },
-    { label: t('admin.assigned'), value: assigned, tone: 'text-moss-500' },
-    { label: t('admin.unassigned'), value: unassigned, tone: 'text-sky-400' },
-    { label: t('admin.availableSlots'), value: availableSlots, tone: 'text-gold-300' },
+  const cards: { label: string; value: number; tone: StatCardTone }[] = [
+    { label: t('admin.totalApplications'), value: totalApplications, tone: 'neutral' },
+    { label: t('admin.assigned'), value: assigned, tone: 'moss' },
+    { label: t('admin.unassigned'), value: unassigned, tone: 'sky' },
+    { label: t('admin.availableSlots'), value: availableSlots, tone: 'gold' },
   ];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map((card) => (
-        <div key={card.label} className="dashboard-card px-3.5 py-2.5">
-          <p className="text-[11px] uppercase tracking-wide text-parchment-400 mb-0.5">{card.label}</p>
-          <p className={`text-xl sm:text-2xl font-semibold tabular-nums ${card.tone}`}>{card.value}</p>
-        </div>
+        <StatCard key={card.label} label={card.label} value={card.value} tone={card.tone} />
       ))}
     </div>
   );

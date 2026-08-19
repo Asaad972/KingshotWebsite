@@ -42,7 +42,7 @@ export default function ConfirmationModal({
       aria-modal="true"
     >
       <div className="w-full sm:max-w-md rounded-t-md sm:rounded-md border border-stone-700 bg-stone-900 p-5">
-        <h3 className="text-base font-semibold text-parchment-100 mb-3">{title}</h3>
+        <h3 className="card-title mb-3">{title}</h3>
 
         {bullets.length > 0 && (
           <ul className="space-y-1.5 mb-5 text-sm text-parchment-300">

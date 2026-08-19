@@ -9,7 +9,7 @@ export default function SelectedSlotChips({ slots, onRemove }: { slots: CastleSl
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-parchment-400 mb-2">
+      <p className="label-eyebrow mb-2">
         {t('booking.selectedTimesTitle')} ({slots.length})
       </p>
       {slots.length === 0 ? (

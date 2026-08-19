@@ -58,7 +58,7 @@ export default function ArmorSlotCard({
           {isRedTier && <div className="absolute inset-0 bg-red-600" style={{ mixBlendMode: 'hue' }} aria-hidden />}
         </div>
         <div>
-          <p className="text-base font-semibold text-parchment-100">{label}</p>
+          <p className="card-title">{label}</p>
           {isRedTier && <p className="text-[10px] font-semibold text-red-400">Red tier</p>}
         </div>
       </div>

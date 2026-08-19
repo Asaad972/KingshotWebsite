@@ -39,7 +39,7 @@ export default function SchedulePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-5 pb-8">
-      <h1 className="text-lg font-semibold text-parchment-100 mb-4">{t('schedule.title')}</h1>
+      <h1 className="section-title mb-4">{t('schedule.title')}</h1>
 
       <div className="flex justify-center mb-5">
         <UTCClock />

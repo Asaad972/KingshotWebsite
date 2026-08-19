@@ -15,7 +15,7 @@ export default function HeroGearStatsPanel({ statsByTroop }: { statsByTroop: Rec
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
       <div>
-        <h2 className="text-base font-semibold text-parchment-100">Stat Bonus</h2>
+        <h2 className="card-title">Stat Bonus</h2>
         <p className="text-[11px] text-parchment-400 mt-0.5">One gear plan per troop type -- all three calculated together.</p>
       </div>
       <div className="flex flex-col gap-3">

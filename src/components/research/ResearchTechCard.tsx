@@ -111,7 +111,7 @@ export default function ResearchTechCard({
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Current</span>
+            <span className="label-eyebrow">Current</span>
             <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
               <input
                 type="checkbox"
@@ -130,7 +130,7 @@ export default function ResearchTechCard({
         </div>
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Target</span>
+            <span className="label-eyebrow">Target</span>
             <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
               <input
                 type="checkbox"

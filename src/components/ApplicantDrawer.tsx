@@ -124,7 +124,7 @@ export default function ApplicantDrawer({
           <div>
             {slot && (
               <>
-                <h2 className="text-base font-semibold text-parchment-100 tabular-nums">
+                <h2 className="card-title tabular-nums">
                   {slotTime} <span className="text-xs text-parchment-400">UTC</span>
                 </h2>
                 <p className="text-xs text-parchment-400">{formatUtcDate(slot.start_time_utc, locale ?? 'en')}</p>

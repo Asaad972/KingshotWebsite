@@ -18,7 +18,7 @@ export default function PetResultsSidebar({ required, owned }: { required: Recor
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
-      <h2 className="text-base font-semibold text-parchment-100">Live Results</h2>
+      <h2 className="card-title">Live Results</h2>
 
       {!hasAnyRequired ? (
         <p className="text-xs text-parchment-500">Pick a pet and a target level below to see what's needed.</p>

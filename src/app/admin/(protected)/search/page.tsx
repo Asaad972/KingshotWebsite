@@ -29,7 +29,7 @@ export default function AdminPlayersPage() {
 
   return (
     <div>
-      <h1 className="text-lg font-semibold text-parchment-100 mb-4">{t('admin.playersTitle')}</h1>
+      <h1 className="section-title mb-4">{t('admin.playersTitle')}</h1>
 
       <input
         type="search"

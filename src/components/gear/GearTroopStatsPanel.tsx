@@ -14,7 +14,7 @@ export default function GearTroopStatsPanel({ troopStats }: { troopStats: Record
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
       <div>
-        <h2 className="text-base font-semibold text-parchment-100">Stat Bonuses</h2>
+        <h2 className="card-title">Stat Bonuses</h2>
         <p className="text-[11px] text-parchment-400 mt-0.5">
           Each gear piece boosts only its own troop type's Attack &amp; Defense (Cap/Watch &rarr; Cavalry, Coat/Pants
           &rarr; Infantry, Belt/Staff &rarr; Archers).

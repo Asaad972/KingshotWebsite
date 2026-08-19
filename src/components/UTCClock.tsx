@@ -41,7 +41,7 @@ export default function UTCClock({
         sticky ? 'sm:sticky sm:top-4 sm:z-20' : ''
       }`}
     >
-      <p className="text-[11px] uppercase tracking-wide text-parchment-400">{t('common.utcTime')}</p>
+      <p className="label-eyebrow">{t('common.utcTime')}</p>
       <p className="font-mono text-2xl sm:text-3xl font-semibold text-gold-300 tabular-nums leading-tight">
         {now ? formatUtcClock(now) : '--:--:--'}
       </p>

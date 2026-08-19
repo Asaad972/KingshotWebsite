@@ -19,7 +19,7 @@ export default function BookingGuide() {
   return (
     <div className="flex flex-col gap-6 mb-6">
       <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-parchment-400 mb-3">
+        <h2 className="label-eyebrow mb-3">
           {t('home.howItWorksTitle')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -36,7 +36,7 @@ export default function BookingGuide() {
       </div>
 
       <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-parchment-400 mb-3">
+        <h2 className="label-eyebrow mb-3">
           {t('home.screenshotGuideTitle')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

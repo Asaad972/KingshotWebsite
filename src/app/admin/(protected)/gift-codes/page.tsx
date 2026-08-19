@@ -117,7 +117,7 @@ export default function AdminGiftCodesPage() {
 
   return (
     <div className="flex flex-col gap-4" dir="ltr">
-      <h1 className="text-lg font-semibold text-parchment-100">Gift Codes</h1>
+      <h1 className="section-title">Gift Codes</h1>
 
       <div className="dashboard-card p-4 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">

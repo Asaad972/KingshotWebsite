@@ -65,7 +65,7 @@ export default function KingdomAdminDashboardPage({ params }: { params: { slug: 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <h1 className="text-lg font-semibold text-parchment-100">{kingdomName ? `${kingdomName} — ` : ''}Overview</h1>
+        <h1 className="section-title">{kingdomName ? `${kingdomName} — ` : ''}Overview</h1>
         <UTCClock variant="compact" />
       </div>
 

@@ -14,7 +14,7 @@ export default function ProtectedKingdomAdminLayout({
   if (!token) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <h1 className="text-lg font-semibold text-parchment-100 mb-2">Admin link required</h1>
+        <h1 className="section-title mb-2">Admin link required</h1>
         <p className="text-sm text-parchment-300 mb-6">
           There's no login form here — visit your saved admin link (the one shown once when the kingdom was
           created) to get in.

@@ -93,7 +93,7 @@ export default function ApplicationSidebar({
 
       {!canSubmit && (
         <div className="rounded border border-stone-700 bg-stone-950 px-3 py-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-parchment-400 mb-1.5">
+          <p className="label-eyebrow mb-1.5">
             {t('booking.whatsMissing')}
           </p>
           <ul className="space-y-1">

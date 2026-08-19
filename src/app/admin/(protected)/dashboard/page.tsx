@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <h1 className="text-lg font-semibold text-parchment-100">{t('admin.overviewTitle')}</h1>
+        <h1 className="section-title">{t('admin.overviewTitle')}</h1>
         <UTCClock variant="compact" />
       </div>
 

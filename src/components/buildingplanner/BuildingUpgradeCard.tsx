@@ -38,7 +38,7 @@ export default function BuildingUpgradeCard({ card, accent = 'stone' }: { card: 
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-2">
-          <h3 className="text-base font-semibold text-parchment-100">{label}</h3>
+          <h3 className="card-title">{label}</h3>
           <p className="text-sm text-parchment-300 tabular-nums">
             Current: <span className="text-parchment-100 font-semibold">Lv.{card.fromLevel}</span>{' '}
             <span className="text-parchment-500">→</span> Required:{' '}

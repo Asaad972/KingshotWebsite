@@ -30,7 +30,7 @@ export default function ApplicantCard({ applicant, busy, onAccept, onReject }: A
   return (
     <div className="dashboard-card p-4">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
-        <h3 className="text-base font-semibold text-parchment-100">{application.player_name}</h3>
+        <h3 className="card-title">{application.player_name}</h3>
       </div>
       <p className="text-xs text-parchment-400 mb-3">
         {t('booking.selectedCount', { count: totalRequested })}

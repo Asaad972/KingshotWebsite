@@ -5,6 +5,7 @@ import { TROOP_TIERS, TROOP_TYPE_LABELS, getTroopTier, type TroopType } from '@/
 import { calcTroopPlan, tiersAbove, formatDuration, type CalcMode, type CalcType } from '@/lib/troopCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { BreadIcon, WoodIcon, StoneIcon, IronIcon, InfantryIcon, CavalryIcon, ArcherIcon } from './TroopIcons';
+import StatCard from '@/components/ui/StatCard';
 
 interface TroopFormState {
   calcType: CalcType;
@@ -146,7 +147,7 @@ export default function TroopCalculatorSection() {
     <div className="flex flex-col gap-2" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-lg font-semibold text-parchment-100">Troop Training Calculator</h1>
+          <h1 className="section-title">Troop Training Calculator</h1>
           <p className="text-xs text-parchment-400 mt-0.5">
             Experimental -- training time, resource costs, and event points are real, reverse-engineered from a live
             reference calculator.
@@ -164,7 +165,7 @@ export default function TroopCalculatorSection() {
       <div className="grid lg:grid-cols-[1fr_360px] gap-5 items-start mt-3">
         <div className="dashboard-card p-4 flex flex-col gap-3.5">
           <div className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Calculate</p>
+            <p className="label-eyebrow">Calculate</p>
             <PillToggle
               options={[
                 { id: 'time' as CalcType, label: 'Time (from troop count)' },
@@ -176,7 +177,7 @@ export default function TroopCalculatorSection() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Mode</p>
+            <p className="label-eyebrow">Mode</p>
             <PillToggle
               options={[
                 { id: 'train' as CalcMode, label: 'Train new' },
@@ -188,7 +189,7 @@ export default function TroopCalculatorSection() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Troop Type</p>
+            <p className="label-eyebrow">Troop Type</p>
             <div className="grid grid-cols-3 gap-1.5">
               {TROOP_TYPE_ORDER.map((tt) => (
                 <button
@@ -297,7 +298,7 @@ export default function TroopCalculatorSection() {
           </label>
 
           <div className="flex flex-col gap-2">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Buffs</p>
+            <p className="label-eyebrow">Buffs</p>
             {(
               [
                 { id: 'kingdomSkill' as const, label: 'Kingdom Skill (+30% speed)' },
@@ -321,7 +322,7 @@ export default function TroopCalculatorSection() {
 
         <div className="flex flex-col gap-3">
           <div className="dashboard-card p-4 flex flex-col gap-3">
-            <h2 className="text-base font-semibold text-parchment-100">Results</h2>
+            <h2 className="card-title">Results</h2>
 
             {!result || !targetTier ? (
               <p className="text-sm text-parchment-400">Select a target tier to see results.</p>
@@ -340,15 +341,12 @@ export default function TroopCalculatorSection() {
 
                 <div className="grid grid-cols-2 gap-2">
                   {RESOURCE_ICONS.map((r) => (
-                    <div key={r.id} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex items-center gap-2">
-                      <span className={`h-6 w-6 shrink-0 ${r.color}`}>{r.icon}</span>
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-parchment-400">{r.label}</p>
-                        <p className="text-sm font-bold text-parchment-100 tabular-nums truncate">
-                          {result.costByType[form.troopType][r.id].toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
+                    <StatCard
+                      key={r.id}
+                      label={r.label}
+                      value={result.costByType[form.troopType][r.id].toLocaleString()}
+                      icon={<span className={r.color}>{r.icon}</span>}
+                    />
                   ))}
                 </div>
 

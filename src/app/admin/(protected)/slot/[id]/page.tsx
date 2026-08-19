@@ -101,7 +101,7 @@ export default function AdminSlotReviewPage({ params }: { params: { id: string }
 
       {slot && (
         <div className="mb-5">
-          <h1 className="text-lg font-semibold text-parchment-100 tabular-nums">
+          <h1 className="section-title tabular-nums">
             {slotTime} <span className="text-sm text-parchment-400">UTC</span>
           </h1>
           <p className="text-sm text-parchment-400">{formatUtcDate(slot.start_time_utc, locale ?? 'en')}</p>

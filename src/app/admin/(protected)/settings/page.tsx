@@ -71,7 +71,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-lg font-semibold text-parchment-100 mb-5">{t('admin.settingsTitle')}</h1>
+      <h1 className="section-title mb-5">{t('admin.settingsTitle')}</h1>
 
       {message && (
         <div

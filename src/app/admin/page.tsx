@@ -45,7 +45,7 @@ export default function AdminLoginPage() {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm dashboard-card p-5">
         <div className="text-center mb-5">
-          <h1 className="text-lg font-semibold text-parchment-100">{t('admin.loginTitle')}</h1>
+          <h1 className="section-title">{t('admin.loginTitle')}</h1>
           <p className="text-sm text-parchment-400 mt-1">{t('admin.loginSubtitle')}</p>
         </div>
 

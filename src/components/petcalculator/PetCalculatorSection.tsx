@@ -71,7 +71,7 @@ export default function PetCalculatorSection() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-5 pb-8 flex flex-col gap-5">
       <div>
-        <h1 className="text-lg font-semibold text-parchment-100">Pet Upgrade Calculator</h1>
+        <h1 className="section-title">Pet Upgrade Calculator</h1>
         <p className="text-xs text-parchment-400 mt-0.5">
           Pick a pet, set your current and target level, and see exactly what you need to get there.
         </p>

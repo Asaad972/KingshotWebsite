@@ -80,7 +80,7 @@ export default function AdminKingdomsPage() {
     <div>
       <div className="flex items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-lg font-semibold text-parchment-100">Kingdoms</h1>
+          <h1 className="section-title">Kingdoms</h1>
           <p className="text-xs text-parchment-400 mt-0.5">
             Every self-serve kingdom created via /start. Sorted stalest first.
           </p>

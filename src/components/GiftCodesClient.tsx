@@ -186,11 +186,11 @@ export default function GiftCodesClient({
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="dashboard-card p-3 text-center">
           <p className="text-2xl font-bold text-gradient">{stats.enrolledPlayers.toLocaleString()}</p>
-          <p className="text-[10px] uppercase tracking-wide text-parchment-400 mt-0.5">Auto-Redeeming</p>
+          <p className="label-eyebrow mt-0.5">Auto-Redeeming</p>
         </div>
         <div className="dashboard-card p-3 text-center">
           <p className="text-2xl font-bold text-gradient">{stats.codesRedeemed.toLocaleString()}</p>
-          <p className="text-[10px] uppercase tracking-wide text-parchment-400 mt-0.5">Codes Redeemed</p>
+          <p className="label-eyebrow mt-0.5">Codes Redeemed</p>
         </div>
       </div>
 

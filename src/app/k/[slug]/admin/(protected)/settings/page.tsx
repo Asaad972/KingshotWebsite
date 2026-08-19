@@ -96,7 +96,7 @@ export default function KingdomAdminSettingsPage({ params }: { params: { slug: s
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-lg font-semibold text-parchment-100 mb-5">Settings</h1>
+      <h1 className="section-title mb-5">Settings</h1>
 
       {message && (
         <div

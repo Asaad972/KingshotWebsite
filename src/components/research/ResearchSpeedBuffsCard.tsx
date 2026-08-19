@@ -17,7 +17,7 @@ export default function ResearchSpeedBuffsCard({
   return (
     <div className="dashboard-card p-3.5 flex flex-wrap items-end gap-x-5 gap-y-3">
       <label className="flex flex-col gap-1">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Research Speed (%)</span>
+        <span className="label-eyebrow">Research Speed (%)</span>
         <input
           type="number"
           min={0}

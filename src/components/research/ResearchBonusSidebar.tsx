@@ -44,7 +44,7 @@ export default function ResearchBonusSidebar({
     <div className="dashboard-card p-5 flex flex-col gap-3 lg:sticky lg:top-20 z-0">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-base font-semibold text-parchment-100">Overall Bonuses</h2>
+          <h2 className="card-title">Overall Bonuses</h2>
           <p className="text-xs text-parchment-400 mt-0.5">What you'll gain from the upgrades you've set a goal for.</p>
         </div>
         {onClose && (

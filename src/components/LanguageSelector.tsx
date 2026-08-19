@@ -42,7 +42,7 @@ export default function LanguageSelector({
             <span className="text-6xl leading-none" aria-hidden>
               {opt.flag}
             </span>
-            <span className="text-lg font-semibold text-parchment-100">{opt.nativeLabel}</span>
+            <span className="section-title">{opt.nativeLabel}</span>
           </button>
         ))}
       </div>

@@ -20,7 +20,7 @@ export default function ConstructionSpeedBuffsCard({
 }) {
   return (
     <div className="dashboard-card p-3.5 flex flex-wrap items-end gap-x-5 gap-y-3">
-      <div className="flex items-center gap-1.5 pb-2 text-xs font-medium uppercase tracking-wide text-parchment-400">
+      <div className="flex items-center gap-1.5 pb-2 label-eyebrow">
         <span className="h-4 w-4 shrink-0">
           <ConstructionSpeedupIcon />
         </span>
@@ -28,7 +28,7 @@ export default function ConstructionSpeedBuffsCard({
       </div>
 
       <label className="flex flex-col gap-1">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Construction Speed (%)</span>
+        <span className="label-eyebrow">Construction Speed (%)</span>
         <input
           type="number"
           min={0}
@@ -51,7 +51,7 @@ export default function ConstructionSpeedBuffsCard({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-parchment-400">Pet Skill</span>
+        <span className="label-eyebrow">Pet Skill</span>
         <select
           value={buffs.petSkillPercent}
           onChange={(e) => onChange({ ...buffs, petSkillPercent: Number(e.target.value) })}
