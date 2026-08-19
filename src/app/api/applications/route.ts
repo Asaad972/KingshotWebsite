@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 import type { SubmitApplicationPayload } from '@/types';
 
 export async function POST(request: Request) {
@@ -13,6 +14,11 @@ export async function POST(request: Request) {
     body.slot_ids.length === 0
   ) {
     return NextResponse.json({ success: false, reason: 'invalid_payload' }, { status: 400 });
+  }
+
+  const { allowed } = await checkRateLimit(`app_submit:${getClientIp(request)}`, 3600, 10);
+  if (!allowed) {
+    return NextResponse.json({ success: false, reason: 'rate_limited' }, { status: 429 });
   }
 
   const supabase = createClient();

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -8,6 +9,13 @@ export async function POST(request: Request) {
 
   if (!name || !slug) {
     return NextResponse.json({ success: false, reason: 'invalid_payload' }, { status: 400 });
+  }
+
+  // Creating a kingdom is rare for a real user but cheap to script-spam
+  // (each one seeds a settings row + a batch of slots) -- 3 per hour per IP.
+  const { allowed } = await checkRateLimit(`kingdom_create:${getClientIp(request)}`, 3600, 3);
+  if (!allowed) {
+    return NextResponse.json({ success: false, reason: 'rate_limited' }, { status: 429 });
   }
 
   const supabase = createClient();

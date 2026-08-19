@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { verifyPlayerAndKingdom } from '@/lib/kingshotRedeem';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -22,6 +23,11 @@ export async function POST(request: Request) {
   }
   if (!/^\d+$/.test(fid) || !/^\d+$/.test(kid)) {
     return NextResponse.json({ success: false, reason: 'fid_and_kid_must_be_numeric' }, { status: 400 });
+  }
+
+  const { allowed } = await checkRateLimit(`redeem_enroll:${getClientIp(request)}`, 3600, 10);
+  if (!allowed) {
+    return NextResponse.json({ success: false, reason: 'rate_limited' }, { status: 429 });
   }
 
   const verification = await verifyPlayerAndKingdom(fid, kid);

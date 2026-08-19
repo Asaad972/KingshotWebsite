@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Rajdhani, Inter, JetBrains_Mono } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { I18nProvider } from '@/lib/i18n';
 import LocaleGate from '@/components/LocaleGate';
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </LocaleGate>
 
         </I18nProvider>
+        <Analytics />
       </body>
     </html>
   );
