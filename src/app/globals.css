@@ -47,7 +47,7 @@ body {
 }
 
 .dashboard-card {
-  @apply rounded-md border border-stone-700 bg-stone-900;
+  @apply rounded-2xl border border-stone-700 bg-stone-900;
 }
 
 .chip {
