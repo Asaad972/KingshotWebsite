@@ -136,6 +136,17 @@ function BuildingPlannerIcon() {
   );
 }
 
+function PawIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <circle cx="7" cy="8.5" r="1.8" />
+      <circle cx="12" cy="6.5" r="1.8" />
+      <circle cx="17" cy="8.5" r="1.8" />
+      <path d="M12 12c-3 0-5.5 2-5.5 4.5S8.5 20 12 20s5.5-1 5.5-3.5S15 12 12 12Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function QuickLinksGrid({
   bookTitle,
   bookSubtitle,
@@ -198,6 +209,13 @@ export default function QuickLinksGrid({
       subtitle: 'Pick a Town Center target, see the full upgrade path',
       tone: 'cyan',
       icon: <BuildingPlannerIcon />,
+    },
+    {
+      href: '/pet-calculator',
+      title: 'Pet Upgrade Calculator',
+      subtitle: 'Pick a pet and a target level, see everything you need',
+      tone: 'gold',
+      icon: <PawIcon />,
     },
   ];
 

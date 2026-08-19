@@ -117,6 +117,15 @@ export default function HomeGuide() {
       tone: 'sky',
       image: '/buildings/town-center-kingshot.png',
     },
+    {
+      id: 'petcalculator',
+      title: 'Plan a pet’s next levels',
+      body: "Pick a pet, set your current and target level, and it adds up every Pet Food, Growth Manual, Nutrient Potion, and Promotion Medallion you'll need in between -- including the bigger costs paid at each advancement. Enter what you already have and it works out exactly what's still missing, plus the smartest way to spend your Custom Pet Advancement Chests to cover the gap. Add more than one pet to plan them together with one combined shopping list.",
+      href: '/pet-calculator',
+      linkLabel: 'Plan a pet upgrade',
+      tone: 'gold',
+      image: '/pets/grizzly-bear.webp',
+    },
   ];
 
   return (
