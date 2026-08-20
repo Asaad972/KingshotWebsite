@@ -18,26 +18,49 @@ function UpgradeArrow() {
   );
 }
 
+/** Same curved "look here" arrow as the Research Tree's NodeStepperHint,
+ * just rotated to curve down into a thumb instead of sideways into a ring
+ * -- our thumbs sit in a row, not around a circle. */
+function HintArrow({ mirrored = false }: { mirrored?: boolean }) {
+  return (
+    <svg viewBox="0 0 32 16" className={`h-5 w-8 rotate-90 ${mirrored ? '-scale-x-100' : ''}`}>
+      <path d="M2 9c8-4 16-4 24-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M19 3.5 27 8l-6.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+}
+
+function PickerHint({ text, tone, mirrored }: { text: string; tone: 'gold' | 'cyan'; mirrored?: boolean }) {
+  const color = tone === 'gold' ? 'text-gold-300' : 'text-cyan-300';
+  return (
+    <div className={`flex w-[84px] flex-col items-center gap-0.5 ${color}`}>
+      <span className="text-center text-[9px] font-semibold leading-tight">{text}</span>
+      <HintArrow mirrored={mirrored} />
+    </div>
+  );
+}
+
 /** Tap either picture to open that side's Color -> Stage -> Stars picker
  * directly -- no separate "Set Current"/"Set Target" buttons, the arrow
  * between the two pictures already says what each side means. Pieces
- * without real screenshots yet (everything but Coat, for now) fall back to
- * a themed placeholder tile using the slot's own generic icon -- swaps to
- * real art automatically once that slot gets an entry in
- * gearPieceImages.ts's SLOT_IMAGES. */
+ * without real screenshots yet fall back to a themed placeholder tile using
+ * the slot's own generic icon -- swaps to real art automatically once that
+ * slot gets an entry in gearPieceImages.ts's SLOT_IMAGES. `showHint` mirrors
+ * the Research Tree's root-node hint: shown permanently on just one piece
+ * (Cap) as a standing explainer, not repeated on every piece. */
 export default function GearSlotCard({
   slotId,
-  label,
   icon,
   currentId,
   targetId,
+  showHint = false,
   onSelectLevel,
 }: {
   slotId: GearSlotId;
-  label: string;
   icon: React.ReactNode;
   currentId: string;
   targetId: string;
+  showHint?: boolean;
   onSelectLevel: (slotId: GearSlotId, mode: 'current' | 'target', levelId: string) => void;
 }) {
   const [picker, setPicker] = useState<PickerTarget>(null);
@@ -57,8 +80,14 @@ export default function GearSlotCard({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <p className="text-sm font-semibold text-parchment-100">{label}</p>
+    <div className="flex flex-col items-center gap-1">
+      {showHint && (
+        <div className="flex items-center justify-center gap-3">
+          <PickerHint text="Click here to choose your current gear" tone="gold" />
+          <div className="w-10 shrink-0" />
+          <PickerHint text="Click here to choose your target gear" tone="cyan" mirrored />
+        </div>
+      )}
 
       {/* Current -> Target, the whole point made visible at a glance */}
       <div className="flex items-center justify-center gap-3 py-1">

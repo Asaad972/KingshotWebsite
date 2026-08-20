@@ -106,15 +106,13 @@ export default function GearCalculatorSection() {
     setOwned((prev) => ({ ...prev, [materialId]: value }));
   };
 
-  const slotLabel = (id: GearSlotId) => GEAR_SLOTS.find((s) => s.id === id)!.label;
-
   const renderSlot = (slotId: GearSlotId) => (
     <GearSlotCard
       slotId={slotId}
-      label={slotLabel(slotId)}
       icon={SLOT_ICONS[slotId]}
       currentId={selections[slotId].currentId}
       targetId={selections[slotId].targetId}
+      showHint={slotId === 'cap'}
       onSelectLevel={handleSelectLevel}
     />
   );
