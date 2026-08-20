@@ -1,21 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n';
 import { EmblemIcon, ManuscriptIcon } from './MasterIcons';
-
-const MATERIALS = [
-  { id: 'emblems' as const, label: 'Master Emblems', Icon: EmblemIcon },
-  { id: 'manuscripts' as const, label: "Master's Manuscripts", Icon: ManuscriptIcon },
-];
-
-// Real in-game Affinity gift items (user-provided) -- gifted to a Master to
-// raise Affinity directly, in 3 fixed denominations, same "count what you
-// have" pattern as Hero Gear's XP items (Green/Purple Gear).
-const AFFINITY_GIFTS = [
-  { id: 'affinityGift10', label: 'Small Affinity Gift', xpEach: 10, image: '/masters/gifts/affinity-10.png' },
-  { id: 'affinityGift100', label: 'Medium Affinity Gift', xpEach: 100, image: '/masters/gifts/affinity-100.png' },
-  { id: 'affinityGift1000', label: 'Large Affinity Gift', xpEach: 1000, image: '/masters/gifts/affinity-1000.png' },
-];
 
 /** Pure inputs, mirroring the Pet Calculator's Materials & Chests panel --
  * what it adds up to (Need/Missing) lives in the results sidebar instead. */
@@ -26,11 +13,27 @@ export default function MasterMaterialsPanel({
   owned: Record<string, number>;
   onChangeOwned: (materialId: string, value: number) => void;
 }) {
+  const { t } = useI18n();
+
+  const MATERIALS = [
+    { id: 'emblems' as const, label: t('masterCalculator.masterEmblems'), Icon: EmblemIcon },
+    { id: 'manuscripts' as const, label: t('masterCalculator.mastersManuscripts'), Icon: ManuscriptIcon },
+  ];
+
+  // Real in-game Affinity gift items (user-provided) -- gifted to a Master
+  // to raise Affinity directly, in 3 fixed denominations, same "count what
+  // you have" pattern as Hero Gear's XP items (Green/Purple Gear).
+  const AFFINITY_GIFTS = [
+    { id: 'affinityGift10', label: t('masterCalculator.smallAffinityGift'), xpEach: 10, image: '/masters/gifts/affinity-10.png' },
+    { id: 'affinityGift100', label: t('masterCalculator.mediumAffinityGift'), xpEach: 100, image: '/masters/gifts/affinity-100.png' },
+    { id: 'affinityGift1000', label: t('masterCalculator.largeAffinityGift'), xpEach: 1000, image: '/masters/gifts/affinity-1000.png' },
+  ];
+
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
       <div>
-        <h2 className="card-title">Your Materials</h2>
-        <p className="text-[11px] text-parchment-400 mt-0.5">Enter what you already have -- shortfalls update live on the right.</p>
+        <h2 className="card-title">{t('calc.yourMaterials')}</h2>
+        <p className="text-[11px] text-parchment-400 mt-0.5">{t('calc.materialsSubtitle')}</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -55,7 +58,7 @@ export default function MasterMaterialsPanel({
       </div>
 
       <div className="border-t border-stone-700 pt-3 flex flex-col gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-parchment-500">Affinity Gifts</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-parchment-500">{t('masterCalculator.affinityGifts')}</p>
         <div className="grid grid-cols-3 gap-2.5">
           {AFFINITY_GIFTS.map((g) => (
             <label key={g.id} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex flex-col gap-2">

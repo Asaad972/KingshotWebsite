@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 import {
   DOUBLE_TIME_PERCENT,
   CHIEF_MINISTER_PERCENT,
@@ -20,6 +21,7 @@ export default function ConstructionSpeedBuffsCard({
   buffs: ConstructionSpeedBuffs;
   onChange: (next: ConstructionSpeedBuffs) => void;
 }) {
+  const { t } = useI18n();
   const [helpOpen, setHelpOpen] = useState(false);
 
   return (
@@ -28,18 +30,18 @@ export default function ConstructionSpeedBuffsCard({
         <span className="h-4 w-4 shrink-0">
           <ConstructionSpeedupIcon />
         </span>
-        Construction Speed
+        {t('speedBuffs.constructionSpeed')}
         <button
           type="button"
           onClick={() => setHelpOpen(true)}
           className="focus-ring ml-1 rounded border border-sky-500/40 px-2 py-0.5 text-[10px] font-semibold text-sky-400 hover:bg-sky-500/10 normal-case tracking-normal"
         >
-          How to get
+          {t('calc.howToGet')}
         </button>
       </div>
 
       <label className="flex flex-col gap-1">
-        <span className="label-eyebrow">Construction Speed (%)</span>
+        <span className="label-eyebrow">{t('speedBuffs.constructionSpeedPercent')}</span>
         <input
           type="number"
           min={0}
@@ -58,20 +60,20 @@ export default function ConstructionSpeedBuffsCard({
           onChange={(e) => onChange({ ...buffs, doubleTime: e.target.checked })}
           className="focus-ring h-4 w-4 rounded border-stone-700 bg-stone-950 text-gold-500 accent-gold-500"
         />
-        <span className="text-sm text-parchment-300">Double Time (+{DOUBLE_TIME_PERCENT}% speed)</span>
+        <span className="text-sm text-parchment-300">{t('speedBuffs.doubleTime', { percent: DOUBLE_TIME_PERCENT })}</span>
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="label-eyebrow">Pet Skill</span>
+        <span className="label-eyebrow">{t('speedBuffs.petSkill')}</span>
         <select
           value={buffs.petSkillPercent}
           onChange={(e) => onChange({ ...buffs, petSkillPercent: Number(e.target.value) })}
           className="focus-ring rounded border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-parchment-100 focus:border-gold-600"
         >
-          <option value={0}>None</option>
+          <option value={0}>{t('speedBuffs.none')}</option>
           {PET_SKILL_PERCENTS.map((p) => (
             <option key={p} value={p}>
-              +{p}% speed
+              {t('speedBuffs.speedPercent', { percent: p })}
             </option>
           ))}
         </select>
@@ -84,7 +86,7 @@ export default function ConstructionSpeedBuffsCard({
           onChange={(e) => onChange({ ...buffs, chiefMinister: e.target.checked })}
           className="focus-ring h-4 w-4 rounded border-stone-700 bg-stone-950 text-gold-500 accent-gold-500"
         />
-        <span className="text-sm text-parchment-300">Chief Minister (+{CHIEF_MINISTER_PERCENT}% speed)</span>
+        <span className="text-sm text-parchment-300">{t('speedBuffs.chiefMinister', { percent: CHIEF_MINISTER_PERCENT })}</span>
       </label>
 
       <label className="flex items-center gap-2 cursor-pointer pb-2">
@@ -94,7 +96,7 @@ export default function ConstructionSpeedBuffsCard({
           onChange={(e) => onChange({ ...buffs, kingSkill: e.target.checked })}
           className="focus-ring h-4 w-4 rounded border-stone-700 bg-stone-950 text-gold-500 accent-gold-500"
         />
-        <span className="text-sm text-parchment-300">King Skill / KvK Bonus (+{KING_SKILL_PERCENT}% speed)</span>
+        <span className="text-sm text-parchment-300">{t('speedBuffs.kingSkill', { percent: KING_SKILL_PERCENT })}</span>
       </label>
 
       <BonusOverviewHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />

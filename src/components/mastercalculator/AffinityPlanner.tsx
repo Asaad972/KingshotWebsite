@@ -1,6 +1,7 @@
 'use client';
 
 import type { Master } from '@/lib/masterTypes';
+import { useI18n } from '@/lib/i18n';
 import { costForAffinityRange, costForTalentRange } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import { AffinityIcon, EmblemIcon, PowerIcon } from './MasterIcons';
@@ -23,6 +24,7 @@ export default function AffinityPlanner({
   target: number;
   onChange: (next: { current: number; target: number }) => void;
 }) {
+  const { t } = useI18n();
   const milestones = milestonesFor(master.maxAffinity);
   const result = costForAffinityRange(master, current, target);
 
@@ -45,11 +47,11 @@ export default function AffinityPlanner({
         <div className="relative h-8 w-8 shrink-0 rounded-lg overflow-hidden">
           <MasterPortrait src={master.image} alt={master.name} className="h-full w-full text-[7px]" />
         </div>
-        <h2 className="card-title">Affinity</h2>
+        <h2 className="card-title">{t('masterCalculator.affinityLabel')}</h2>
       </div>
 
       <div className="flex flex-col gap-2">
-        <LevelSlider label="Current" value={current} min={0} max={master.maxAffinity} onChange={setCurrent} />
+        <LevelSlider label={t('calc.current')} value={current} min={0} max={master.maxAffinity} onChange={setCurrent} />
         <div className="flex gap-1.5 flex-wrap">
           {milestones.map((m) => (
             <button
@@ -65,7 +67,7 @@ export default function AffinityPlanner({
           ))}
         </div>
 
-        <LevelSlider label="Target" value={target} min={0} max={master.maxAffinity} onChange={setTarget} tone="cyan" />
+        <LevelSlider label={t('calc.target')} value={target} min={0} max={master.maxAffinity} onChange={setTarget} tone="cyan" />
         <div className="flex gap-1.5 flex-wrap">
           {milestones.map((m) => {
             const disabled = m < current;
@@ -98,7 +100,7 @@ export default function AffinityPlanner({
                 <AffinityIcon />
               </span>
               {result.totalPoints.toLocaleString()}
-              <span className="text-parchment-500 font-normal text-xs">Affinity Points</span>
+              <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.affinityPoints')}</span>
             </div>
           )}
           {result && result.totalEmblems > 0 && (
@@ -107,7 +109,7 @@ export default function AffinityPlanner({
                 <EmblemIcon />
               </span>
               {result.totalEmblems.toLocaleString()}
-              <span className="text-parchment-500 font-normal text-xs">Master Emblems</span>
+              <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.masterEmblems')}</span>
             </div>
           )}
           {talentResult && talentResult.powerGained > 0 && (
@@ -116,7 +118,9 @@ export default function AffinityPlanner({
                 <PowerIcon />
               </span>
               +{talentResult.powerGained.toLocaleString()}
-              <span className="text-parchment-500 font-normal text-xs">{talent.name} Power</span>
+              <span className="text-parchment-500 font-normal text-xs">
+                {talent.name} {t('calc.power')}
+              </span>
             </div>
           )}
         </div>
@@ -124,7 +128,7 @@ export default function AffinityPlanner({
 
       {result?.statusReached && (
         <p className="text-xs text-parchment-400">
-          Reaches relationship status <span className="text-parchment-100 font-semibold">{result.statusReached}</span>
+          {t('masterCalculator.reachesStatus')} <span className="text-parchment-100 font-semibold">{result.statusReached}</span>
         </p>
       )}
 
@@ -141,13 +145,15 @@ export default function AffinityPlanner({
       {result && (
         <details className="text-xs">
           <summary className="cursor-pointer text-parchment-500 hover:text-gold-300 transition-colors select-none">
-            Show every level ({current + 1}-{target})
+            {t('masterCalculator.showEveryLevelRange', { from: current + 1, to: target })}
           </summary>
           <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-64 overflow-y-auto pr-1">
             {master.affinity.slice(current + 1, target + 1).map((lvl) => (
               <div key={lvl.level} className="flex items-center justify-between rounded bg-stone-950/60 px-2 py-1">
                 <span className="text-parchment-400">Lv.{lvl.level}</span>
-                <span className="text-parchment-300 tabular-nums">{lvl.cost.toLocaleString()} pts</span>
+                <span className="text-parchment-300 tabular-nums">
+                  {lvl.cost.toLocaleString()} {t('masterCalculator.points')}
+                </span>
               </div>
             ))}
           </div>

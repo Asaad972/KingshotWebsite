@@ -1,13 +1,8 @@
 'use client';
 
+import { useI18n } from '@/lib/i18n';
 import { formatLearnDuration } from '@/lib/masterCalc';
 import { EmblemIcon, ManuscriptIcon, ClockIcon, AffinityIcon } from './MasterIcons';
-
-const MATERIALS = [
-  { id: 'affinityXp' as const, label: 'Affinity Points', Icon: AffinityIcon },
-  { id: 'emblems' as const, label: 'Master Emblems', Icon: EmblemIcon },
-  { id: 'manuscripts' as const, label: "Master's Manuscripts", Icon: ManuscriptIcon },
-];
 
 /** Combined Required/Have/Missing per material -- the results half of the
  * Materials panel, sticky so it stays visible while scrolling through the
@@ -23,6 +18,14 @@ export default function MasterResultsSidebar({
   required: Record<string, number>;
   owned: Record<string, number>;
 }) {
+  const { t } = useI18n();
+
+  const MATERIALS = [
+    { id: 'affinityXp' as const, label: t('masterCalculator.affinityPoints'), Icon: AffinityIcon },
+    { id: 'emblems' as const, label: t('masterCalculator.masterEmblems'), Icon: EmblemIcon },
+    { id: 'manuscripts' as const, label: t('masterCalculator.mastersManuscripts'), Icon: ManuscriptIcon },
+  ];
+
   const hasAnyRequired = Object.values(required).some((v) => v > 0);
   const activeSelections = selections.filter((s) => s.target > s.current);
 
@@ -30,7 +33,7 @@ export default function MasterResultsSidebar({
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
-      <h2 className="card-title">{masterName ? `${masterName} Upgrade Plan` : 'Live Results'}</h2>
+      <h2 className="card-title">{masterName ? t('masterCalculator.upgradePlanTitle', { name: masterName }) : t('masterCalculator.liveResults')}</h2>
 
       {activeSelections.length > 0 && (
         <div className="flex flex-col gap-1 pb-1 border-b border-stone-700">
@@ -46,7 +49,7 @@ export default function MasterResultsSidebar({
       )}
 
       {!hasAnyRequired ? (
-        <p className="text-xs text-parchment-500">Pick a master and set targets below to see what's needed.</p>
+        <p className="text-xs text-parchment-500">{t('masterCalculator.pickMasterHint')}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {MATERIALS.map((m) => {
@@ -62,10 +65,18 @@ export default function MasterResultsSidebar({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-parchment-100 truncate">{m.label}</p>
-                  <p className="text-[11px] text-parchment-500">Need {req.toLocaleString()}</p>
+                  <p className="text-[11px] text-parchment-500">
+                    {t('calc.need')} {req.toLocaleString()}
+                  </p>
                 </div>
                 <div className="text-sm font-bold tabular-nums shrink-0 text-right">
-                  {ready ? <span className="text-moss-500">Enough ✓</span> : <span className="text-ember-500">Missing {needed.toLocaleString()}</span>}
+                  {ready ? (
+                    <span className="text-moss-500">{t('calc.enough')} ✓</span>
+                  ) : (
+                    <span className="text-ember-500">
+                      {t('calc.missing')} {needed.toLocaleString()}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -79,7 +90,7 @@ export default function MasterResultsSidebar({
                 <ClockIcon />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-parchment-100 truncate">Speedups Needed</p>
+                <p className="text-xs font-semibold text-parchment-100 truncate">{t('masterCalculator.speedupsNeeded')}</p>
               </div>
               <div className="text-sm font-bold tabular-nums shrink-0 text-right text-ember-500">~{formatLearnDuration(learningXpReq)}</div>
             </div>

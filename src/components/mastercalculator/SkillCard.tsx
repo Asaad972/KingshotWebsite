@@ -1,6 +1,7 @@
 'use client';
 
 import type { Skill } from '@/lib/masterTypes';
+import { useI18n } from '@/lib/i18n';
 import { costForSkillRange, formatLearnDuration } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import { ManuscriptIcon, ClockIcon } from './MasterIcons';
@@ -45,6 +46,7 @@ export default function SkillCard({
   onChange: (next: { current: number; target: number }) => void;
   onRequireAffinity: (affinity: number) => void;
 }) {
+  const { t } = useI18n();
   const maxLevel = skill.levels.length;
   const levels = Array.from({ length: maxLevel + 1 }, (_, i) => i);
   const { levels: milestones, notes: milestoneNotes } = gateChangeLevels(skill);
@@ -67,17 +69,17 @@ export default function SkillCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-parchment-100 truncate">
-            Skill {index + 1}: {skill.name}
+            {t('masterCalculator.skillPrefix', { n: index + 1 })}: {skill.name}
           </p>
-          <p className="text-[11px] text-parchment-500">Unlocks at Affinity {skill.unlockAffinity} -- max Lv.{maxLevel} (higher levels can need more)</p>
+          <p className="text-[11px] text-parchment-500">{t('masterCalculator.unlocksAtAffinity', { level: skill.unlockAffinity, max: maxLevel })}</p>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <LevelSlider label="Current" value={current} min={0} max={maxLevel} onChange={setCurrent} />
+        <LevelSlider label={t('calc.current')} value={current} min={0} max={maxLevel} onChange={setCurrent} />
         <LevelChips levels={levels} value={current} onSelect={setCurrent} milestoneLevels={milestones} milestoneNotes={milestoneNotes} />
 
-        <LevelSlider label="Target" value={target} min={0} max={maxLevel} onChange={setTarget} tone="cyan" />
+        <LevelSlider label={t('calc.target')} value={target} min={0} max={maxLevel} onChange={setTarget} tone="cyan" />
         <LevelChips
           levels={levels}
           value={target}
@@ -92,7 +94,7 @@ export default function SkillCard({
       {result && (
         <>
           <p className="text-xs text-parchment-400">
-            <span className="text-parchment-100 font-semibold">{result.valueAtCurrent ?? 'None'}</span>
+            <span className="text-parchment-100 font-semibold">{result.valueAtCurrent ?? t('masterCalculator.none')}</span>
             <span className="mx-1.5 text-parchment-600">→</span>
             <span className="text-gold-300 font-semibold">{result.valueAtTarget}</span>
           </p>
@@ -104,7 +106,7 @@ export default function SkillCard({
                   <ManuscriptIcon />
                 </span>
                 {result.totalManuscripts.toLocaleString()}
-                <span className="text-parchment-500 font-normal text-xs">Master&apos;s Manuscripts</span>
+                <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.mastersManuscripts')}</span>
               </span>
             )}
             {result.totalLearningXP > 0 && (
@@ -113,7 +115,7 @@ export default function SkillCard({
                   <ClockIcon />
                 </span>
                 ~{formatLearnDuration(result.totalLearningXP)}
-                <span className="text-parchment-500 font-normal text-xs">to learn</span>
+                <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.toLearn')}</span>
               </span>
             )}
           </div>
@@ -121,14 +123,14 @@ export default function SkillCard({
           {affinityShort && (
             <div className="rounded-md border border-ember-600/40 bg-ember-500/10 p-2 flex items-center justify-between gap-2">
               <span className="text-xs font-semibold text-ember-500">
-                Reaching Lv.{target} needs Affinity {result.requiredAffinity} -- your plan is at {affinityTarget}
+                {t('masterCalculator.reachingLvNeedsAffinity', { target, needed: result.requiredAffinity, planned: affinityTarget })}
               </span>
               <button
                 type="button"
                 onClick={() => onRequireAffinity(result.requiredAffinity)}
                 className="focus-ring shrink-0 rounded border border-ember-500/50 px-2 py-1 text-[11px] font-semibold text-ember-400 hover:bg-ember-500/10"
               >
-                Include in plan
+                {t('masterCalculator.includeInPlan')}
               </button>
             </div>
           )}

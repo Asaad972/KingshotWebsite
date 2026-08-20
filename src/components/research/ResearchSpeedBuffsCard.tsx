@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 import { KVK_SKILL_PERCENT, APPOINTMENT_PERCENT, type ResearchSpeedBuffs } from '@/lib/researchCalc';
 import BonusOverviewHelpModal from '@/components/ui/BonusOverviewHelpModal';
 
@@ -16,19 +17,20 @@ export default function ResearchSpeedBuffsCard({
   buffs: ResearchSpeedBuffs;
   onChange: (next: ResearchSpeedBuffs) => void;
 }) {
+  const { t } = useI18n();
   const [helpOpen, setHelpOpen] = useState(false);
 
   return (
     <div className="dashboard-card p-3.5 flex flex-wrap items-end gap-x-5 gap-y-3">
       <label className="flex flex-col gap-1">
         <span className="label-eyebrow flex items-center gap-1.5">
-          Research Speed (%)
+          {t('speedBuffs.researchSpeedPercent')}
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
             className="focus-ring rounded border border-sky-500/40 px-2 py-0.5 text-[10px] font-semibold text-sky-400 hover:bg-sky-500/10 normal-case tracking-normal"
           >
-            How to get
+            {t('calc.howToGet')}
           </button>
         </span>
         <input
@@ -49,7 +51,7 @@ export default function ResearchSpeedBuffsCard({
           onChange={(e) => onChange({ ...buffs, kvkSkill: e.target.checked })}
           className="focus-ring h-4 w-4 rounded border-stone-700 bg-stone-950 text-gold-500 accent-gold-500"
         />
-        <span className="text-sm text-parchment-300">KvK Skill (+{KVK_SKILL_PERCENT}% speed)</span>
+        <span className="text-sm text-parchment-300">{t('speedBuffs.kvkSkill', { percent: KVK_SKILL_PERCENT })}</span>
       </label>
 
       <label className="flex items-center gap-2 cursor-pointer pb-2">
@@ -59,7 +61,7 @@ export default function ResearchSpeedBuffsCard({
           onChange={(e) => onChange({ ...buffs, appointment: e.target.checked })}
           className="focus-ring h-4 w-4 rounded border-stone-700 bg-stone-950 text-gold-500 accent-gold-500"
         />
-        <span className="text-sm text-parchment-300">Appointment (+{APPOINTMENT_PERCENT}% speed)</span>
+        <span className="text-sm text-parchment-300">{t('speedBuffs.appointment', { percent: APPOINTMENT_PERCENT })}</span>
       </label>
 
       <BonusOverviewHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />

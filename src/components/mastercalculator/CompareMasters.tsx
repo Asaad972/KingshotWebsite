@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 import { MASTERS, MASTER_ORDER } from '@/lib/masters';
 import { getMasterMaxStats, type MasterMaxStats } from '@/lib/masterCompare';
 import MasterPortrait from './MasterPortrait';
@@ -9,17 +10,17 @@ const TONES = ['#f0b429', '#22d3ee', '#3fae72', '#e2503f', '#5fa8f5', '#a78bfa']
 
 interface MetricDef {
   key: keyof MasterMaxStats;
-  label: string;
+  labelKey: string;
   format: (s: MasterMaxStats) => string;
 }
 
 const METRICS: MetricDef[] = [
-  { key: 'maxBuffPercent', label: 'Max Squad Buff', format: (s) => `+${s.maxBuffPercent.toFixed(2)}%` },
-  { key: 'talentSkillsPower', label: 'Talent + Skills Power', format: (s) => s.talentSkillsPower.toLocaleString() },
-  { key: 'maxAffinityPoints', label: 'Affinity Points to Lv.100', format: (s) => s.maxAffinityPoints.toLocaleString() },
-  { key: 'totalEmblemsToMax', label: 'Master Emblems to Lv.100', format: (s) => s.totalEmblemsToMax.toLocaleString() },
-  { key: 'maxManuscripts', label: "Master's Manuscripts (all skills)", format: (s) => s.maxManuscripts.toLocaleString() },
-  { key: 'maxLearningXP', label: 'Time to learn all skills', format: (s) => `~${s.maxLearnDuration}` },
+  { key: 'maxBuffPercent', labelKey: 'masterCalculator.maxSquadBuff', format: (s) => `+${s.maxBuffPercent.toFixed(2)}%` },
+  { key: 'talentSkillsPower', labelKey: 'masterCalculator.talentSkillsPower', format: (s) => s.talentSkillsPower.toLocaleString() },
+  { key: 'maxAffinityPoints', labelKey: 'masterCalculator.affinityPointsToLv100', format: (s) => s.maxAffinityPoints.toLocaleString() },
+  { key: 'totalEmblemsToMax', labelKey: 'masterCalculator.masterEmblemsToLv100', format: (s) => s.totalEmblemsToMax.toLocaleString() },
+  { key: 'maxManuscripts', labelKey: 'masterCalculator.manuscriptsAllSkills', format: (s) => s.maxManuscripts.toLocaleString() },
+  { key: 'maxLearningXP', labelKey: 'masterCalculator.timeToLearnAllSkills', format: (s) => `~${s.maxLearnDuration}` },
 ];
 
 /** A different shape from the reference site's stacked number list: each
@@ -27,6 +28,7 @@ const METRICS: MetricDef[] = [
  * the highest value in that row, so a longer bar always reads as "more"
  * at a glance without needing to read every number. */
 export default function CompareMasters() {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<string[]>(['valora', 'pan']);
 
   const toggle = (id: string) => {
@@ -39,8 +41,8 @@ export default function CompareMasters() {
     <div className="flex flex-col gap-4">
       <div className="dashboard-card p-4 flex flex-col gap-3">
         <div>
-          <h2 className="card-title">Compare Masters</h2>
-          <p className="text-[11px] text-parchment-400 mt-0.5">Tap masters to add or remove them from the comparison.</p>
+          <h2 className="card-title">{t('masterCalculator.compareTab')}</h2>
+          <p className="text-[11px] text-parchment-400 mt-0.5">{t('masterCalculator.compareHint')}</p>
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
           {MASTER_ORDER.map((id, i) => {
@@ -68,7 +70,7 @@ export default function CompareMasters() {
 
       {stats.length === 0 ? (
         <div className="dashboard-card p-4">
-          <p className="text-xs text-parchment-500">Pick at least one Master above to see how they compare.</p>
+          <p className="text-xs text-parchment-500">{t('masterCalculator.compareEmptyHint')}</p>
         </div>
       ) : (
         <div className="dashboard-card p-4 flex flex-col gap-5">
@@ -76,8 +78,8 @@ export default function CompareMasters() {
             const values = stats.map((s) => (metric.key === 'maxLearningXP' ? s.maxLearningXP : (s[metric.key] as number)));
             const max = Math.max(1, ...values);
             return (
-              <div key={metric.label} className="flex flex-col gap-1.5">
-                <p className="label-eyebrow">{metric.label}</p>
+              <div key={metric.labelKey} className="flex flex-col gap-1.5">
+                <p className="label-eyebrow">{t(metric.labelKey)}</p>
                 <div className="flex flex-col gap-1">
                   {stats.map((s, i) => {
                     const value = values[i];

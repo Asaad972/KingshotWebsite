@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 import { MASTERS } from '@/lib/masters';
 import { costForAffinityRange, costForSkillRange, costForResearchRange } from '@/lib/masterCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
@@ -32,6 +33,7 @@ function defaultProgress(): MasterProgress {
 }
 
 export default function MasterCalculatorSection() {
+  const { t } = useI18n();
   const [view, setView] = useState<'plan' | 'compare'>('plan');
   const [selectedId, setSelectedId] = useLocalStorageState<string | null>('masterCalculator:selected', null);
   const [progressByMaster, setProgressByMaster] = useLocalStorageState<Record<string, MasterProgress>>('masterCalculator:progress', {});
@@ -86,24 +88,22 @@ export default function MasterCalculatorSection() {
   const selections = useMemo(() => {
     if (!master) return [];
     const list: { label: string; current: number; target: number }[] = [
-      { label: 'Affinity', current: progress.affinity.current, target: progress.affinity.target },
-      { label: 'Special Research', current: progress.research.current, target: progress.research.target },
+      { label: t('masterCalculator.affinityLabel'), current: progress.affinity.current, target: progress.affinity.target },
+      { label: t('masterCalculator.specialResearchLabel'), current: progress.research.current, target: progress.research.target },
     ];
     master.skills.forEach((skill, i) => {
       const r = progress.skills[i] || { current: 0, target: 0 };
       list.push({ label: skill.name, current: r.current, target: r.target });
     });
     return list;
-  }, [master, progress]);
+  }, [master, progress, t]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-5 pb-8 flex flex-col gap-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="section-title">Masters Calculator</h1>
-          <p className="text-xs text-parchment-400 mt-0.5">
-            Pick a Master, then plan Affinity, Talent, Skills, and Special Research -- see exactly what you need.
-          </p>
+          <h1 className="section-title">{t('masterCalculator.title')}</h1>
+          <p className="text-xs text-parchment-400 mt-0.5">{t('masterCalculator.subtitle')}</p>
         </div>
         <div className="flex gap-1.5 rounded-lg border border-stone-700 bg-stone-900 p-1">
           {(['plan', 'compare'] as const).map((v) => (
@@ -115,7 +115,7 @@ export default function MasterCalculatorSection() {
                 view === v ? 'bg-gold-500 text-stone-950' : 'text-parchment-400 hover:text-parchment-100'
               }`}
             >
-              {v === 'plan' ? 'Plan a Master' : 'Compare Masters'}
+              {v === 'plan' ? t('masterCalculator.planTab') : t('masterCalculator.compareTab')}
             </button>
           ))}
         </div>
@@ -138,7 +138,7 @@ export default function MasterCalculatorSection() {
             />
 
             <div className="flex flex-col gap-3">
-              <h2 className="section-title text-base">Skills</h2>
+              <h2 className="section-title text-base">{t('masterCalculator.skillsHeading')}</h2>
               {master.skills.map((skill, i) => (
                 <SkillCard
                   key={skill.name}

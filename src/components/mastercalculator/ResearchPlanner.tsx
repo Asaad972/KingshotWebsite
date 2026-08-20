@@ -1,6 +1,7 @@
 'use client';
 
 import type { Master, ResearchMilestone } from '@/lib/masterTypes';
+import { useI18n } from '@/lib/i18n';
 import { costForResearchRange } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import { EmblemIcon, PowerIcon, ResearchIcon } from './MasterIcons';
@@ -37,6 +38,7 @@ export default function ResearchPlanner({
   target: number;
   onChange: (next: { current: number; target: number }) => void;
 }) {
+  const { t } = useI18n();
   // Unlocks once the plan reaches max Affinity, not just actual current
   // Affinity -- same "Include in plan" logic as the Skills gate warning, so
   // planning ahead doesn't get blocked by progress you haven't made yet.
@@ -54,7 +56,7 @@ export default function ResearchPlanner({
         <span className="h-6 w-6 shrink-0">
           <ResearchIcon />
         </span>
-        <h2 className="card-title">Special Research</h2>
+        <h2 className="card-title">{t('masterCalculator.specialResearchLabel')}</h2>
       </div>
 
       {!unlocked ? (
@@ -66,14 +68,14 @@ export default function ResearchPlanner({
             </svg>
           </div>
           <div>
-            <p className="text-sm font-bold text-parchment-100">Locked until Affinity {master.maxAffinity}</p>
-            <p className="text-xs text-parchment-500 mt-1">Set your Affinity target to {master.maxAffinity} above to unlock research.</p>
+            <p className="text-sm font-bold text-parchment-100">{t('masterCalculator.lockedUntilAffinity', { level: master.maxAffinity })}</p>
+            <p className="text-xs text-parchment-500 mt-1">{t('masterCalculator.setAffinityTargetHint', { level: master.maxAffinity })}</p>
           </div>
         </div>
       ) : (
         <>
           <div className="flex flex-col gap-2">
-            <LevelSlider label="Current" value={current} min={0} max={maxLevel} onChange={setCurrent} />
+            <LevelSlider label={t('calc.current')} value={current} min={0} max={maxLevel} onChange={setCurrent} />
             <div className="flex gap-1.5 flex-wrap">
               {pathBoundaries.map((m) => (
                 <button
@@ -89,7 +91,7 @@ export default function ResearchPlanner({
               ))}
             </div>
 
-            <LevelSlider label="Target" value={target} min={0} max={maxLevel} onChange={setTarget} tone="cyan" />
+            <LevelSlider label={t('calc.target')} value={target} min={0} max={maxLevel} onChange={setTarget} tone="cyan" />
             <div className="flex gap-1.5 flex-wrap">
               {pathBoundaries.map((m) => {
                 const disabled = m < current;
@@ -122,26 +124,26 @@ export default function ResearchPlanner({
                     <EmblemIcon />
                   </span>
                   {result.totalEmblems.toLocaleString()}
-                  <span className="text-parchment-500 font-normal text-xs">Master Emblems</span>
+                  <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.masterEmblems')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-parchment-100">
                   <span className="h-4 w-4 shrink-0">
                     <PowerIcon />
                   </span>
                   {result.totalPower.toLocaleString()}
-                  <span className="text-parchment-500 font-normal text-xs">Research Power</span>
+                  <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.researchPower')}</span>
                 </div>
                 {result.progressBuffGained > 0 && (
                   <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-sky-400">
                     +{result.progressBuffGained.toFixed(2)}%
-                    <span className="text-parchment-500 font-normal text-xs">Squad HP progress buff</span>
+                    <span className="text-parchment-500 font-normal text-xs">{t('masterCalculator.squadHpProgressBuff')}</span>
                   </div>
                 )}
               </div>
 
               {result.milestonesCrossed.length > 0 && (
                 <div className="flex flex-col gap-1.5">
-                  <p className="label-eyebrow">Milestones reached</p>
+                  <p className="label-eyebrow">{t('masterCalculator.milestonesReached')}</p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-parchment-400">
                     {aggregateMilestones(result.milestonesCrossed).map((s) => (
                       <span key={s.statName}>
@@ -154,7 +156,9 @@ export default function ResearchPlanner({
               )}
 
               {result.pathsCrossed.length > 0 && (
-                <p className="text-[11px] text-parchment-500">Paths crossed: {result.pathsCrossed.join(' -> ')}</p>
+                <p className="text-[11px] text-parchment-500">
+                  {t('masterCalculator.pathsCrossed')}: {result.pathsCrossed.join(' -> ')}
+                </p>
               )}
             </>
           )}
