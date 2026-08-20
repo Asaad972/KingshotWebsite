@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n';
 import type { BuildingPlan } from '@/lib/buildingPlanner';
 import { townCenterLevelImage } from '@/lib/buildings';
 import BuildingUpgradeCard from './BuildingUpgradeCard';
@@ -22,10 +23,11 @@ function DownArrow({ label }: { label: string }) {
  * required dependency in between, and Town Center's own summed cost as
  * the final step, exactly mirroring how the user described it. */
 export default function RequiredPathView({ plan }: { plan: BuildingPlan }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col items-stretch gap-1">
       <div className="dashboard-card p-4 border-gold-500/40 bg-gold-500/[0.06] flex flex-col items-center gap-2">
-        <p className="text-xs uppercase tracking-wide text-gold-400">Town Center</p>
+        <p className="text-xs uppercase tracking-wide text-gold-400">{t('buildingPlanner.townCenter')}</p>
         <div className="flex items-center gap-3">
           <div className="relative h-14 w-14">
             <Image
@@ -53,13 +55,13 @@ export default function RequiredPathView({ plan }: { plan: BuildingPlan }) {
 
       {plan.required.length > 0 && (
         <>
-          <DownArrow label="requires" />
+          <DownArrow label={t('buildingPlanner.requires')} />
           <div className="flex flex-col gap-3">
             {plan.required.map((card) => (
               <BuildingUpgradeCard key={card.buildingId} card={card} />
             ))}
           </div>
-          <DownArrow label="then finally" />
+          <DownArrow label={t('buildingPlanner.thenFinally')} />
         </>
       )}
 

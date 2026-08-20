@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useI18n } from '@/lib/i18n';
 import {
   buildPlan,
   costForBuildingRange,
@@ -46,6 +47,7 @@ function defaultPlannerState(): PlannerState {
  * plan that can take a while to set up (multiple building levels, buffs,
  * optional adds). */
 export default function BuildingPlannerSection() {
+  const { t } = useI18n();
   const [state, setState] = useLocalStorageState<PlannerState>('buildingPlanner:state', defaultPlannerState());
   const { currentTC, targetTC, currentLevels, levelsTouched, revealed, optionalAdds, speedBuffs } = state;
 
@@ -98,16 +100,14 @@ export default function BuildingPlannerSection() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-5 pb-8">
       <div className="mb-5">
-        <h1 className="section-title">Building Upgrade Planner</h1>
-        <p className="text-xs text-parchment-400 mt-0.5">
-          Pick where you are and where you want to be -- the plan works out the whole dependency chain for you.
-        </p>
+        <h1 className="section-title">{t('buildingPlanner.title')}</h1>
+        <p className="text-xs text-parchment-400 mt-0.5">{t('buildingPlanner.subtitle')}</p>
       </div>
 
       <div className="dashboard-card p-5 flex flex-col gap-4 mb-5">
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-sm text-parchment-300 mb-1 block">Current Town Center</span>
+            <span className="text-sm text-parchment-300 mb-1 block">{t('buildingPlanner.currentTownCenter')}</span>
             <select
               value={currentTC}
               onChange={(e) => handleCurrentTCChange(e.target.value)}
@@ -121,7 +121,7 @@ export default function BuildingPlannerSection() {
             </select>
           </label>
           <label className="block">
-            <span className="text-sm text-parchment-300 mb-1 block">Target Town Center</span>
+            <span className="text-sm text-parchment-300 mb-1 block">{t('buildingPlanner.targetTownCenter')}</span>
             <select
               value={targetTC}
               onChange={(e) => setState((prev) => ({ ...prev, targetTC: e.target.value }))}
@@ -138,12 +138,9 @@ export default function BuildingPlannerSection() {
 
         <div className="text-sm">
           <p className="text-parchment-300">
-            Current Building Levels {levelsTouched && <span className="text-gold-400">(edited)</span>}
+            {t('buildingPlanner.currentBuildingLevels')} {levelsTouched && <span className="text-gold-400">({t('buildingPlanner.edited')})</span>}
           </p>
-          <p className="text-[11px] text-parchment-500 mt-0.5">
-            Set what you already have -- the plan skips anything you've already built instead of assuming you're
-            starting from zero.
-          </p>
+          <p className="text-[11px] text-parchment-500 mt-0.5">{t('buildingPlanner.currentLevelsSubtitle')}</p>
           <div className="mt-3 grid sm:grid-cols-2 gap-3">
             {DEPENDENCY_BUILDING_IDS.map((id) => (
               <label key={id} className="flex items-center justify-between gap-2 text-xs">
@@ -153,7 +150,7 @@ export default function BuildingPlannerSection() {
                   onChange={(e) => handleLevelEdit(id, e.target.value)}
                   className="focus-ring rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-parchment-100"
                 >
-                  <option value="">None</option>
+                  <option value="">{t('buildingPlanner.none')}</option>
                   {BUILDINGS[id].levels.map((l) => (
                     <option key={l.level} value={l.level}>
                       Lv.{l.level}
@@ -165,9 +162,7 @@ export default function BuildingPlannerSection() {
           </div>
         </div>
 
-        {!canShow && (
-          <p className="text-xs text-ember-500">Target must be a higher level than your current Town Center.</p>
-        )}
+        {!canShow && <p className="text-xs text-ember-500">{t('buildingPlanner.targetMustBeHigher')}</p>}
 
         <button
           type="button"
@@ -175,7 +170,7 @@ export default function BuildingPlannerSection() {
           onClick={() => setState((prev) => ({ ...prev, revealed: true }))}
           className="focus-ring rounded-md bg-gold-500 py-2.5 text-sm font-semibold text-stone-950 hover:bg-gold-400 transition-colors disabled:opacity-50"
         >
-          Show Upgrade Plan
+          {t('buildingPlanner.showUpgradePlan')}
         </button>
       </div>
 
@@ -183,12 +178,12 @@ export default function BuildingPlannerSection() {
         <div className="grid lg:grid-cols-[1fr_320px] gap-5 items-start">
           <div className="flex flex-col gap-6 min-w-0">
             <div>
-              <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">Construction Speed</h2>
+              <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">{t('speedBuffs.constructionSpeed')}</h2>
               <ConstructionSpeedBuffsCard buffs={speedBuffs} onChange={(next) => setState((prev) => ({ ...prev, speedBuffs: next }))} />
             </div>
 
             <div>
-              <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">Required Path</h2>
+              <h2 className="text-sm font-semibold text-cyan-300 mb-2.5">{t('buildingPlanner.requiredPath')}</h2>
               <RequiredPathView plan={plan} />
             </div>
 
