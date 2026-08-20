@@ -1,12 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { EmblemIcon, ManuscriptIcon, LearningXpIcon } from './MasterIcons';
+import { EmblemIcon, ManuscriptIcon } from './MasterIcons';
 
 const MATERIALS = [
   { id: 'emblems' as const, label: 'Master Emblems', Icon: EmblemIcon },
   { id: 'manuscripts' as const, label: "Master's Manuscripts", Icon: ManuscriptIcon },
-  { id: 'learningXp' as const, label: 'Learning XP', Icon: LearningXpIcon },
 ];
 
 // Real in-game Affinity gift items (user-provided) -- gifted to a Master to

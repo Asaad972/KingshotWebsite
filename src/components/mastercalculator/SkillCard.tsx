@@ -33,7 +33,6 @@ export default function SkillCard({
   index,
   current,
   target,
-  currentAffinity,
   affinityTarget,
   onChange,
   onRequireAffinity,
@@ -42,7 +41,6 @@ export default function SkillCard({
   index: number;
   current: number;
   target: number;
-  currentAffinity: number;
   affinityTarget: number;
   onChange: (next: { current: number; target: number }) => void;
   onRequireAffinity: (affinity: number) => void;
@@ -123,7 +121,7 @@ export default function SkillCard({
           {affinityShort && (
             <div className="rounded-md border border-ember-600/40 bg-ember-500/10 p-2 flex items-center justify-between gap-2">
               <span className="text-xs font-semibold text-ember-500">
-                Reaching Lv.{target} needs Affinity {result.requiredAffinity} -- you&apos;re at {currentAffinity}
+                Reaching Lv.{target} needs Affinity {result.requiredAffinity} -- your plan is at {affinityTarget}
               </span>
               <button
                 type="button"

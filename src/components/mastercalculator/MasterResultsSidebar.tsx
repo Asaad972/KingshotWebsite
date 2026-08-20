@@ -27,8 +27,6 @@ export default function MasterResultsSidebar({
   const activeSelections = selections.filter((s) => s.target > s.current);
 
   const learningXpReq = required.learningXp ?? 0;
-  const learningXpOwned = owned.learningXp ?? 0;
-  const learningXpMissing = Math.max(0, learningXpReq - learningXpOwned);
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
@@ -73,23 +71,17 @@ export default function MasterResultsSidebar({
             );
           })}
           {learningXpReq > 0 && (
-            // Learning XP is just banked wait-time (1 XP = 1 second), so the
-            // useful number here is Speedups worth of time, not a raw XP count.
+            // Learning XP is just banked wait-time (1 XP = 1 second) -- not
+            // something a player has a real "owned" count of, so this is a
+            // flat requirement rather than a Need/Missing comparison.
             <div className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex items-center gap-3">
               <div className="h-11 w-11 shrink-0 rounded-lg bg-stone-950 p-2">
                 <ClockIcon />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-parchment-100 truncate">Speedups Needed</p>
-                <p className="text-[11px] text-parchment-500">Need ~{formatLearnDuration(learningXpReq)}</p>
               </div>
-              <div className="text-sm font-bold tabular-nums shrink-0 text-right">
-                {learningXpMissing === 0 ? (
-                  <span className="text-moss-500">Enough ✓</span>
-                ) : (
-                  <span className="text-ember-500">Missing ~{formatLearnDuration(learningXpMissing)}</span>
-                )}
-              </div>
+              <div className="text-sm font-bold tabular-nums shrink-0 text-right text-ember-500">~{formatLearnDuration(learningXpReq)}</div>
             </div>
           )}
         </div>
