@@ -162,7 +162,7 @@ export default function MasterCalculatorSection() {
 
             <ResearchPlanner
               master={master}
-              currentAffinity={progress.affinity.current}
+              affinityTarget={progress.affinity.target}
               current={progress.research.current}
               target={progress.research.target}
               onChange={(research) => updateProgress({ research })}

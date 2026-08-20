@@ -7,18 +7,21 @@ import { EmblemIcon, PowerIcon, ResearchIcon } from './MasterIcons';
 
 export default function ResearchPlanner({
   master,
-  currentAffinity,
+  affinityTarget,
   current,
   target,
   onChange,
 }: {
   master: Master;
-  currentAffinity: number;
+  affinityTarget: number;
   current: number;
   target: number;
   onChange: (next: { current: number; target: number }) => void;
 }) {
-  const unlocked = currentAffinity >= master.maxAffinity;
+  // Unlocks once the plan reaches max Affinity, not just actual current
+  // Affinity -- same "Include in plan" logic as the Skills gate warning, so
+  // planning ahead doesn't get blocked by progress you haven't made yet.
+  const unlocked = affinityTarget >= master.maxAffinity;
   const maxLevel = master.research.reduce((max, p) => Math.max(max, p.levelEnd), 0);
   const pathBoundaries = master.research.map((p) => p.levelEnd);
   const result = unlocked ? costForResearchRange(master, current, target) : null;
@@ -44,7 +47,7 @@ export default function ResearchPlanner({
             </svg>
           </span>
           <p className="text-sm font-semibold text-parchment-300">Locked until Affinity {master.maxAffinity}</p>
-          <p className="text-xs text-parchment-500">Your current Affinity is Lv.{currentAffinity} above -- raise it in the Affinity planner to unlock research.</p>
+          <p className="text-xs text-parchment-500">Set your Affinity target to {master.maxAffinity} above to unlock research.</p>
         </div>
       ) : (
         <>

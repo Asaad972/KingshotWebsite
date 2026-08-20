@@ -1,13 +1,12 @@
 'use client';
 
 import { formatLearnDuration } from '@/lib/masterCalc';
-import { EmblemIcon, ManuscriptIcon, LearningXpIcon, ClockIcon, AffinityIcon } from './MasterIcons';
+import { EmblemIcon, ManuscriptIcon, ClockIcon, AffinityIcon } from './MasterIcons';
 
 const MATERIALS = [
   { id: 'affinityXp' as const, label: 'Affinity Points', Icon: AffinityIcon },
   { id: 'emblems' as const, label: 'Master Emblems', Icon: EmblemIcon },
   { id: 'manuscripts' as const, label: "Master's Manuscripts", Icon: ManuscriptIcon },
-  { id: 'learningXp' as const, label: 'Learning XP', Icon: LearningXpIcon },
 ];
 
 /** Combined Required/Have/Missing per material -- the results half of the
@@ -26,6 +25,10 @@ export default function MasterResultsSidebar({
 }) {
   const hasAnyRequired = Object.values(required).some((v) => v > 0);
   const activeSelections = selections.filter((s) => s.target > s.current);
+
+  const learningXpReq = required.learningXp ?? 0;
+  const learningXpOwned = owned.learningXp ?? 0;
+  const learningXpMissing = Math.max(0, learningXpReq - learningXpOwned);
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-3">
@@ -55,8 +58,8 @@ export default function MasterResultsSidebar({
             const needed = Math.max(0, req - own);
             const ready = needed === 0;
             return (
-              <div key={m.id} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex items-center gap-2.5">
-                <div className="h-8 w-8 shrink-0 rounded-lg bg-stone-950 p-1.5">
+              <div key={m.id} className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex items-center gap-3">
+                <div className="h-11 w-11 shrink-0 rounded-lg bg-stone-950 p-2">
                   <m.Icon />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -69,13 +72,25 @@ export default function MasterResultsSidebar({
               </div>
             );
           })}
-          {(required.learningXp ?? 0) > 0 && (
-            <p className="flex items-center justify-end gap-2 text-sm text-parchment-400">
-              <span className="h-4 w-4 shrink-0">
+          {learningXpReq > 0 && (
+            // Learning XP is just banked wait-time (1 XP = 1 second), so the
+            // useful number here is Speedups worth of time, not a raw XP count.
+            <div className="rounded-md border border-stone-700 bg-stone-800 p-2.5 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-lg bg-stone-950 p-2">
                 <ClockIcon />
-              </span>
-              Time to learn: <span className="text-parchment-100 font-bold">~{formatLearnDuration(required.learningXp)}</span>
-            </p>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-parchment-100 truncate">Speedups Needed</p>
+                <p className="text-[11px] text-parchment-500">Need ~{formatLearnDuration(learningXpReq)}</p>
+              </div>
+              <div className="text-sm font-bold tabular-nums shrink-0 text-right">
+                {learningXpMissing === 0 ? (
+                  <span className="text-moss-500">Enough ✓</span>
+                ) : (
+                  <span className="text-ember-500">Missing ~{formatLearnDuration(learningXpMissing)}</span>
+                )}
+              </div>
+            </div>
           )}
         </div>
       )}
