@@ -10,8 +10,8 @@ type PickerTarget = 'current' | 'target' | null;
 
 function UpgradeArrow() {
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-gold-300">
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-gold-300">
         <path d="M5 12h14M13 6l6 6-6 6" />
       </svg>
     </div>
@@ -33,8 +33,8 @@ function HintArrow({ mirrored = false }: { mirrored?: boolean }) {
 function PickerHint({ text, tone, mirrored }: { text: string; tone: 'gold' | 'cyan'; mirrored?: boolean }) {
   const color = tone === 'gold' ? 'text-gold-300' : 'text-cyan-300';
   return (
-    <div className={`flex w-[84px] flex-col items-center gap-0.5 ${color}`}>
-      <span className="text-center text-[9px] font-semibold leading-tight">{text}</span>
+    <div className={`flex w-[110px] flex-col items-center gap-0.5 ${color}`}>
+      <span className="text-center text-[10px] font-semibold leading-tight">{text}</span>
       <HintArrow mirrored={mirrored} />
     </div>
   );
@@ -82,33 +82,33 @@ export default function GearSlotCard({
   return (
     <div className="flex flex-col items-center gap-1">
       {showHint && (
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-4">
           <PickerHint text="Click here to choose your current gear" tone="gold" />
-          <div className="w-10 shrink-0" />
+          <div className="w-12 shrink-0" />
           <PickerHint text="Click here to choose your target gear" tone="cyan" mirrored />
         </div>
       )}
 
       {/* Current -> Target, the whole point made visible at a glance */}
-      <div className="flex items-center justify-center gap-3 py-1">
-        <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
+      <div className="flex items-center justify-center gap-4 py-1">
+        <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
           {current && current.tier !== 'base' ? (
-            <GearTierThumb slotId={slotId} icon={icon} tier={current.tier} stars={current.stars} size={72} />
+            <GearTierThumb slotId={slotId} icon={icon} tier={current.tier} stars={current.stars} size={112} />
           ) : (
-            <GearTierPlaceholder icon={icon} tier="base" stars={0} size={72} />
+            <GearTierPlaceholder icon={icon} tier="base" stars={0} size={112} />
           )}
-          <span className="text-[11px] font-semibold text-parchment-300">{summaryLabel(current)}</span>
+          <span className="text-sm font-semibold text-parchment-300">{summaryLabel(current)}</span>
         </button>
 
         <UpgradeArrow />
 
-        <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
+        <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
           {target && target.tier !== 'base' ? (
-            <GearTierThumb slotId={slotId} icon={icon} tier={target.tier} stars={target.stars} size={72} />
+            <GearTierThumb slotId={slotId} icon={icon} tier={target.tier} stars={target.stars} size={112} />
           ) : (
-            <GearTierPlaceholder icon={icon} tier="base" stars={0} size={72} />
+            <GearTierPlaceholder icon={icon} tier="base" stars={0} size={112} />
           )}
-          <span className="text-[11px] font-semibold text-cyan-300">{summaryLabel(target)}</span>
+          <span className="text-sm font-semibold text-cyan-300">{summaryLabel(target)}</span>
         </button>
       </div>
 

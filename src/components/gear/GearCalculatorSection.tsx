@@ -152,44 +152,44 @@ export default function GearCalculatorSection() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start mt-3">
-        {/* Equipment layout */}
-        <div className="dashboard-card p-4">
-          {/* Mobile (<640px): single column -- each card needs ~200px for
-              its Current -> arrow -> Target row, which a 2-column grid can't
-              give it without the images spilling into the next column. */}
-          <div className="flex flex-col gap-3 sm:hidden">
+      {/* Equipment layout -- full width so the pictures can be as big as
+          possible; Materials/Stats move below instead of squeezing into a
+          side column. */}
+      <div className="dashboard-card p-4 md:p-6 mt-3">
+        {/* Mobile (<640px): single column -- each card needs room for its
+            Current -> arrow -> Target row, which a 2-column grid can't give
+            it without the images spilling into the next column. */}
+        <div className="flex flex-col gap-4 sm:hidden">
+          {renderSlot('cap')}
+          {renderSlot('watch')}
+          {renderSlot('coat')}
+          {renderSlot('pants')}
+          {renderSlot('belt')}
+          {renderSlot('staff')}
+        </div>
+
+        {/* Desktop/tablet (>=640px): 3 slots per side around a center emblem, matching the in-game layout. */}
+        <div className="hidden sm:flex items-center justify-center gap-8 lg:gap-16 max-w-4xl mx-auto py-4">
+          <div className="flex flex-col gap-6">
             {renderSlot('cap')}
-            {renderSlot('watch')}
             {renderSlot('coat')}
-            {renderSlot('pants')}
             {renderSlot('belt')}
+          </div>
+          <div className="h-24 w-24 shrink-0 text-gold-400/60 self-center">
+            <CrownIcon />
+          </div>
+          <div className="flex flex-col gap-6">
+            {renderSlot('watch')}
+            {renderSlot('pants')}
             {renderSlot('staff')}
           </div>
-
-          {/* Desktop/tablet (>=640px): 3 slots per side around a center emblem, matching the in-game layout. */}
-          <div className="hidden sm:flex items-center justify-center gap-6 lg:gap-10 max-w-2xl mx-auto py-4">
-            <div className="flex flex-col gap-4 w-32">
-              {renderSlot('cap')}
-              {renderSlot('coat')}
-              {renderSlot('belt')}
-            </div>
-            <div className="h-20 w-20 shrink-0 text-gold-400/60 self-center">
-              <CrownIcon />
-            </div>
-            <div className="flex flex-col gap-4 w-32">
-              {renderSlot('watch')}
-              {renderSlot('pants')}
-              {renderSlot('staff')}
-            </div>
-          </div>
         </div>
+      </div>
 
-        {/* Calculations sidebar */}
-        <div className="flex flex-col gap-3">
-          <GearMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} scoreGained={plan.scoreGained} />
-          <GearTroopStatsPanel troopStats={plan.troopStats} />
-        </div>
+      {/* Calculations -- side by side on wider screens now that they no longer share the row with the equipment panel */}
+      <div className="grid sm:grid-cols-2 gap-3 mt-3">
+        <GearMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} scoreGained={plan.scoreGained} />
+        <GearTroopStatsPanel troopStats={plan.troopStats} />
       </div>
     </div>
   );
