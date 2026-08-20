@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   DOUBLE_TIME_PERCENT,
   CHIEF_MINISTER_PERCENT,
@@ -8,6 +9,7 @@ import {
   type ConstructionSpeedBuffs,
 } from '@/lib/constructionBuffs';
 import { ConstructionSpeedupIcon } from './BuildingIcons';
+import BonusOverviewHelpModal from '@/components/ui/BonusOverviewHelpModal';
 
 /** Same pattern as ResearchSpeedBuffsCard -- fixed-% checkboxes stacking
  * additively -- but with no free-form input, only named checkpoints. */
@@ -18,6 +20,8 @@ export default function ConstructionSpeedBuffsCard({
   buffs: ConstructionSpeedBuffs;
   onChange: (next: ConstructionSpeedBuffs) => void;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
     <div className="dashboard-card p-3.5 flex flex-wrap items-end gap-x-5 gap-y-3">
       <div className="flex items-center gap-1.5 pb-2 label-eyebrow">
@@ -25,6 +29,13 @@ export default function ConstructionSpeedBuffsCard({
           <ConstructionSpeedupIcon />
         </span>
         Construction Speed
+        <button
+          type="button"
+          onClick={() => setHelpOpen(true)}
+          className="focus-ring ml-1 rounded border border-sky-500/40 px-2 py-0.5 text-[10px] font-semibold text-sky-400 hover:bg-sky-500/10 normal-case tracking-normal"
+        >
+          How to get
+        </button>
       </div>
 
       <label className="flex flex-col gap-1">
@@ -85,6 +96,8 @@ export default function ConstructionSpeedBuffsCard({
         />
         <span className="text-sm text-parchment-300">King Skill / KvK Bonus (+{KING_SKILL_PERCENT}% speed)</span>
       </label>
+
+      <BonusOverviewHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
 }

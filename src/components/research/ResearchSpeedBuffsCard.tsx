@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { KVK_SKILL_PERCENT, APPOINTMENT_PERCENT, type ResearchSpeedBuffs } from '@/lib/researchCalc';
+import BonusOverviewHelpModal from '@/components/ui/BonusOverviewHelpModal';
 
 /** Same Buffs pattern as the Troop Calculator (src/components/troop/
  * TroopCalculatorSection.tsx) -- a free-form % input plus fixed-% toggles --
@@ -14,10 +16,21 @@ export default function ResearchSpeedBuffsCard({
   buffs: ResearchSpeedBuffs;
   onChange: (next: ResearchSpeedBuffs) => void;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
     <div className="dashboard-card p-3.5 flex flex-wrap items-end gap-x-5 gap-y-3">
       <label className="flex flex-col gap-1">
-        <span className="label-eyebrow">Research Speed (%)</span>
+        <span className="label-eyebrow flex items-center gap-1.5">
+          Research Speed (%)
+          <button
+            type="button"
+            onClick={() => setHelpOpen(true)}
+            className="focus-ring rounded border border-sky-500/40 px-2 py-0.5 text-[10px] font-semibold text-sky-400 hover:bg-sky-500/10 normal-case tracking-normal"
+          >
+            How to get
+          </button>
+        </span>
         <input
           type="number"
           min={0}
@@ -48,6 +61,8 @@ export default function ResearchSpeedBuffsCard({
         />
         <span className="text-sm text-parchment-300">Appointment (+{APPOINTMENT_PERCENT}% speed)</span>
       </label>
+
+      <BonusOverviewHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
 }
