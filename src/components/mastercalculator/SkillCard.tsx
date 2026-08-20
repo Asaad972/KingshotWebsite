@@ -85,16 +85,17 @@ export default function SkillCard({
           milestoneNotes={milestoneNotes}
         />
         {milestones.length > 0 && (
-          <p className="flex items-center gap-1.5 text-[10px] text-parchment-500">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ember-500" />
-            marks a level where the requirement changes -- hover or tap a dot for details
-          </p>
+          <div className="flex flex-col gap-0.5">
+            {milestones.map((lvl) => (
+              <p key={lvl} className="text-[11px] text-ember-500">
+                {milestoneNotes[lvl]}
+              </p>
+            ))}
+          </div>
         )}
       </div>
 
-      {!result ? (
-        <p className="text-xs text-ember-500">Target must be higher than current level.</p>
-      ) : (
+      {result && (
         <>
           <p className="text-xs text-parchment-400">
             <span className="text-parchment-100 font-semibold">{result.valueAtCurrent ?? 'None'}</span>

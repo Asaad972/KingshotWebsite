@@ -1,10 +1,11 @@
 'use client';
 
 import type { Master } from '@/lib/masterTypes';
-import { costForAffinityRange } from '@/lib/masterCalc';
+import { costForAffinityRange, costForTalentRange } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
-import { AffinityIcon, EmblemIcon } from './MasterIcons';
+import { AffinityIcon, EmblemIcon, PowerIcon } from './MasterIcons';
 import MasterPortrait from './MasterPortrait';
+import LevelChips from './LevelChips';
 
 function milestonesFor(maxLevel: number): number[] {
   const out: number[] = [];
@@ -17,17 +18,33 @@ export default function AffinityPlanner({
   current,
   target,
   onChange,
+  talentCurrent,
+  talentTarget,
+  onTalentChange,
 }: {
   master: Master;
   current: number;
   target: number;
   onChange: (next: { current: number; target: number }) => void;
+  talentCurrent: number;
+  talentTarget: number;
+  onTalentChange: (next: { current: number; target: number }) => void;
 }) {
   const milestones = milestonesFor(master.maxAffinity);
   const result = costForAffinityRange(master, current, target);
 
   const setCurrent = (v: number) => onChange({ current: v, target: Math.max(target, v) });
   const setTarget = (v: number) => onChange({ current, target: Math.max(v, current) });
+
+  // Talent lives inside the Affinity card, not its own section -- levelling
+  // it is really just another way of levelling the master herself, same as
+  // Affinity, so its Power gain shows alongside Affinity Points/Emblems.
+  const talent = master.talent;
+  const talentMaxLevel = talent.levels.length;
+  const talentLevels = Array.from({ length: talentMaxLevel + 1 }, (_, i) => i);
+  const talentResult = costForTalentRange(talent, talentCurrent, talentTarget);
+  const setTalentCurrent = (v: number) => onTalentChange({ current: v, target: Math.max(talentTarget, v) });
+  const setTalentTarget = (v: number) => onTalentChange({ current: talentCurrent, target: Math.max(v, talentCurrent) });
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
@@ -82,11 +99,26 @@ export default function AffinityPlanner({
         </div>
       </div>
 
-      {!result ? (
-        <p className="text-xs text-ember-500">Target must be higher than current Affinity.</p>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
+      <div className="border-t border-stone-700 pt-3 flex flex-col gap-2">
+        <p className="label-eyebrow">{talent.name}</p>
+        <LevelSlider label="Current" value={talentCurrent} min={0} max={talentMaxLevel} onChange={setTalentCurrent} />
+        <LevelChips levels={talentLevels} value={talentCurrent} onSelect={setTalentCurrent} />
+
+        <LevelSlider label="Target" value={talentTarget} min={0} max={talentMaxLevel} onChange={setTalentTarget} tone="cyan" />
+        <LevelChips levels={talentLevels} value={talentTarget} disabledBelow={talentCurrent} onSelect={setTalentTarget} tone="cyan" />
+
+        {talentResult && (
+          <p className="text-xs text-parchment-400">
+            <span className="text-parchment-100 font-semibold">{talentResult.valueAtCurrent ?? 'None'}</span>
+            <span className="mx-1.5 text-parchment-600">→</span>
+            <span className="text-gold-300 font-semibold">{talentResult.valueAtTarget}</span>
+          </p>
+        )}
+      </div>
+
+      {(result || (talentResult && talentResult.powerGained > 0)) && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
+          {result && (
             <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-parchment-100">
               <span className="h-4 w-4 shrink-0 text-ember-500">
                 <AffinityIcon />
@@ -94,47 +126,58 @@ export default function AffinityPlanner({
               {result.totalPoints.toLocaleString()}
               <span className="text-parchment-500 font-normal text-xs">Affinity Points</span>
             </div>
-            {result.totalEmblems > 0 && (
-              <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-gold-300">
-                <span className="h-4 w-4 shrink-0">
-                  <EmblemIcon />
-                </span>
-                {result.totalEmblems.toLocaleString()}
-                <span className="text-parchment-500 font-normal text-xs">Master Emblems</span>
+          )}
+          {result && result.totalEmblems > 0 && (
+            <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-gold-300">
+              <span className="h-4 w-4 shrink-0">
+                <EmblemIcon />
+              </span>
+              {result.totalEmblems.toLocaleString()}
+              <span className="text-parchment-500 font-normal text-xs">Master Emblems</span>
+            </div>
+          )}
+          {talentResult && talentResult.powerGained > 0 && (
+            <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-gold-300">
+              <span className="h-4 w-4 shrink-0">
+                <PowerIcon />
+              </span>
+              +{talentResult.powerGained.toLocaleString()}
+              <span className="text-parchment-500 font-normal text-xs">Power</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {result?.statusReached && (
+        <p className="text-xs text-parchment-400">
+          Reaches relationship status <span className="text-parchment-100 font-semibold">{result.statusReached}</span>
+        </p>
+      )}
+
+      {result && result.statsDelta.length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-parchment-400">
+          {result.statsDelta.map((s) => (
+            <span key={s.name}>
+              <span className="text-parchment-100 font-semibold">{s.name}</span> +{s.percent.toFixed(2)}%
+            </span>
+          ))}
+        </div>
+      )}
+
+      {result && (
+        <details className="text-xs">
+          <summary className="cursor-pointer text-parchment-500 hover:text-gold-300 transition-colors select-none">
+            Show every level ({current + 1}-{target})
+          </summary>
+          <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-64 overflow-y-auto pr-1">
+            {master.affinity.slice(current + 1, target + 1).map((lvl) => (
+              <div key={lvl.level} className="flex items-center justify-between rounded bg-stone-950/60 px-2 py-1">
+                <span className="text-parchment-400">Lv.{lvl.level}</span>
+                <span className="text-parchment-300 tabular-nums">{lvl.cost.toLocaleString()} pts</span>
               </div>
-            )}
+            ))}
           </div>
-
-          {result.statusReached && (
-            <p className="text-xs text-parchment-400">
-              Reaches relationship status <span className="text-parchment-100 font-semibold">{result.statusReached}</span>
-            </p>
-          )}
-
-          {result.statsDelta.length > 0 && (
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-parchment-400">
-              {result.statsDelta.map((s) => (
-                <span key={s.name}>
-                  <span className="text-parchment-100 font-semibold">{s.name}</span> +{s.percent.toFixed(2)}%
-                </span>
-              ))}
-            </div>
-          )}
-
-          <details className="text-xs">
-            <summary className="cursor-pointer text-parchment-500 hover:text-gold-300 transition-colors select-none">
-              Show every level ({current + 1}-{target})
-            </summary>
-            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-64 overflow-y-auto pr-1">
-              {master.affinity.slice(current + 1, target + 1).map((lvl) => (
-                <div key={lvl.level} className="flex items-center justify-between rounded bg-stone-950/60 px-2 py-1">
-                  <span className="text-parchment-400">Lv.{lvl.level}</span>
-                  <span className="text-parchment-300 tabular-nums">{lvl.cost.toLocaleString()} pts</span>
-                </div>
-              ))}
-            </div>
-          </details>
-        </>
+        </details>
       )}
     </div>
   );

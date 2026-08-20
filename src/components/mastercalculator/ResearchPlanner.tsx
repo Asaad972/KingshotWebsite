@@ -90,9 +90,7 @@ export default function ResearchPlanner({
             </div>
           </div>
 
-          {!result ? (
-            <p className="text-xs text-ember-500">Target must be higher than current research level.</p>
-          ) : (
+          {result && (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
                 <div className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-gold-300">

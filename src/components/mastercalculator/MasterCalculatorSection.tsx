@@ -6,7 +6,6 @@ import { costForAffinityRange, costForSkillRange, costForResearchRange } from '@
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import MasterPicker from './MasterPicker';
 import AffinityPlanner from './AffinityPlanner';
-import TalentCard from './TalentCard';
 import SkillCard from './SkillCard';
 import ResearchPlanner from './ResearchPlanner';
 import MasterMaterialsPanel from './MasterMaterialsPanel';
@@ -139,13 +138,9 @@ export default function MasterCalculatorSection() {
               current={progress.affinity.current}
               target={progress.affinity.target}
               onChange={(affinity) => updateProgress({ affinity })}
-            />
-
-            <TalentCard
-              talent={master.talent}
-              current={progress.talent.current}
-              target={progress.talent.target}
-              onChange={(talent) => updateProgress({ talent })}
+              talentCurrent={progress.talent.current}
+              talentTarget={progress.talent.target}
+              onTalentChange={(talent) => updateProgress({ talent })}
             />
 
             <div className="flex flex-col gap-3">
