@@ -30,7 +30,9 @@ const SIZES = {
     node: 84,
     rowH: 190,
     colGap: 108,
-    paddingTop: 56,
+    // Root-node-only NodeCircleHint needs real headroom above the ring
+    // (text + down-arrow) on top of the ring's own half-height.
+    paddingTop: 84,
     paddingX: 170,
     nodeIcon: 'h-5 w-5',
     statLevel: 'text-[11px]',
@@ -50,7 +52,8 @@ const SIZES = {
     // node's edge, so two facing steppers need 76px of clearance -- node
     // size (160) + 76 + a few px of breathing room.
     colGap: 242,
-    paddingTop: 100,
+    // Same headroom reasoning as compact's -- see that comment.
+    paddingTop: 128,
     paddingX: 320,
     nodeIcon: 'h-8 w-8',
     statLevel: 'text-lg',
@@ -119,29 +122,105 @@ function NodeStepper({
 
 /** One-time onboarding hint pointing at a stepper -- shown on the root
  * node only, not on every node, so it explains the pattern once without
- * turning into permanent clutter. */
-function NodeStepperHint({ side, text, tone }: { side: 'left' | 'right'; text: string; tone: 'gold' | 'cyan' }) {
-  const color = tone === 'gold' ? 'text-gold-300' : 'text-cyan-300';
+ * turning into permanent clutter. `compact` shrinks the gap/text/arrow for
+ * the mobile stepper rows, which sit much closer to the screen edge than
+ * the desktop flanking steppers do -- the roomy sizing overflows there. */
+function NodeStepperHint({
+  side,
+  text,
+  tone,
+  compact = false,
+}: {
+  side: 'left' | 'right';
+  text: string;
+  tone: 'gold' | 'cyan' | 'ember';
+  compact?: boolean;
+}) {
+  const color = tone === 'gold' ? 'text-gold-300' : tone === 'cyan' ? 'text-cyan-300' : 'text-ember-400';
+  const arrowClass = compact ? 'h-3 w-5 shrink-0' : 'h-4 w-8 shrink-0';
   const arrow =
     side === 'left' ? (
-      <svg viewBox="0 0 32 16" className={`h-4 w-8 shrink-0 ${color}`} fill="none">
+      <svg viewBox="0 0 32 16" className={`${arrowClass} ${color}`} fill="none">
         <path d="M2 9c8-4 16-4 24-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
         <path d="M19 3.5 27 8l-6.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     ) : (
-      <svg viewBox="0 0 32 16" className={`h-4 w-8 shrink-0 ${color}`} fill="none">
+      <svg viewBox="0 0 32 16" className={`${arrowClass} ${color}`} fill="none">
         <path d="M30 9c-8-4-16-4-24-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
         <path d="M13 3.5 5 8l6.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     );
+  const textClass = `${compact ? 'w-16 text-[9px]' : 'w-28 text-xs'} font-semibold leading-snug ${color}`;
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 flex items-center gap-1.5"
-      style={side === 'left' ? { right: 'calc(100% + 56px)' } : { left: 'calc(100% + 56px)' }}
+      className="absolute top-1/2 -translate-y-1/2 flex items-center gap-1"
+      style={side === 'left' ? { right: `calc(100% + ${compact ? 6 : 56}px)` } : { left: `calc(100% + ${compact ? 6 : 56}px)` }}
     >
-      {side === 'left' && <span className={`w-28 text-right text-xs font-semibold leading-snug ${color}`}>{text}</span>}
+      {side === 'left' && <span className={`${textClass} text-right`}>{text}</span>}
       {arrow}
-      {side === 'right' && <span className={`w-28 text-left text-xs font-semibold leading-snug ${color}`}>{text}</span>}
+      {side === 'right' && <span className={`${textClass} text-left`}>{text}</span>}
+    </div>
+  );
+}
+
+/** Same idea as NodeStepperHint, but centered above the ring pointing down
+ * into it, for the "tap the circle itself" explanation -- there's no free
+ * side left at the ring's own level (Current/Target already use both), and
+ * centering above uses the node column's full width instead of fighting
+ * for horizontal margin. */
+function NodeCircleHint({ text }: { text: string }) {
+  return (
+    <div
+      className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5"
+      style={{ bottom: 'calc(100% + 4px)' }}
+    >
+      <span className="whitespace-nowrap text-center text-[10px] font-semibold leading-none text-parchment-200">{text}</span>
+      <svg viewBox="0 0 16 12" className="h-3 w-4 text-parchment-200" fill="none">
+        <path d="M8 1v7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M4 6 8 10 12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+    </div>
+  );
+}
+
+/** Mobile prototype: a compact horizontal "- value +" row -- testing
+ * whether stacking Current/Target VERTICALLY (using the space below the
+ * node, where the pill already lives) works on phones where the desktop
+ * NodeStepper's left/right flanking doesn't fit. Root node only, one
+ * side at a time, to try the feel before deciding anything further. */
+function NodeStepperRow({
+  label,
+  value,
+  tone,
+  onInc,
+  onDec,
+  incDisabled,
+  decDisabled,
+}: {
+  label: string;
+  value: number;
+  tone: 'gold' | 'cyan';
+  onInc: () => void;
+  onDec: () => void;
+  incDisabled: boolean;
+  decDisabled: boolean;
+}) {
+  const btnClass =
+    'focus-ring flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-stone-600 bg-stone-900 text-xs font-bold text-parchment-200 disabled:opacity-30';
+  return (
+    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+      <button type="button" onClick={onDec} disabled={decDisabled} className={btnClass} aria-label={`Decrease ${label}`}>
+        −
+      </button>
+      <span
+        key={value}
+        className={`target-pop w-5 text-center text-xs font-bold tabular-nums ${tone === 'gold' ? 'text-gold-300' : 'text-cyan-300'}`}
+      >
+        {value}
+      </span>
+      <button type="button" onClick={onInc} disabled={incDisabled} className={btnClass} aria-label={`Increase ${label}`}>
+        +
+      </button>
     </div>
   );
 }
@@ -269,8 +348,10 @@ export default function ResearchTreeFlow({
           // without either shrinking them below a usable touch size or
           // making the tree noticeably wider on a phone screen, so mobile
           // keeps the existing tap-to-open popup instead.
+          const isRootTech = tech.id === rows[0]?.[0]?.id;
           const showSteppers = !compact;
-          const showHint = showSteppers && tech.id === rows[0]?.[0]?.id;
+          const showHint = showSteppers && isRootTech;
+          const showMobileStepperRows = compact && isRootTech;
 
           return (
             <div
@@ -309,6 +390,7 @@ export default function ResearchTreeFlow({
                     )}
                   </>
                 )}
+                {isRootTech && <NodeCircleHint text="Or tap the circle for target & progress" />}
                 <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="45" fill="none" stroke="#2b384e" strokeWidth="7" opacity="0.7" />
                   <circle
@@ -358,26 +440,82 @@ export default function ResearchTreeFlow({
                 </button>
               </div>
 
-              <button
-                key={state.target}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleMax(tech.id);
-                }}
-                title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
-                className={`focus-ring target-pop rounded-full ${pillText} font-bold leading-none tabular-nums transition-colors ${
-                  maxed
-                    ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
-                    : hasGoal
-                      ? 'bg-cyan-500 text-stone-950 hover:bg-cyan-400'
-                      : state.current > 0
-                        ? 'bg-stone-700 text-parchment-100 hover:bg-stone-600'
-                        : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
-                }`}
-              >
-                {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : compact ? 'Max' : 'Tap max'}
-              </button>
+              {(() => {
+                const pillButton = (
+                  <button
+                    key={state.target}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleMax(tech.id);
+                    }}
+                    title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
+                    className={`focus-ring target-pop rounded-full ${pillText} font-bold leading-none tabular-nums transition-colors ${
+                      maxed
+                        ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
+                        : hasGoal
+                          ? 'bg-cyan-500 text-stone-950 hover:bg-cyan-400'
+                          : state.current > 0
+                            ? 'bg-stone-700 text-parchment-100 hover:bg-stone-600'
+                            : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
+                    }`}
+                  >
+                    {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : compact ? 'Max' : 'Tap max'}
+                  </button>
+                );
+                // Right side collides with the floating "Bonuses" button
+                // (fixed bottom-right) on phones, so mobile points left instead.
+                const pillHint = isRootTech && (
+                  <NodeStepperHint
+                    side={compact ? 'left' : 'right'}
+                    tone="ember"
+                    text={compact ? 'Tap if maxed' : "Tap here if it's maxed, or you plan to upgrade it"}
+                    compact={compact}
+                  />
+                );
+
+                if (showMobileStepperRows) {
+                  return (
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="relative">
+                        <NodeStepperRow
+                          label="Current"
+                          value={state.current}
+                          tone="gold"
+                          onInc={() => onStep(tech.id, 'current', 1)}
+                          onDec={() => onStep(tech.id, 'current', -1)}
+                          incDisabled={state.current >= tech.maxLevel}
+                          decDisabled={state.current <= 0}
+                        />
+                        <NodeStepperHint side="left" tone="gold" text="Tap to set Current" compact />
+                      </div>
+                      <div className="relative">
+                        <NodeStepperRow
+                          label="Target"
+                          value={state.target}
+                          tone="cyan"
+                          onInc={() => onStep(tech.id, 'target', 1)}
+                          onDec={() => onStep(tech.id, 'target', -1)}
+                          incDisabled={state.target >= tech.maxLevel}
+                          decDisabled={state.target <= state.current}
+                        />
+                        <NodeStepperHint side="right" tone="cyan" text="Tap to set Target" compact />
+                      </div>
+                      <div className="relative mt-0.5">
+                        {pillButton}
+                        {pillHint}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="relative">
+                    {pillButton}
+                    {pillHint}
+                  </div>
+                );
+              })()}
 
               <span
                 className={`${nameText} w-full font-semibold leading-tight text-center ${maxed ? 'text-gold-300' : 'text-parchment-300'}`}
