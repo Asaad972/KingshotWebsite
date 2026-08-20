@@ -9,12 +9,27 @@ import ScreenshotDetectFlow from './ScreenshotDetectFlow';
 
 type PickerTarget = 'current' | 'target' | null;
 
+function UpgradeArrow() {
+  return (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-500/10 border border-gold-500/30">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-gold-400">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    </div>
+  );
+}
+
 /** PROTOTYPE -- new Current/Target picker for exactly one gear piece (Coat),
  * tested side by side with the other 5 pieces' existing dropdown-based
  * GearSlotCard before deciding whether to roll it out everywhere. Wired
  * into the real selections/onSelectLevel state, so it's a genuine
  * apples-to-apples comparison, not a disconnected mockup -- the underlying
- * cost calculation (calcGearPlan) is untouched either way. */
+ * cost calculation (calcGearPlan) is untouched either way.
+ *
+ * Tapping either picture opens that side's picker directly -- no separate
+ * "Set Current"/"Set Target" buttons, since the arrow between the two
+ * pictures already says what each side means. Upload Screenshot is its
+ * own always-visible button instead of being tucked behind another click. */
 export default function GearSlotCardPrototype({
   slotId,
   label,
@@ -29,7 +44,7 @@ export default function GearSlotCardPrototype({
   onSelectLevel: (slotId: GearSlotId, mode: 'current' | 'target', levelId: string) => void;
 }) {
   const [picker, setPicker] = useState<PickerTarget>(null);
-  const [currentChoiceOpen, setCurrentChoiceOpen] = useState(false);
+  const [screenshotOpen, setScreenshotOpen] = useState(false);
 
   const current = getGearLevel(currentId);
   const target = getGearLevel(targetId);
@@ -46,7 +61,7 @@ export default function GearSlotCardPrototype({
   const confirmLevel = (mode: 'current' | 'target', tier: GearTier, stars: number) => {
     onSelectLevel(slotId, mode, `${tier}-${stars}`);
     setPicker(null);
-    setCurrentChoiceOpen(false);
+    setScreenshotOpen(false);
   };
 
   return (
@@ -58,12 +73,12 @@ export default function GearSlotCardPrototype({
 
       {/* Current -> Target, the whole point made visible at a glance */}
       <div className="flex items-center justify-center gap-3 py-1">
-        <button type="button" onClick={() => setCurrentChoiceOpen(true)} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
+        <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
           <ClippedGearImage src={currentImage ?? '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s0.webp'} alt="Current" size={72} className={!currentImage ? 'opacity-30' : ''} />
           <span className="text-[11px] font-semibold text-parchment-300">{summaryLabel(current)}</span>
         </button>
 
-        <span className="text-xl text-gold-500/70 shrink-0">→</span>
+        <UpgradeArrow />
 
         <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
           <ClippedGearImage src={targetImage ?? '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s0.webp'} alt="Target" size={72} className={!targetImage ? 'opacity-30' : ''} />
@@ -71,59 +86,13 @@ export default function GearSlotCardPrototype({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => setCurrentChoiceOpen(true)}
-          className="focus-ring rounded-md border border-stone-700 bg-stone-800 py-2 text-xs font-semibold text-parchment-200 hover:border-gold-600 transition-colors"
-        >
-          Set Current
-        </button>
-        <button
-          type="button"
-          onClick={() => setPicker('target')}
-          className="focus-ring rounded-md border border-stone-700 bg-stone-800 py-2 text-xs font-semibold text-parchment-200 hover:border-cyan-500/60 transition-colors"
-        >
-          Set Target
-        </button>
-      </div>
-
-      {/* Choice sheet for Current: screenshot vs manual */}
-      {currentChoiceOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 px-0 sm:px-4" onClick={() => setCurrentChoiceOpen(false)}>
-          <div
-            className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl border border-stone-700 bg-stone-900 p-4 flex flex-col gap-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="card-title">Set Current Gear</h3>
-              <button
-                type="button"
-                onClick={() => setCurrentChoiceOpen(false)}
-                className="focus-ring rounded border border-stone-700 px-2 py-1 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500"
-              >
-                Close
-              </button>
-            </div>
-            <ScreenshotDetectFlow onConfirm={(tier, stars) => confirmLevel('current', tier, stars)} onCancel={() => setCurrentChoiceOpen(false)} />
-            <div className="flex items-center gap-2 text-[11px] text-parchment-500 my-1">
-              <div className="h-px flex-1 bg-stone-700" />
-              or
-              <div className="h-px flex-1 bg-stone-700" />
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentChoiceOpen(false);
-                setPicker('current');
-              }}
-              className="focus-ring rounded-md border border-stone-700 bg-stone-800 py-2 text-sm font-semibold text-parchment-200 hover:border-gold-600 transition-colors"
-            >
-              Choose manually instead
-            </button>
-          </div>
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={() => setScreenshotOpen(true)}
+        className="focus-ring flex items-center justify-center gap-2 rounded-md bg-moss-600 py-2.5 text-sm font-semibold text-white hover:bg-moss-500 transition-colors"
+      >
+        <span aria-hidden>📷</span> Upload screenshot
+      </button>
 
       {picker === 'current' && (
         <GearVisualPicker title="Current Gear" onConfirm={(tier, stars) => confirmLevel('current', tier, stars)} onClose={() => setPicker(null)} />
@@ -135,6 +104,27 @@ export default function GearSlotCardPrototype({
           onConfirm={(tier, stars) => confirmLevel('target', tier, stars)}
           onClose={() => setPicker(null)}
         />
+      )}
+
+      {screenshotOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 px-0 sm:px-4" onClick={() => setScreenshotOpen(false)}>
+          <div
+            className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl border border-stone-700 bg-stone-900 p-4 flex flex-col gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="card-title">Detect Current Gear</h3>
+              <button
+                type="button"
+                onClick={() => setScreenshotOpen(false)}
+                className="focus-ring rounded border border-stone-700 px-2 py-1 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500"
+              >
+                Close
+              </button>
+            </div>
+            <ScreenshotDetectFlow onConfirm={(tier, stars) => confirmLevel('current', tier, stars)} onCancel={() => setScreenshotOpen(false)} />
+          </div>
+        </div>
       )}
     </div>
   );
