@@ -34,6 +34,7 @@ export default function SkillCard({
   current,
   target,
   currentAffinity,
+  affinityTarget,
   onChange,
   onRequireAffinity,
 }: {
@@ -42,6 +43,7 @@ export default function SkillCard({
   current: number;
   target: number;
   currentAffinity: number;
+  affinityTarget: number;
   onChange: (next: { current: number; target: number }) => void;
   onRequireAffinity: (affinity: number) => void;
 }) {
@@ -51,7 +53,10 @@ export default function SkillCard({
   const result = costForSkillRange(skill, current, target);
   const slug = skill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const iconSrc = `/masters/skills/${slug}.webp`;
-  const affinityShort = result && result.requiredAffinity > currentAffinity;
+  // Only warn while the plan doesn't yet cover this skill's Affinity gate --
+  // once "Include in plan" bumps the Affinity target past it, the warning
+  // has done its job and should disappear rather than nag forever.
+  const affinityShort = result && result.requiredAffinity > affinityTarget;
 
   const setCurrent = (v: number) => onChange({ current: v, target: Math.max(target, v) });
   const setTarget = (v: number) => onChange({ current, target: Math.max(v, current) });

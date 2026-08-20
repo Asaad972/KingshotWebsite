@@ -147,6 +147,7 @@ export default function MasterCalculatorSection() {
                   current={progress.skills[i]?.current ?? 0}
                   target={progress.skills[i]?.target ?? 0}
                   currentAffinity={progress.affinity.current}
+                  affinityTarget={progress.affinity.target}
                   onChange={(range) => {
                     const skills = [...progress.skills];
                     skills[i] = range;
