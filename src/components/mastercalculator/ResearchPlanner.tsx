@@ -1,9 +1,28 @@
 'use client';
 
-import type { Master } from '@/lib/masterTypes';
+import type { Master, ResearchMilestone } from '@/lib/masterTypes';
 import { costForResearchRange } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import { EmblemIcon, PowerIcon, ResearchIcon } from './MasterIcons';
+
+/** A high target can cross 50+ individual milestones (one every 20 research
+ * levels), which as a line-per-milestone list gets absurdly long. Summing
+ * same-stat amounts together gives one line per stat instead. */
+function aggregateMilestones(milestones: (ResearchMilestone & { pathName: string })[]): { statName: string; text: string }[] {
+  const totals = new Map<string, { sum: number; suffix: string }>();
+  for (const m of milestones) {
+    const match = m.amount.match(/^([+-]?[\d.]+)(.*)$/);
+    if (!match) continue;
+    const value = parseFloat(match[1]);
+    const entry = totals.get(m.statName);
+    if (entry) entry.sum += value;
+    else totals.set(m.statName, { sum: value, suffix: match[2] ?? '' });
+  }
+  return Array.from(totals.entries()).map(([statName, { sum, suffix }]) => ({
+    statName,
+    text: `+${Math.round(sum * 100) / 100}${suffix}`,
+  }));
+}
 
 export default function ResearchPlanner({
   master,
@@ -39,15 +58,17 @@ export default function ResearchPlanner({
       </div>
 
       {!unlocked ? (
-        <div className="rounded-md border border-stone-700 bg-stone-950/60 p-4 text-center flex flex-col items-center gap-1.5">
-          <span className="h-8 w-8 text-parchment-600">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <div className="rounded-lg border border-stone-700 bg-stone-950/60 px-6 py-8 flex flex-col items-center gap-3 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sky-500/10 border border-sky-500/30">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-7 w-7 text-sky-400">
               <rect x="5" y="10" width="14" height="10" rx="1.5" />
               <path d="M8 10V7a4 4 0 0 1 8 0v3" />
             </svg>
-          </span>
-          <p className="text-sm font-semibold text-parchment-300">Locked until Affinity {master.maxAffinity}</p>
-          <p className="text-xs text-parchment-500">Set your Affinity target to {master.maxAffinity} above to unlock research.</p>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-parchment-100">Locked until Affinity {master.maxAffinity}</p>
+            <p className="text-xs text-parchment-500 mt-1">Set your Affinity target to {master.maxAffinity} above to unlock research.</p>
+          </div>
         </div>
       ) : (
         <>
@@ -121,16 +142,12 @@ export default function ResearchPlanner({
               {result.milestonesCrossed.length > 0 && (
                 <div className="flex flex-col gap-1.5">
                   <p className="label-eyebrow">Milestones reached</p>
-                  <div className="flex flex-col gap-1">
-                    {result.milestonesCrossed.map((m, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs text-parchment-400 rounded bg-stone-950/60 px-2 py-1.5">
-                        <span>
-                          Lv.{m.researchLevel} <span className="text-parchment-600">({m.pathName})</span>
-                        </span>
-                        <span className="text-gold-300 font-semibold">
-                          {m.statName} {m.amount}
-                        </span>
-                      </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-parchment-400">
+                    {aggregateMilestones(result.milestonesCrossed).map((s) => (
+                      <span key={s.statName}>
+                        <span className="text-parchment-100 font-semibold">{s.statName}</span>{' '}
+                        <span className="text-gold-300 font-semibold">{s.text}</span>
+                      </span>
                     ))}
                   </div>
                 </div>
