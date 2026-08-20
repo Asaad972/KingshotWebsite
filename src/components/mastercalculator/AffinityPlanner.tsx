@@ -5,7 +5,6 @@ import { costForAffinityRange, costForTalentRange } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import { AffinityIcon, EmblemIcon, PowerIcon } from './MasterIcons';
 import MasterPortrait from './MasterPortrait';
-import LevelChips from './LevelChips';
 
 function milestonesFor(maxLevel: number): number[] {
   const out: number[] = [];
@@ -18,17 +17,11 @@ export default function AffinityPlanner({
   current,
   target,
   onChange,
-  talentCurrent,
-  talentTarget,
-  onTalentChange,
 }: {
   master: Master;
   current: number;
   target: number;
   onChange: (next: { current: number; target: number }) => void;
-  talentCurrent: number;
-  talentTarget: number;
-  onTalentChange: (next: { current: number; target: number }) => void;
 }) {
   const milestones = milestonesFor(master.maxAffinity);
   const result = costForAffinityRange(master, current, target);
@@ -36,15 +29,13 @@ export default function AffinityPlanner({
   const setCurrent = (v: number) => onChange({ current: v, target: Math.max(target, v) });
   const setTarget = (v: number) => onChange({ current, target: Math.max(v, current) });
 
-  // Talent lives inside the Affinity card, not its own section -- levelling
-  // it is really just another way of levelling the master herself, same as
-  // Affinity, so its Power gain shows alongside Affinity Points/Emblems.
+  // Talent (e.g. Horn of Valor) has no material cost or Affinity gate in the
+  // real data -- it levels up for free alongside the master, so there's
+  // nothing to plan. Its Power is just the fixed full Lv.0->max gain, shown
+  // next to Affinity Points/Emblems instead of its own separate card.
   const talent = master.talent;
   const talentMaxLevel = talent.levels.length;
-  const talentLevels = Array.from({ length: talentMaxLevel + 1 }, (_, i) => i);
-  const talentResult = costForTalentRange(talent, talentCurrent, talentTarget);
-  const setTalentCurrent = (v: number) => onTalentChange({ current: v, target: Math.max(talentTarget, v) });
-  const setTalentTarget = (v: number) => onTalentChange({ current: talentCurrent, target: Math.max(v, talentCurrent) });
+  const talentResult = costForTalentRange(talent, 0, talentMaxLevel);
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
@@ -99,23 +90,6 @@ export default function AffinityPlanner({
         </div>
       </div>
 
-      <div className="border-t border-stone-700 pt-3 flex flex-col gap-2">
-        <p className="label-eyebrow">{talent.name}</p>
-        <LevelSlider label="Current" value={talentCurrent} min={0} max={talentMaxLevel} onChange={setTalentCurrent} />
-        <LevelChips levels={talentLevels} value={talentCurrent} onSelect={setTalentCurrent} />
-
-        <LevelSlider label="Target" value={talentTarget} min={0} max={talentMaxLevel} onChange={setTalentTarget} tone="cyan" />
-        <LevelChips levels={talentLevels} value={talentTarget} disabledBelow={talentCurrent} onSelect={setTalentTarget} tone="cyan" />
-
-        {talentResult && (
-          <p className="text-xs text-parchment-400">
-            <span className="text-parchment-100 font-semibold">{talentResult.valueAtCurrent ?? 'None'}</span>
-            <span className="mx-1.5 text-parchment-600">→</span>
-            <span className="text-gold-300 font-semibold">{talentResult.valueAtTarget}</span>
-          </p>
-        )}
-      </div>
-
       {(result || (talentResult && talentResult.powerGained > 0)) && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
           {result && (
@@ -142,7 +116,7 @@ export default function AffinityPlanner({
                 <PowerIcon />
               </span>
               +{talentResult.powerGained.toLocaleString()}
-              <span className="text-parchment-500 font-normal text-xs">Power</span>
+              <span className="text-parchment-500 font-normal text-xs">{talent.name} Power</span>
             </div>
           )}
         </div>

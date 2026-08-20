@@ -84,15 +84,6 @@ export default function SkillCard({
           milestoneLevels={milestones}
           milestoneNotes={milestoneNotes}
         />
-        {milestones.length > 0 && (
-          <div className="flex flex-col gap-0.5">
-            {milestones.map((lvl) => (
-              <p key={lvl} className="text-[11px] text-ember-500">
-                {milestoneNotes[lvl]}
-              </p>
-            ))}
-          </div>
-        )}
       </div>
 
       {result && (

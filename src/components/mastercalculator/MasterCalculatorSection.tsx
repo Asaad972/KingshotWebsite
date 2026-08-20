@@ -19,7 +19,6 @@ interface LevelRange {
 
 interface MasterProgress {
   affinity: LevelRange;
-  talent: LevelRange;
   skills: LevelRange[];
   research: LevelRange;
 }
@@ -27,7 +26,6 @@ interface MasterProgress {
 function defaultProgress(): MasterProgress {
   return {
     affinity: { current: 0, target: 0 },
-    talent: { current: 0, target: 0 },
     skills: [{ current: 0, target: 0 }, { current: 0, target: 0 }, { current: 0, target: 0 }, { current: 0, target: 0 }],
     research: { current: 0, target: 0 },
   };
@@ -89,7 +87,6 @@ export default function MasterCalculatorSection() {
     if (!master) return [];
     const list: { label: string; current: number; target: number }[] = [
       { label: 'Affinity', current: progress.affinity.current, target: progress.affinity.target },
-      { label: master.talent.name, current: progress.talent.current, target: progress.talent.target },
       { label: 'Special Research', current: progress.research.current, target: progress.research.target },
     ];
     master.skills.forEach((skill, i) => {
@@ -138,9 +135,6 @@ export default function MasterCalculatorSection() {
               current={progress.affinity.current}
               target={progress.affinity.target}
               onChange={(affinity) => updateProgress({ affinity })}
-              talentCurrent={progress.talent.current}
-              talentTarget={progress.talent.target}
-              onTalentChange={(talent) => updateProgress({ talent })}
             />
 
             <div className="flex flex-col gap-3">
