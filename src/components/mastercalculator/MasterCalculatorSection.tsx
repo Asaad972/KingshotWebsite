@@ -73,8 +73,18 @@ export default function MasterCalculatorSection() {
     const emblems = (affinityResult?.totalEmblems ?? 0) + (researchResult?.totalEmblems ?? 0);
     const manuscripts = skillResults.reduce((sum, r) => sum + (r?.totalManuscripts ?? 0), 0);
     const learningXp = skillResults.reduce((sum, r) => sum + (r?.totalLearningXP ?? 0), 0);
-    return { emblems, manuscripts, learningXp };
+    const affinityXp = affinityResult?.totalPoints ?? 0;
+    return { emblems, manuscripts, learningXp, affinityXp };
   }, [affinityResult, researchResult, skillResults]);
+
+  // The 3 Affinity gift denominations are entered as raw item counts (how
+  // many Small/Medium/Large gifts you own), same as Hero Gear's XP items --
+  // this derives the combined Affinity total from them for the sidebar's
+  // Required/Have comparison, without polluting the raw counts themselves.
+  const ownedForSidebar = useMemo(() => {
+    const affinityXp = (owned.affinityGift10 ?? 0) * 10 + (owned.affinityGift100 ?? 0) * 100 + (owned.affinityGift1000 ?? 0) * 1000;
+    return { ...owned, affinityXp };
+  }, [owned]);
 
   const selections = useMemo(() => {
     if (!master) return [];
@@ -170,7 +180,7 @@ export default function MasterCalculatorSection() {
           </div>
 
           <div className="lg:sticky lg:top-20">
-            <MasterResultsSidebar masterName={master.name} selections={selections} required={requiredRecord} owned={owned} />
+            <MasterResultsSidebar masterName={master.name} selections={selections} required={requiredRecord} owned={ownedForSidebar} />
           </div>
         </div>
       )}

@@ -1,9 +1,10 @@
 'use client';
 
 import { formatLearnDuration } from '@/lib/masterCalc';
-import { EmblemIcon, ManuscriptIcon, LearningXpIcon, ClockIcon } from './MasterIcons';
+import { EmblemIcon, ManuscriptIcon, LearningXpIcon, ClockIcon, AffinityIcon } from './MasterIcons';
 
 const MATERIALS = [
+  { id: 'affinityXp' as const, label: 'Affinity Points', Icon: AffinityIcon },
   { id: 'emblems' as const, label: 'Master Emblems', Icon: EmblemIcon },
   { id: 'manuscripts' as const, label: "Master's Manuscripts", Icon: ManuscriptIcon },
   { id: 'learningXp' as const, label: 'Learning XP', Icon: LearningXpIcon },

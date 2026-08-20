@@ -4,6 +4,7 @@ import type { Master } from '@/lib/masterTypes';
 import { costForAffinityRange } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
 import { AffinityIcon, EmblemIcon } from './MasterIcons';
+import MasterPortrait from './MasterPortrait';
 
 function milestonesFor(maxLevel: number): number[] {
   const out: number[] = [];
@@ -30,10 +31,12 @@ export default function AffinityPlanner({
 
   return (
     <div className="dashboard-card p-4 flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <span className="h-6 w-6 shrink-0">
-          <AffinityIcon />
-        </span>
+      <div className="flex items-center gap-2.5">
+        {/* The master's own portrait, not a generic heart -- makes it clear
+            this is levelling the master herself, not a separate resource. */}
+        <div className="relative h-8 w-8 shrink-0 rounded-lg overflow-hidden">
+          <MasterPortrait src={master.image} alt={master.name} className="h-full w-full text-[7px]" />
+        </div>
         <h2 className="card-title">Affinity</h2>
       </div>
 
