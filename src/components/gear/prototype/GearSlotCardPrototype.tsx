@@ -5,7 +5,6 @@ import { getGearLevel, tierMeta, type GearSlotId, type GearTier } from '@/lib/ge
 import { imageForTierStars } from '@/lib/gearPieceImages';
 import ClippedGearImage from './ClippedGearImage';
 import GearVisualPicker from './GearVisualPicker';
-import ScreenshotDetectFlow from './ScreenshotDetectFlow';
 
 type PickerTarget = 'current' | 'target' | null;
 
@@ -28,8 +27,9 @@ function UpgradeArrow() {
  *
  * Tapping either picture opens that side's picker directly -- no separate
  * "Set Current"/"Set Target" buttons, since the arrow between the two
- * pictures already says what each side means. Upload Screenshot is its
- * own always-visible button instead of being tucked behind another click. */
+ * pictures already says what each side means. Manual selection only for
+ * now -- screenshot detection was pulled (too unreliable without a real
+ * trained model) until there's a better approach. */
 export default function GearSlotCardPrototype({
   slotId,
   label,
@@ -44,7 +44,6 @@ export default function GearSlotCardPrototype({
   onSelectLevel: (slotId: GearSlotId, mode: 'current' | 'target', levelId: string) => void;
 }) {
   const [picker, setPicker] = useState<PickerTarget>(null);
-  const [screenshotOpen, setScreenshotOpen] = useState(false);
 
   const current = getGearLevel(currentId);
   const target = getGearLevel(targetId);
@@ -61,7 +60,6 @@ export default function GearSlotCardPrototype({
   const confirmLevel = (mode: 'current' | 'target', tier: GearTier, stars: number) => {
     onSelectLevel(slotId, mode, `${tier}-${stars}`);
     setPicker(null);
-    setScreenshotOpen(false);
   };
 
   return (
@@ -86,14 +84,6 @@ export default function GearSlotCardPrototype({
         </button>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setScreenshotOpen(true)}
-        className="focus-ring flex items-center justify-center gap-2 rounded-md bg-moss-600 py-2.5 text-sm font-semibold text-white hover:bg-moss-500 transition-colors"
-      >
-        <span aria-hidden>📷</span> Upload screenshot
-      </button>
-
       {picker === 'current' && (
         <GearVisualPicker title="Current Gear" onConfirm={(tier, stars) => confirmLevel('current', tier, stars)} onClose={() => setPicker(null)} />
       )}
@@ -104,27 +94,6 @@ export default function GearSlotCardPrototype({
           onConfirm={(tier, stars) => confirmLevel('target', tier, stars)}
           onClose={() => setPicker(null)}
         />
-      )}
-
-      {screenshotOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 px-0 sm:px-4" onClick={() => setScreenshotOpen(false)}>
-          <div
-            className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl border border-stone-700 bg-stone-900 p-4 flex flex-col gap-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="card-title">Detect Current Gear</h3>
-              <button
-                type="button"
-                onClick={() => setScreenshotOpen(false)}
-                className="focus-ring rounded border border-stone-700 px-2 py-1 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500"
-              >
-                Close
-              </button>
-            </div>
-            <ScreenshotDetectFlow onConfirm={(tier, stars) => confirmLevel('current', tier, stars)} onCancel={() => setScreenshotOpen(false)} />
-          </div>
-        </div>
       )}
     </div>
   );
