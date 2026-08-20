@@ -10,8 +10,8 @@ type PickerTarget = 'current' | 'target' | null;
 
 function UpgradeArrow() {
   return (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-500/10 border border-gold-500/30">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-gold-400">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-gold-300">
         <path d="M5 12h14M13 6l6 6-6 6" />
       </svg>
     </div>
@@ -70,15 +70,27 @@ export default function GearSlotCardPrototype({
       </div>
 
       {/* Current -> Target, the whole point made visible at a glance */}
-      <div className="flex items-center justify-center gap-3 py-1">
-        <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
+      <div className="flex items-stretch rounded-2xl border border-stone-700 bg-stone-950/50 p-2.5 gap-1">
+        <button
+          type="button"
+          onClick={() => setPicker('current')}
+          className="focus-ring flex flex-1 flex-col items-center gap-1.5 rounded-xl bg-gold-500/[0.06] border border-gold-500/20 py-3 hover:bg-gold-500/10 hover:border-gold-500/40 transition-colors"
+        >
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-gold-400/80">Current</span>
           <ClippedGearImage src={currentImage ?? '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s0.webp'} alt="Current" size={72} className={!currentImage ? 'opacity-30' : ''} />
-          <span className="text-[11px] font-semibold text-parchment-300">{summaryLabel(current)}</span>
+          <span className="text-[11px] font-semibold text-parchment-200">{summaryLabel(current)}</span>
         </button>
 
-        <UpgradeArrow />
+        <div className="flex items-center justify-center shrink-0 px-0.5">
+          <UpgradeArrow />
+        </div>
 
-        <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
+        <button
+          type="button"
+          onClick={() => setPicker('target')}
+          className="focus-ring flex flex-1 flex-col items-center gap-1.5 rounded-xl bg-cyan-500/[0.06] border border-cyan-500/20 py-3 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-colors"
+        >
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-cyan-400/80">Target</span>
           <ClippedGearImage src={targetImage ?? '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s0.webp'} alt="Target" size={72} className={!targetImage ? 'opacity-30' : ''} />
           <span className="text-[11px] font-semibold text-cyan-300">{summaryLabel(target)}</span>
         </button>
