@@ -17,7 +17,7 @@ const METRICS: MetricDef[] = [
   { key: 'maxBuffPercent', label: 'Max Squad Buff', format: (s) => `+${s.maxBuffPercent.toFixed(2)}%` },
   { key: 'talentSkillsPower', label: 'Talent + Skills Power', format: (s) => s.talentSkillsPower.toLocaleString() },
   { key: 'maxAffinityPoints', label: 'Affinity Points to Lv.100', format: (s) => s.maxAffinityPoints.toLocaleString() },
-  { key: 'totalEmblemsToMax', label: 'Master Emblems to fully max', format: (s) => s.totalEmblemsToMax.toLocaleString() },
+  { key: 'totalEmblemsToMax', label: 'Master Emblems to Lv.100', format: (s) => s.totalEmblemsToMax.toLocaleString() },
   { key: 'maxManuscripts', label: "Master's Manuscripts (all skills)", format: (s) => s.maxManuscripts.toLocaleString() },
   { key: 'maxLearningXP', label: 'Time to learn all skills', format: (s) => `~${s.maxLearnDuration}` },
 ];
