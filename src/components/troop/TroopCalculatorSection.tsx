@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { TROOP_TIERS, TROOP_TYPE_LABELS, getTroopTier, type TroopType } from '@/lib/troopData';
+import { useI18n } from '@/lib/i18n';
+import { TROOP_TIERS, getTroopTier, type TroopType } from '@/lib/troopData';
 import { calcTroopPlan, tiersAbove, formatDuration, type CalcMode, type CalcType } from '@/lib/troopCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { BreadIcon, WoodIcon, StoneIcon, IronIcon, InfantryIcon, CavalryIcon, ArcherIcon } from './TroopIcons';
@@ -52,12 +53,11 @@ const TROOP_TYPE_ICONS: Record<TroopType, React.ReactNode> = {
   archer: <ArcherIcon />,
 };
 
-const RESOURCE_ICONS = [
-  { id: 'bread' as const, label: 'Bread', icon: <BreadIcon />, color: 'text-amber-400' },
-  { id: 'wood' as const, label: 'Wood', icon: <WoodIcon />, color: 'text-orange-400' },
-  { id: 'stone' as const, label: 'Stone', icon: <StoneIcon />, color: 'text-parchment-300' },
-  { id: 'iron' as const, label: 'Iron', icon: <IronIcon />, color: 'text-cyan-400' },
-];
+const TROOP_TYPE_LABEL_KEY: Record<TroopType, string> = {
+  infantry: 'troopCalculator.typeInfantry',
+  cavalry: 'troopCalculator.typeCavalry',
+  archer: 'troopCalculator.typeArcher',
+};
 
 function PillToggle<T extends string>({
   options,
@@ -99,7 +99,15 @@ function PillToggle<T extends string>({
  * page bundle (2026-08-18) -- see troopData.ts for the sourcing note.
  */
 export default function TroopCalculatorSection() {
+  const { t } = useI18n();
   const [form, setForm] = useLocalStorageState<TroopFormState>('troopCalculator:form', DEFAULT_STATE);
+
+  const RESOURCE_ICONS = [
+    { id: 'bread' as const, label: t('resources.bread'), icon: <BreadIcon />, color: 'text-amber-400' },
+    { id: 'wood' as const, label: t('resources.wood'), icon: <WoodIcon />, color: 'text-orange-400' },
+    { id: 'stone' as const, label: t('resources.stone'), icon: <StoneIcon />, color: 'text-parchment-300' },
+    { id: 'iron' as const, label: t('resources.iron'), icon: <IronIcon />, color: 'text-cyan-400' },
+  ];
 
   const targetOptions = form.mode === 'promote' && form.currentTierId ? tiersAbove(form.currentTierId) : TROOP_TIERS;
 
@@ -148,29 +156,26 @@ export default function TroopCalculatorSection() {
     <div className="flex flex-col gap-2" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="section-title">Troop Training Calculator</h1>
-          <p className="text-xs text-parchment-400 mt-0.5">
-            Experimental -- training time, resource costs, and event points are real, reverse-engineered from a live
-            reference calculator.
-          </p>
+          <h1 className="section-title">{t('troopCalculator.title')}</h1>
+          <p className="text-xs text-parchment-400 mt-0.5">{t('troopCalculator.subtitle')}</p>
         </div>
         <button
           type="button"
           onClick={handleReset}
           className="focus-ring shrink-0 rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
         >
-          Reset
+          {t('troopCalculator.reset')}
         </button>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-5 items-start mt-3">
         <div className="dashboard-card p-4 flex flex-col gap-3.5">
           <div className="flex flex-col gap-1.5">
-            <p className="label-eyebrow">Calculate</p>
+            <p className="label-eyebrow">{t('troopCalculator.calculate')}</p>
             <PillToggle
               options={[
-                { id: 'time' as CalcType, label: 'Time (from troop count)' },
-                { id: 'quantity' as CalcType, label: 'Troops (from speed-up time)' },
+                { id: 'time' as CalcType, label: t('troopCalculator.calcTypeTime') },
+                { id: 'quantity' as CalcType, label: t('troopCalculator.calcTypeQuantity') },
               ]}
               value={form.calcType}
               onChange={(calcType) => update({ calcType })}
@@ -178,11 +183,11 @@ export default function TroopCalculatorSection() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <p className="label-eyebrow">Mode</p>
+            <p className="label-eyebrow">{t('troopCalculator.mode')}</p>
             <PillToggle
               options={[
-                { id: 'train' as CalcMode, label: 'Train new' },
-                { id: 'promote' as CalcMode, label: 'Promote existing' },
+                { id: 'train' as CalcMode, label: t('troopCalculator.modeTrain') },
+                { id: 'promote' as CalcMode, label: t('troopCalculator.modePromote') },
               ]}
               value={form.mode}
               onChange={(mode) => update({ mode })}
@@ -190,7 +195,7 @@ export default function TroopCalculatorSection() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <p className="label-eyebrow">Troop Type</p>
+            <p className="label-eyebrow">{t('troopCalculator.troopType')}</p>
             <div className="grid grid-cols-3 gap-1.5">
               {TROOP_TYPE_ORDER.map((tt) => (
                 <button
@@ -204,7 +209,7 @@ export default function TroopCalculatorSection() {
                   }`}
                 >
                   <span className="h-5 w-5">{TROOP_TYPE_ICONS[tt]}</span>
-                  {TROOP_TYPE_LABELS[tt]}
+                  {t(TROOP_TYPE_LABEL_KEY[tt])}
                 </button>
               ))}
             </div>
@@ -212,13 +217,13 @@ export default function TroopCalculatorSection() {
 
           {form.mode === 'promote' && (
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-parchment-400">Current Tier</span>
+              <span className="text-xs text-parchment-400">{t('troopCalculator.currentTier')}</span>
               <select
                 value={form.currentTierId}
                 onChange={(e) => update({ currentTierId: e.target.value })}
                 className="focus-ring rounded border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-parchment-100 focus:border-gold-600"
               >
-                <option value="">Select current tier</option>
+                <option value="">{t('troopCalculator.selectCurrentTier')}</option>
                 {TROOP_TIERS.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.label}
@@ -229,7 +234,7 @@ export default function TroopCalculatorSection() {
           )}
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs text-parchment-400">Target Tier</span>
+            <span className="text-xs text-parchment-400">{t('troopCalculator.targetTier')}</span>
             <select
               value={form.targetTierId}
               onChange={(e) => update({ targetTierId: e.target.value })}
@@ -245,7 +250,7 @@ export default function TroopCalculatorSection() {
 
           {form.calcType === 'time' && (
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-parchment-400">Amount of troops</span>
+              <span className="text-xs text-parchment-400">{t('troopCalculator.amountOfTroops')}</span>
               <input
                 type="number"
                 min={0}
@@ -259,18 +264,18 @@ export default function TroopCalculatorSection() {
 
           {form.calcType === 'quantity' && (
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs text-parchment-400">Speed-up time available</span>
+              <span className="text-xs text-parchment-400">{t('troopCalculator.speedupTimeAvailable')}</span>
               <div className="grid grid-cols-4 gap-2">
                 {(
                   [
-                    { id: 'speedupDays' as const, label: 'Days' },
-                    { id: 'speedupHours' as const, label: 'Hours' },
-                    { id: 'speedupMinutes' as const, label: 'Min' },
-                    { id: 'speedupSeconds' as const, label: 'Sec' },
+                    { id: 'speedupDays' as const, labelKey: 'troopCalculator.days' },
+                    { id: 'speedupHours' as const, labelKey: 'troopCalculator.hours' },
+                    { id: 'speedupMinutes' as const, labelKey: 'troopCalculator.minutes' },
+                    { id: 'speedupSeconds' as const, labelKey: 'troopCalculator.seconds' },
                   ] as const
                 ).map((f) => (
                   <label key={f.id} className="flex flex-col gap-1">
-                    <span className="text-[10px] text-parchment-500">{f.label}</span>
+                    <span className="text-[10px] text-parchment-500">{t(f.labelKey)}</span>
                     <input
                       type="number"
                       min={0}
@@ -286,7 +291,7 @@ export default function TroopCalculatorSection() {
           )}
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs text-parchment-400">Training Speed (%)</span>
+            <span className="text-xs text-parchment-400">{t('troopCalculator.trainingSpeedPercent')}</span>
             <input
               type="number"
               min={0}
@@ -299,13 +304,13 @@ export default function TroopCalculatorSection() {
           </label>
 
           <div className="flex flex-col gap-2">
-            <p className="label-eyebrow">Buffs</p>
+            <p className="label-eyebrow">{t('troopCalculator.buffs')}</p>
             {(
               [
-                { id: 'kingdomSkill' as const, label: 'Kingdom Skill (+30% speed)' },
-                { id: 'nobleAdvisor' as const, label: 'Noble Advisor (+50% speed)' },
-                { id: 'kvkBonus' as const, label: 'Kingdom of Power / KvK (+25% speed)' },
-                { id: 'saulSkill' as const, label: "Saul's Skill (-15% resource cost)" },
+                { id: 'kingdomSkill' as const, labelKey: 'troopCalculator.kingdomSkill' },
+                { id: 'nobleAdvisor' as const, labelKey: 'troopCalculator.nobleAdvisor' },
+                { id: 'kvkBonus' as const, labelKey: 'troopCalculator.kvkBonus' },
+                { id: 'saulSkill' as const, labelKey: 'troopCalculator.saulSkill' },
               ] as const
             ).map((b) => (
               <label key={b.id} className="flex items-center gap-2 cursor-pointer">
@@ -315,7 +320,7 @@ export default function TroopCalculatorSection() {
                   onChange={(e) => update({ [b.id]: e.target.checked } as Partial<TroopFormState>)}
                   className="focus-ring h-4 w-4 rounded border-stone-700 bg-stone-950 text-gold-500 accent-gold-500"
                 />
-                <span className="text-sm text-parchment-300">{b.label}</span>
+                <span className="text-sm text-parchment-300">{t(b.labelKey)}</span>
               </label>
             ))}
           </div>
@@ -323,15 +328,15 @@ export default function TroopCalculatorSection() {
 
         <div className="flex flex-col gap-3">
           <div className="dashboard-card p-4 flex flex-col gap-3">
-            <h2 className="card-title">Results</h2>
+            <h2 className="card-title">{t('troopCalculator.results')}</h2>
 
             {!result || !targetTier ? (
-              <p className="text-sm text-parchment-400">Select a target tier to see results.</p>
+              <p className="text-sm text-parchment-400">{t('troopCalculator.selectTargetHint')}</p>
             ) : (
               <>
                 <div className="rounded-md border border-gold-600/40 bg-gold-500/10 p-3 flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-parchment-300">Troops</span>
+                    <span className="text-sm text-parchment-300">{t('troopCalculator.troops')}</span>
                     <span className="text-lg font-bold text-gold-300 tabular-nums">{result.quantity.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -339,7 +344,7 @@ export default function TroopCalculatorSection() {
                       <span className="h-3.5 w-3.5 shrink-0">
                         <SpeedupIcon />
                       </span>
-                      Time
+                      {t('troopCalculator.time')}
                     </span>
                     <span className="text-sm font-bold text-gold-300 tabular-nums">{formatDuration(result.timeSeconds)}</span>
                   </div>
@@ -358,15 +363,15 @@ export default function TroopCalculatorSection() {
 
                 <div className="rounded-md border border-stone-700 bg-stone-800 p-3 flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-parchment-300">Power</span>
+                    <span className="text-sm text-parchment-300">{t('calc.power')}</span>
                     <span className="text-sm font-bold text-parchment-100 tabular-nums">{result.power.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-parchment-300">KvK Points</span>
+                    <span className="text-sm text-parchment-300">{t('troopCalculator.kvkPoints')}</span>
                     <span className="text-sm font-bold text-gold-300 tabular-nums">{result.kvkPoints.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-parchment-300">Strongest Gov. Points</span>
+                    <span className="text-sm text-parchment-300">{t('troopCalculator.strongestGovPoints')}</span>
                     <span className="text-sm font-bold text-gold-300 tabular-nums">{result.sgPoints.toLocaleString()}</span>
                   </div>
                 </div>
