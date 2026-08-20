@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 import { groupByDepth, formatCompact, type ResearchPlan } from '@/lib/researchCalc';
 import type { ResearchTech } from '@/lib/researchTypes';
 import type { TreeDef } from '@/lib/researchTrees';
@@ -251,6 +252,7 @@ export default function ResearchTreeFlow({
   onToggleMax: (techId: string) => void;
   onStep: (techId: string, field: 'current' | 'target', delta: number) => void;
 }) {
+  const { t } = useI18n();
   const compact = useCompact();
   const {
     node: NODE,
@@ -364,7 +366,7 @@ export default function ResearchTreeFlow({
                   <>
                     <NodeStepper
                       side="left"
-                      label="Current"
+                      label={t('calc.current')}
                       value={state.current}
                       tone="gold"
                       onInc={() => onStep(tech.id, 'current', 1)}
@@ -374,7 +376,7 @@ export default function ResearchTreeFlow({
                     />
                     <NodeStepper
                       side="right"
-                      label="Target"
+                      label={t('calc.target')}
                       value={state.target}
                       tone="cyan"
                       onInc={() => onStep(tech.id, 'target', 1)}
@@ -384,13 +386,13 @@ export default function ResearchTreeFlow({
                     />
                     {showHint && (
                       <>
-                        <NodeStepperHint side="left" tone="gold" text="Click here to choose your current progress" />
-                        <NodeStepperHint side="right" tone="cyan" text="Click here to choose your target" />
+                        <NodeStepperHint side="left" tone="gold" text={t('researchTree.hintClickCurrent')} />
+                        <NodeStepperHint side="right" tone="cyan" text={t('researchTree.hintClickTarget')} />
                       </>
                     )}
                   </>
                 )}
-                {isRootTech && <NodeCircleHint text="Or tap the circle for target & progress" />}
+                {isRootTech && <NodeCircleHint text={t('researchTree.hintCircle')} />}
                 <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="45" fill="none" stroke="#2b384e" strokeWidth="7" opacity="0.7" />
                   <circle
@@ -449,7 +451,7 @@ export default function ResearchTreeFlow({
                       e.stopPropagation();
                       onToggleMax(tech.id);
                     }}
-                    title={maxed ? 'Already maxed -- tap to reset' : 'Tap to mark as already maxed'}
+                    title={maxed ? t('researchTree.titleAlreadyMaxed') : t('researchTree.titleTapToMax')}
                     className={`focus-ring target-pop rounded-full ${pillText} font-bold leading-none tabular-nums transition-colors ${
                       maxed
                         ? 'bg-gold-500 text-stone-950 hover:bg-gold-400'
@@ -460,7 +462,15 @@ export default function ResearchTreeFlow({
                             : 'bg-stone-800 text-parchment-500 border border-stone-600 hover:border-gold-500/60 hover:text-gold-300'
                     }`}
                   >
-                    {maxed ? 'MAX' : hasGoal ? `${state.current} → ${state.target}` : state.current > 0 ? `${state.current}/${tech.maxLevel}` : compact ? 'Max' : 'Tap max'}
+                    {maxed
+                      ? t('researchTree.pillMax')
+                      : hasGoal
+                        ? `${state.current} → ${state.target}`
+                        : state.current > 0
+                          ? `${state.current}/${tech.maxLevel}`
+                          : compact
+                            ? t('researchTree.pillMaxCompact')
+                            : t('researchTree.pillTapMax')}
                   </button>
                 );
                 // Right side collides with the floating "Bonuses" button
@@ -469,7 +479,7 @@ export default function ResearchTreeFlow({
                   <NodeStepperHint
                     side={compact ? 'left' : 'right'}
                     tone="ember"
-                    text={compact ? 'Tap if maxed' : "Tap here if it's maxed, or you plan to upgrade it"}
+                    text={compact ? t('researchTree.hintTapIfMaxedCompact') : t('researchTree.hintTapIfMaxed')}
                     compact={compact}
                   />
                 );
@@ -479,7 +489,7 @@ export default function ResearchTreeFlow({
                     <div className="flex flex-col items-center gap-1">
                       <div className="relative">
                         <NodeStepperRow
-                          label="Current"
+                          label={t('calc.current')}
                           value={state.current}
                           tone="gold"
                           onInc={() => onStep(tech.id, 'current', 1)}
@@ -487,11 +497,11 @@ export default function ResearchTreeFlow({
                           incDisabled={state.current >= tech.maxLevel}
                           decDisabled={state.current <= 0}
                         />
-                        <NodeStepperHint side="left" tone="gold" text="Tap to set Current" compact />
+                        <NodeStepperHint side="left" tone="gold" text={t('researchTree.hintTapSetCurrent')} compact />
                       </div>
                       <div className="relative">
                         <NodeStepperRow
-                          label="Target"
+                          label={t('calc.target')}
                           value={state.target}
                           tone="cyan"
                           onInc={() => onStep(tech.id, 'target', 1)}
@@ -499,7 +509,7 @@ export default function ResearchTreeFlow({
                           incDisabled={state.target >= tech.maxLevel}
                           decDisabled={state.target <= state.current}
                         />
-                        <NodeStepperHint side="right" tone="cyan" text="Tap to set Target" compact />
+                        <NodeStepperHint side="right" tone="cyan" text={t('researchTree.hintTapSetTarget')} compact />
                       </div>
                       <div className="relative mt-0.5">
                         {pillButton}

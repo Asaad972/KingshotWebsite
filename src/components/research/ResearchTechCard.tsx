@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/lib/i18n';
 import { statLabel, type TechLevelState } from '@/lib/researchCalc';
 import type { ResearchTech } from '@/lib/researchTypes';
 import { BreadIcon, WoodIcon, StoneIcon, IronIcon, GoldIcon, PowerIcon } from './ResearchIcons';
@@ -62,6 +63,7 @@ export default function ResearchTechCard({
   onChange: (next: TechLevelState) => void;
   onClose: () => void;
 }) {
+  const { t } = useI18n();
   const levelOptions = Array.from({ length: tech.maxLevel + 1 }, (_, i) => i);
   const targetLevel = tech.levels[state.target - 1];
   const totalCostEntries =
@@ -94,7 +96,7 @@ export default function ResearchTechCard({
           onClick={onClose}
           className="focus-ring shrink-0 rounded border border-stone-700 px-2 py-1 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500"
         >
-          Close
+          {t('common.close')}
         </button>
       </div>
 
@@ -102,7 +104,7 @@ export default function ResearchTechCard({
         <div className="flex flex-wrap gap-1">
           {tech.prereqs.map((p) => (
             <span key={p.techId} className="chip !border-stone-600 !text-parchment-400">
-              Needs {getTech(p.techId)?.name ?? p.techId} Lv.{p.level}
+              {t('researchTree.needsLevel', { name: getTech(p.techId)?.name ?? p.techId, level: p.level })}
             </span>
           ))}
         </div>
@@ -111,7 +113,7 @@ export default function ResearchTechCard({
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <span className="label-eyebrow">Current</span>
+            <span className="label-eyebrow">{t('calc.current')}</span>
             <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
               <input
                 type="checkbox"
@@ -119,7 +121,7 @@ export default function ResearchTechCard({
                 onChange={(e) => onChange({ current: e.target.checked ? tech.maxLevel : 0, target: Math.max(e.target.checked ? tech.maxLevel : 0, state.target) })}
                 className="focus-ring h-4 w-4 rounded border-stone-600 bg-stone-950 accent-gold-500"
               />
-              Already maxed
+              {t('researchTree.alreadyMaxed')}
             </label>
           </div>
           <LevelBoxes
@@ -130,7 +132,7 @@ export default function ResearchTechCard({
         </div>
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <span className="label-eyebrow">Target</span>
+            <span className="label-eyebrow">{t('calc.target')}</span>
             <label className="flex items-center gap-1 shrink-0 text-[10px] font-medium text-parchment-400">
               <input
                 type="checkbox"
@@ -138,7 +140,7 @@ export default function ResearchTechCard({
                 onChange={(e) => onChange({ current: state.current, target: e.target.checked ? tech.maxLevel : state.current })}
                 className="focus-ring h-4 w-4 rounded border-stone-600 bg-stone-950 accent-gold-500"
               />
-              Max
+              {t('researchTree.max')}
             </label>
           </div>
           <LevelBoxes
@@ -151,7 +153,7 @@ export default function ResearchTechCard({
 
       <div className="border-t border-stone-700 pt-2.5 flex flex-col gap-1.5 min-h-[1.25rem]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-parchment-400">Total Bonus</span>
+          <span className="text-[11px] text-parchment-400">{t('researchTree.totalBonus')}</span>
           {targetLevel && (
             <span className="text-xs font-semibold text-moss-500">
               {statLabel(tech)} +{targetLevel.effectValue.toLocaleString()}

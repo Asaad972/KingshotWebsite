@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/lib/i18n';
 import { formatCompact, formatResearchDuration, type CategoryBonus, type ResearchPlanTotals } from '@/lib/researchCalc';
 import type { TreeDef } from '@/lib/researchTrees';
 import { TechIconImage, BreadIcon, WoodIcon, StoneIcon, IronIcon, GoldIcon, PowerIcon, ClockIcon, SpeedupIcon } from './ResearchIcons';
@@ -33,6 +34,7 @@ export default function ResearchBonusSidebar({
   totals: ResearchPlanTotals;
   onClose?: () => void;
 }) {
+  const { t } = useI18n();
   const activeBonuses = bonuses.filter((b) => b.gain > 0);
   const hasGoal = totals.levelsTarget > totals.levelsCurrent;
   const costEntries = (Object.keys(totals.cost) as (keyof typeof totals.cost)[]).filter((k) => totals.cost[k] > 0);
@@ -44,8 +46,8 @@ export default function ResearchBonusSidebar({
     <div className="dashboard-card p-5 flex flex-col gap-3 lg:sticky lg:top-20 z-0">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="card-title">Overall Bonuses</h2>
-          <p className="text-xs text-parchment-400 mt-0.5">What you'll gain from the upgrades you've set a goal for.</p>
+          <h2 className="card-title">{t('researchTree.overallBonuses')}</h2>
+          <p className="text-xs text-parchment-400 mt-0.5">{t('researchTree.overallBonusesSubtitle')}</p>
         </div>
         {onClose && (
           <button
@@ -53,7 +55,7 @@ export default function ResearchBonusSidebar({
             onClick={onClose}
             className="focus-ring shrink-0 rounded border border-stone-700 px-2 py-1 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500"
           >
-            Close
+            {t('common.close')}
           </button>
         )}
       </div>
@@ -79,12 +81,12 @@ export default function ResearchBonusSidebar({
           })}
         </div>
       ) : (
-        <p className="text-xs text-parchment-500 py-1">Set a goal on the tree to see what it'll earn you here.</p>
+        <p className="text-xs text-parchment-500 py-1">{t('researchTree.setGoalHint')}</p>
       )}
 
       {hasGoal && (
         <div className="flex flex-col gap-2.5 rounded-md border border-cyan-500/30 bg-cyan-500/5 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-cyan-400">To reach your goals</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-cyan-400">{t('researchTree.toReachGoals')}</p>
           <div className="flex flex-col gap-2">
             {costEntries.map((k) => {
               const Icon = RESOURCE_ICON[k];
@@ -101,7 +103,7 @@ export default function ResearchBonusSidebar({
               <span className="h-5 w-5 shrink-0">
                 <PowerIcon />
               </span>
-              +{formatCompact(totals.powerGained)} Power
+              +{formatCompact(totals.powerGained)} {t('calc.power')}
             </span>
             <span className="flex items-center gap-2 text-xl font-bold text-parchment-100 tabular-nums mt-0.5">
               <span className="h-6 w-6 shrink-0">
@@ -113,7 +115,7 @@ export default function ResearchBonusSidebar({
               <span className="h-5 w-5 shrink-0">
                 <SpeedupIcon />
               </span>
-              {formatCompact(Math.ceil(totals.timeSeconds / 60))} min speedups
+              {t('researchTree.minSpeedups', { minutes: formatCompact(Math.ceil(totals.timeSeconds / 60)) })}
             </span>
           </div>
         </div>

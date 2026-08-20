@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/lib/i18n';
 import type { ResearchPlanTotals } from '@/lib/researchCalc';
 
 /** Just the completion ring + level/tech counts -- the cost/power/time/
@@ -7,6 +8,7 @@ import type { ResearchPlanTotals } from '@/lib/researchCalc';
  * now, right alongside the bonuses those same goals earn, instead of being
  * duplicated up here too. */
 export default function ResearchSummaryBar({ totals }: { totals: ResearchPlanTotals }) {
+  const { t } = useI18n();
   const completionPercent = totals.levelsMax > 0 ? Math.round((totals.levelsCurrent / totals.levelsMax) * 100) : 0;
 
   return (
@@ -33,10 +35,10 @@ export default function ResearchSummaryBar({ totals }: { totals: ResearchPlanTot
           </div>
           <div>
             <p className="text-sm font-semibold text-parchment-100">
-              {totals.levelsCurrent}/{totals.levelsMax} levels researched
+              {t('researchTree.levelsResearched', { current: totals.levelsCurrent, max: totals.levelsMax })}
             </p>
             <p className="text-[11px] text-parchment-400">
-              {totals.techsMaxedCurrent}/{totals.techsTotal} techs maxed
+              {t('researchTree.techsMaxed', { current: totals.techsMaxedCurrent, total: totals.techsTotal })}
             </p>
           </div>
         </div>

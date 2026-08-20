@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import {
   calcResearchPlan,
@@ -31,7 +32,14 @@ import ResearchBonusSidebar from './ResearchBonusSidebar';
  * split and re-merge, connected by right-angle lines) mirrors the game's
  * own Academy screen layout.
  */
+const CATEGORY_LABEL_KEY: Record<TreeId, string> = {
+  economy: 'researchTree.categoryEconomy',
+  growth: 'researchTree.categoryGrowth',
+  battle: 'researchTree.categoryBattle',
+};
+
 export default function ResearchTreeSection() {
+  const { t } = useI18n();
   const [activeTreeId, setActiveTreeId] = useState<TreeId>('economy');
   const tree = TREES[activeTreeId];
 
@@ -144,10 +152,9 @@ export default function ResearchTreeSection() {
     <div className="flex flex-col gap-3" dir="ltr">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="section-title">Research Tree -- {tree.label}</h1>
+          <h1 className="section-title">{t('researchTree.treeTitle', { label: t(CATEGORY_LABEL_KEY[activeTreeId]) })}</h1>
           <p className="text-xs text-parchment-400 mt-0.5">
-            Real cost, time, power, and effect data for all {tree.techs.length} {tree.label} technologies. Tap a tech
-            to set your level and goal.
+            {t('researchTree.subtitle', { count: tree.techs.length, label: t(CATEGORY_LABEL_KEY[activeTreeId]) })}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -156,14 +163,14 @@ export default function ResearchTreeSection() {
             onClick={handleMaxAll}
             className="focus-ring rounded border border-gold-600/50 px-3 py-1.5 text-xs text-gold-300 hover:bg-gold-500/10 transition-colors"
           >
-            Max all
+            {t('calc.maxAll')}
           </button>
           <button
             type="button"
             onClick={handleReset}
             className="focus-ring rounded border border-stone-700 px-3 py-1.5 text-xs text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
           >
-            Reset all
+            {t('calc.resetAll')}
           </button>
         </div>
       </div>
@@ -180,7 +187,7 @@ export default function ResearchTreeSection() {
                 : 'border-stone-700 bg-stone-800 text-parchment-400 hover:text-parchment-200'
             }`}
           >
-            {TREES[id].label}
+            {t(CATEGORY_LABEL_KEY[id])}
           </button>
         ))}
       </div>
@@ -217,7 +224,7 @@ export default function ResearchTreeSection() {
         onClick={() => setBonusesOpen(true)}
         className="focus-ring lg:hidden fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full border border-gold-500/60 bg-stone-900 px-4 py-3 shadow-lg text-sm font-semibold text-gold-300"
       >
-        Bonuses
+        {t('researchTree.bonusesButton')}
       </button>
 
       {bonusesOpen && (
