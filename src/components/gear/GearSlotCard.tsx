@@ -57,7 +57,7 @@ export default function GearSlotCard({
   };
 
   return (
-    <div className="dashboard-card p-3.5 flex flex-col gap-3">
+    <div className="flex flex-col items-center gap-2">
       <p className="text-sm font-semibold text-parchment-100">{label}</p>
 
       {/* Current -> Target, the whole point made visible at a glance */}
