@@ -47,7 +47,7 @@ export default function BonusOverviewHelpModal({ open, onClose }: { open: boolea
             <p className="text-sm text-parchment-300">
               <span className="text-gold-300 font-semibold">Step 1</span> -- tap your Gold count in the top-left of the main screen to open your profile.
             </p>
-            <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden border border-stone-700 bg-stone-950">
+            <div className="relative w-full aspect-[7/2] rounded-md overflow-hidden border border-stone-700 bg-stone-950">
               <Image src="/tutorials/bonus-overview-step1.png" alt="Tap your Gold count to open your profile" fill sizes="400px" className="object-contain" />
             </div>
           </div>
