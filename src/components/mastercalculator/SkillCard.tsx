@@ -3,7 +3,7 @@
 import type { Skill } from '@/lib/masterTypes';
 import { costForSkillRange, formatLearnDuration } from '@/lib/masterCalc';
 import LevelSlider from '@/components/heroGear/LevelSlider';
-import { LearningXpIcon, ManuscriptIcon, ClockIcon } from './MasterIcons';
+import { ManuscriptIcon, ClockIcon } from './MasterIcons';
 import MasterPortrait from './MasterPortrait';
 import LevelChips from './LevelChips';
 
@@ -100,15 +100,6 @@ export default function SkillCard({
           </p>
 
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {result.totalLearningXP > 0 && (
-              <span className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-moss-500">
-                <span className="h-3.5 w-3.5 shrink-0">
-                  <LearningXpIcon />
-                </span>
-                {result.totalLearningXP.toLocaleString()}
-                <span className="text-parchment-500 font-normal text-xs">Learning XP</span>
-              </span>
-            )}
             {result.totalManuscripts > 0 && (
               <span className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-cyan-400">
                 <span className="h-3.5 w-3.5 shrink-0">

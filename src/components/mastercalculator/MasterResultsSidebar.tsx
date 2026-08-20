@@ -63,18 +63,18 @@ export default function MasterResultsSidebar({
                   <p className="text-xs font-semibold text-parchment-100 truncate">{m.label}</p>
                   <p className="text-[11px] text-parchment-500">Need {req.toLocaleString()}</p>
                 </div>
-                <div className="text-xs font-semibold tabular-nums shrink-0 text-right">
+                <div className="text-sm font-bold tabular-nums shrink-0 text-right">
                   {ready ? <span className="text-moss-500">Enough ✓</span> : <span className="text-ember-500">Missing {needed.toLocaleString()}</span>}
                 </div>
               </div>
             );
           })}
           {(required.learningXp ?? 0) > 0 && (
-            <p className="flex items-center justify-end gap-1.5 text-[11px] text-parchment-500">
-              <span className="h-3.5 w-3.5 shrink-0">
+            <p className="flex items-center justify-end gap-2 text-sm text-parchment-400">
+              <span className="h-4 w-4 shrink-0">
                 <ClockIcon />
               </span>
-              Time to learn: <span className="text-parchment-200 font-semibold">~{formatLearnDuration(required.learningXp)}</span>
+              Time to learn: <span className="text-parchment-100 font-bold">~{formatLearnDuration(required.learningXp)}</span>
             </p>
           )}
         </div>
