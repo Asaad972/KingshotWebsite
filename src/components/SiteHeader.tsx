@@ -15,6 +15,9 @@ const CALCULATOR_LINKS = [
   { href: '/hero-gear-calculator', labelKey: 'home.heroGearCalculatorNav' },
   { href: '/troop-calculator', labelKey: 'home.troopCalculatorNav' },
   { href: '/research-tree', labelKey: 'home.researchTreeNav' },
+  { href: '/building-planner', labelKey: 'home.buildingPlannerNav' },
+  { href: '/master-calculator', labelKey: 'home.masterCalculatorNav' },
+  { href: '/pet-calculator', labelKey: 'home.petCalculatorNav' },
 ] as const;
 
 export default function SiteHeader() {
@@ -43,10 +46,7 @@ export default function SiteHeader() {
             {t('common.home')}
           </Link>
           <Link href="/book" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
-            {t('home.bookButton')}
-          </Link>
-          <Link href="/schedule" className="hover:text-gold-300 transition-colors focus-ring rounded-md">
-            {t('home.viewSchedule')}
+            {t('home.createScheduleNav')}
           </Link>
           <div className="relative">
             <button
