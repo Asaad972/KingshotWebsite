@@ -1,16 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { tierMeta, getGearLevel, type GearTier } from '@/lib/gearData';
-import {
-  GEAR_COLOR_ORDER,
-  GEAR_COLOR_LABEL,
-  tiersForColor,
-  starsForTier,
-  imageForTierStars,
-  type GearColorId,
-} from '@/lib/gearPieceImages';
-import ClippedGearImage from './ClippedGearImage';
+import { tierMeta, getGearLevel, type GearSlotId, type GearTier } from '@/lib/gearData';
+import { GEAR_COLOR_ORDER, GEAR_COLOR_LABEL, tiersForColor, starsForTier, type GearColorId } from '@/lib/gearPieceImages';
+import GearTierThumb from './GearTierThumb';
 
 type Step = 'color' | 'tier' | 'stars';
 
@@ -36,18 +29,23 @@ function bestOrderForTier(tier: GearTier): number {
 }
 
 /** Step-by-step visual picker -- Color, then Stage, then Stars -- instead of
- * one long dropdown of 57 options. Every choice shown actually has a real
- * screenshot behind it (tiersForColor/starsForTier), so e.g. Green only
- * offers 0-1 stars instead of implying a fourth star that was never real
- * for that tier. `minOrder` mirrors GearLevelDropdown's own prop: Target
- * can't be set below Current, so combos under that real GearLevel.order
- * show disabled rather than just vanishing. */
+ * one long dropdown of 57 options. Every choice shown is a real GearLevel
+ * (tiersForColor/starsForTier are driven by the actual cost table, not
+ * guessed), so e.g. Green only offers 0-1 stars instead of implying a
+ * fourth star that never existed for that tier. `minOrder` mirrors
+ * GearLevelDropdown's own prop: Target can't be set below Current, so
+ * combos under that real GearLevel.order show disabled rather than just
+ * vanishing. */
 export default function GearVisualPicker({
+  slotId,
+  icon,
   title,
   minOrder = 0,
   onConfirm,
   onClose,
 }: {
+  slotId: GearSlotId;
+  icon: React.ReactNode;
   title: string;
   minOrder?: number;
   onConfirm: (tier: GearTier, stars: number) => void;
@@ -117,7 +115,6 @@ export default function GearVisualPicker({
             {GEAR_COLOR_ORDER.map((c) => {
               const sampleTier = tiersForColor(c)[0]?.tier;
               const sampleStars = sampleTier ? starsForTier(sampleTier)[0] : undefined;
-              const img = sampleTier != null && sampleStars != null ? imageForTierStars(sampleTier, sampleStars) : undefined;
               const disabled = bestOrderForColor(c) < minOrder;
               return (
                 <button
@@ -131,7 +128,9 @@ export default function GearVisualPicker({
                       : 'border-stone-700 bg-stone-800 hover:border-gold-600'
                   }`}
                 >
-                  {img && <ClippedGearImage src={img} alt={GEAR_COLOR_LABEL[c]} size={56} />}
+                  {sampleTier != null && sampleStars != null && (
+                    <GearTierThumb slotId={slotId} icon={icon} tier={sampleTier} stars={sampleStars} size={56} />
+                  )}
                   <span className="text-xs font-semibold text-parchment-200">{GEAR_COLOR_LABEL[c]}</span>
                 </button>
               );
@@ -143,7 +142,6 @@ export default function GearVisualPicker({
           <div className="grid grid-cols-3 gap-2.5">
             {tiersForColor(color).map(({ tier: t }) => {
               const s0 = starsForTier(t)[0];
-              const img = s0 != null ? imageForTierStars(t, s0) : undefined;
               const meta = tierMeta(t);
               const disabled = bestOrderForTier(t) < minOrder;
               return (
@@ -158,7 +156,7 @@ export default function GearVisualPicker({
                       : 'border-stone-700 bg-stone-800 hover:border-gold-600'
                   }`}
                 >
-                  {img && <ClippedGearImage src={img} alt={meta.label} size={56} />}
+                  {s0 != null && <GearTierThumb slotId={slotId} icon={icon} tier={t} stars={s0} size={56} />}
                   <span className={`text-xs font-semibold ${disabled ? 'text-parchment-600' : meta.text}`}>{meta.label}</span>
                 </button>
               );
@@ -169,7 +167,6 @@ export default function GearVisualPicker({
         {step === 'stars' && tier && (
           <div className="grid grid-cols-2 gap-2.5">
             {starsForTier(tier).map((s) => {
-              const img = imageForTierStars(tier, s);
               const meta = tierMeta(tier);
               const disabled = orderOf(tier, s) < minOrder;
               return (
@@ -184,7 +181,7 @@ export default function GearVisualPicker({
                       : 'border-stone-700 bg-stone-800 hover:border-gold-600'
                   }`}
                 >
-                  {img && <ClippedGearImage src={img} alt={`${meta.label} ${s} star`} size={84} />}
+                  <GearTierThumb slotId={slotId} icon={icon} tier={tier} stars={s} size={84} />
                   <span className={`text-xs font-semibold ${disabled ? 'text-parchment-600' : meta.text}`}>
                     {meta.label} {s > 0 ? '★'.repeat(s) : '(no stars)'}
                   </span>

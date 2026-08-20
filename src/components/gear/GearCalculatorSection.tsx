@@ -7,7 +7,6 @@ import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { useProfiles } from '@/lib/useProfiles';
 import ProfileBar from '@/components/shared/ProfileBar';
 import GearSlotCard from './GearSlotCard';
-import GearSlotCardPrototype from './prototype/GearSlotCardPrototype';
 import GearLevelDropdown from './GearLevelDropdown';
 import GearMaterialsPanel from './GearMaterialsPanel';
 import GearTroopStatsPanel from './GearTroopStatsPanel';
@@ -109,28 +108,16 @@ export default function GearCalculatorSection() {
 
   const slotLabel = (id: GearSlotId) => GEAR_SLOTS.find((s) => s.id === id)!.label;
 
-  // PROTOTYPE: Coat only, testing the new visual Current/Target picker
-  // side by side with the other 5 pieces' existing dropdown-based card
-  // before deciding whether to roll it out everywhere.
-  const renderSlot = (slotId: GearSlotId) =>
-    slotId === 'coat' ? (
-      <GearSlotCardPrototype
-        slotId={slotId}
-        label={slotLabel(slotId)}
-        currentId={selections[slotId].currentId}
-        targetId={selections[slotId].targetId}
-        onSelectLevel={handleSelectLevel}
-      />
-    ) : (
-      <GearSlotCard
-        slotId={slotId}
-        label={slotLabel(slotId)}
-        icon={SLOT_ICONS[slotId]}
-        currentId={selections[slotId].currentId}
-        targetId={selections[slotId].targetId}
-        onSelectLevel={handleSelectLevel}
-      />
-    );
+  const renderSlot = (slotId: GearSlotId) => (
+    <GearSlotCard
+      slotId={slotId}
+      label={slotLabel(slotId)}
+      icon={SLOT_ICONS[slotId]}
+      currentId={selections[slotId].currentId}
+      targetId={selections[slotId].targetId}
+      onSelectLevel={handleSelectLevel}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-2" dir="ltr">
@@ -170,8 +157,10 @@ export default function GearCalculatorSection() {
       <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start mt-3">
         {/* Equipment layout */}
         <div className="dashboard-card p-4">
-          {/* Mobile (<640px): plain 2-column grid, reading order. */}
-          <div className="grid grid-cols-2 gap-3 sm:hidden">
+          {/* Mobile (<640px): single column -- each card needs ~200px for
+              its Current -> arrow -> Target row, which a 2-column grid can't
+              give it without the images spilling into the next column. */}
+          <div className="flex flex-col gap-3 sm:hidden">
             {renderSlot('cap')}
             {renderSlot('watch')}
             {renderSlot('coat')}

@@ -1,12 +1,13 @@
-// PROTOTYPE ONLY -- real in-game screenshots (user-provided) for exactly one
-// Governor Gear piece (the Coat, Infantry's chest slot), used to test a new
-// step-by-step visual picker before rolling it out to the other 5 pieces.
-// Every entry here corresponds 1:1 to a real GearLevel in gearData.ts (id
-// `${tier}-${stars}`), confirmed by cross-checking the 58 screenshots the
-// user captured against GEAR_LEVELS -- 57 matched exactly; the 58th
-// (Red T6 3-star) has no matching entry in the current cost table, so it's
-// left out here rather than guessed at.
-import type { GearTier } from './gearData';
+// The Color -> Stage -> Stars structure below is driven by real data --
+// gearData.ts's own comment confirms all six Governor Gear pieces share the
+// exact same costs/tiers/stars at each level, so GEAR_LEVELS (scraped once,
+// real) is a valid source of truth for every slot, not just the one we
+// happen to have photos for. The actual PHOTOS are separate and optional
+// per slot: only Coat has real user-provided screenshots (infantry_gear_1_*)
+// right now -- other slots fall back to a themed placeholder tile (see
+// GearTierPlaceholder) until their own screenshots arrive, at which point
+// they get their own entry in SLOT_IMAGES below, same pattern as Coat's.
+import { GEAR_LEVELS, type GearSlotId, type GearTier } from './gearData';
 
 export type GearColorId = 'green' | 'blue' | 'purple' | 'gold' | 'red';
 
@@ -20,77 +21,25 @@ export const GEAR_COLOR_LABEL: Record<GearColorId, string> = {
   red: 'Red',
 };
 
-export interface GearImageEntry {
-  color: GearColorId;
-  tier: GearTier;
-  tierNum: number;
-  stars: number;
-  image: string;
-}
+const COLOR_BY_TIER: Record<GearTier, GearColorId> = {
+  green: 'green',
+  blue: 'blue',
+  purple: 'purple',
+  purpleT1: 'purple',
+  gold: 'gold',
+  goldT1: 'gold',
+  goldT2: 'gold',
+  goldT3: 'gold',
+  red: 'red',
+  redT1: 'red',
+  redT2: 'red',
+  redT3: 'red',
+  redT4: 'red',
+  redT5: 'red',
+  redT6: 'red',
+};
 
-const RAW: { color: GearColorId; tier: GearTier; stars: number; image: string }[] = [
-  { color: 'green', tier: 'green', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s0.webp' },
-  { color: 'green', tier: 'green', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s1.webp' },
-  { color: 'blue', tier: 'blue', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s0.webp' },
-  { color: 'blue', tier: 'blue', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s1.webp' },
-  { color: 'blue', tier: 'blue', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s2.webp' },
-  { color: 'blue', tier: 'blue', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s3.webp' },
-  { color: 'purple', tier: 'purple', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s0.webp' },
-  { color: 'purple', tier: 'purple', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s1.webp' },
-  { color: 'purple', tier: 'purple', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s2.webp' },
-  { color: 'purple', tier: 'purple', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s3.webp' },
-  { color: 'purple', tier: 'purpleT1', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s0.webp' },
-  { color: 'purple', tier: 'purpleT1', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s1.webp' },
-  { color: 'purple', tier: 'purpleT1', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s2.webp' },
-  { color: 'purple', tier: 'purpleT1', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s3.webp' },
-  { color: 'gold', tier: 'gold', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s0.webp' },
-  { color: 'gold', tier: 'gold', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s1.webp' },
-  { color: 'gold', tier: 'gold', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s2.webp' },
-  { color: 'gold', tier: 'gold', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s3.webp' },
-  { color: 'gold', tier: 'goldT1', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s0.webp' },
-  { color: 'gold', tier: 'goldT1', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s1.webp' },
-  { color: 'gold', tier: 'goldT1', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s2.webp' },
-  { color: 'gold', tier: 'goldT1', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s3.webp' },
-  { color: 'gold', tier: 'goldT2', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s0.webp' },
-  { color: 'gold', tier: 'goldT2', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s1.webp' },
-  { color: 'gold', tier: 'goldT2', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s2.webp' },
-  { color: 'gold', tier: 'goldT2', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s3.webp' },
-  { color: 'gold', tier: 'goldT3', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s0.webp' },
-  { color: 'gold', tier: 'goldT3', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s1.webp' },
-  { color: 'gold', tier: 'goldT3', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s2.webp' },
-  { color: 'gold', tier: 'goldT3', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s3.webp' },
-  { color: 'red', tier: 'red', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s0.webp' },
-  { color: 'red', tier: 'red', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s1.webp' },
-  { color: 'red', tier: 'red', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s2.webp' },
-  { color: 'red', tier: 'red', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s3.webp' },
-  { color: 'red', tier: 'redT1', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s0.webp' },
-  { color: 'red', tier: 'redT1', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s1.webp' },
-  { color: 'red', tier: 'redT1', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s2.webp' },
-  { color: 'red', tier: 'redT1', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s3.webp' },
-  { color: 'red', tier: 'redT2', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s0.webp' },
-  { color: 'red', tier: 'redT2', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s1.webp' },
-  { color: 'red', tier: 'redT2', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s2.webp' },
-  { color: 'red', tier: 'redT2', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s3.webp' },
-  { color: 'red', tier: 'redT3', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s0.webp' },
-  { color: 'red', tier: 'redT3', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s1.webp' },
-  { color: 'red', tier: 'redT3', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s2.webp' },
-  { color: 'red', tier: 'redT3', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s3.webp' },
-  { color: 'red', tier: 'redT4', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s0.webp' },
-  { color: 'red', tier: 'redT4', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s1.webp' },
-  { color: 'red', tier: 'redT4', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s2.webp' },
-  { color: 'red', tier: 'redT4', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s3.webp' },
-  { color: 'red', tier: 'redT5', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s0.webp' },
-  { color: 'red', tier: 'redT5', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s1.webp' },
-  { color: 'red', tier: 'redT5', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s2.webp' },
-  { color: 'red', tier: 'redT5', stars: 3, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s3.webp' },
-  { color: 'red', tier: 'redT6', stars: 0, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t6_s0.webp' },
-  { color: 'red', tier: 'redT6', stars: 1, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t6_s1.webp' },
-  { color: 'red', tier: 'redT6', stars: 2, image: '/gear/pieces/infantry-1/infantry_gear_1_red_t6_s2.webp' },
-];
-
-// tierNum = the position of `tier` within its own color (0-based) --
-// derived once here instead of hand-numbered above, so it can't drift out
-// of sync with TIER_DISPLAY_ORDER.
+// tierNum = the position of `tier` within its own color (0-based).
 const TIER_NUM_BY_TIER: Record<GearTier, number> = {
   green: 0,
   blue: 0,
@@ -109,12 +58,25 @@ const TIER_NUM_BY_TIER: Record<GearTier, number> = {
   redT6: 6,
 };
 
-export const GEAR_IMAGE_ENTRIES: GearImageEntry[] = RAW.map((r) => ({ ...r, tierNum: TIER_NUM_BY_TIER[r.tier] }));
+interface TierStarCombo {
+  tier: GearTier;
+  tierNum: number;
+  color: GearColorId;
+  stars: number;
+}
+
+// Every real (tier, stars) combo that exists in the actual cost table,
+// regardless of which slot -- this is what makes "only show stages/stars
+// that actually exist" true for every piece, not just Coat.
+const ALL_COMBOS: TierStarCombo[] = GEAR_LEVELS.filter((l) => l.tier !== 'base').map((l) => {
+  const tier = l.tier as GearTier;
+  return { tier, tierNum: TIER_NUM_BY_TIER[tier], color: COLOR_BY_TIER[tier], stars: l.stars };
+});
 
 export function tiersForColor(color: GearColorId): { tier: GearTier; tierNum: number }[] {
   const seen = new Map<GearTier, number>();
-  for (const e of GEAR_IMAGE_ENTRIES) {
-    if (e.color === color) seen.set(e.tier, e.tierNum);
+  for (const c of ALL_COMBOS) {
+    if (c.color === color) seen.set(c.tier, c.tierNum);
   }
   return Array.from(seen.entries())
     .map(([tier, tierNum]) => ({ tier, tierNum }))
@@ -122,17 +84,82 @@ export function tiersForColor(color: GearColorId): { tier: GearTier; tierNum: nu
 }
 
 export function starsForTier(tier: GearTier): number[] {
-  return GEAR_IMAGE_ENTRIES.filter((e) => e.tier === tier)
-    .map((e) => e.stars)
+  return ALL_COMBOS.filter((c) => c.tier === tier)
+    .map((c) => c.stars)
     .sort((a, b) => a - b);
 }
 
-export function imageForTierStars(tier: GearTier, stars: number): string | undefined {
-  return GEAR_IMAGE_ENTRIES.find((e) => e.tier === tier && e.stars === stars)?.image;
+export function colorForTier(tier: GearTier | 'base'): GearColorId | undefined {
+  return tier === 'base' ? undefined : COLOR_BY_TIER[tier];
 }
 
-export function colorForTier(tier: GearTierOrBaseLike): GearColorId | undefined {
-  return GEAR_IMAGE_ENTRIES.find((e) => e.tier === tier)?.color;
-}
+// Real in-game screenshots (user-provided) -- Coat only for now. Every entry
+// here corresponds 1:1 to a real GearLevel in gearData.ts, confirmed by
+// cross-checking the user's 58 screenshots against GEAR_LEVELS: 57 matched
+// exactly; the 58th (Red T6 3-star) has no matching cost-table entry, so
+// it's left out rather than guessed at.
+const SLOT_IMAGES: Partial<Record<GearSlotId, Partial<Record<string, string>>>> = {
+  coat: {
+    'green-0': '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s0.webp',
+    'green-1': '/gear/pieces/infantry-1/infantry_gear_1_green_t0_s1.webp',
+    'blue-0': '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s0.webp',
+    'blue-1': '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s1.webp',
+    'blue-2': '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s2.webp',
+    'blue-3': '/gear/pieces/infantry-1/infantry_gear_1_blue_t0_s3.webp',
+    'purple-0': '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s0.webp',
+    'purple-1': '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s1.webp',
+    'purple-2': '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s2.webp',
+    'purple-3': '/gear/pieces/infantry-1/infantry_gear_1_purple_t0_s3.webp',
+    'purpleT1-0': '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s0.webp',
+    'purpleT1-1': '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s1.webp',
+    'purpleT1-2': '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s2.webp',
+    'purpleT1-3': '/gear/pieces/infantry-1/infantry_gear_1_purple_t1_s3.webp',
+    'gold-0': '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s0.webp',
+    'gold-1': '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s1.webp',
+    'gold-2': '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s2.webp',
+    'gold-3': '/gear/pieces/infantry-1/infantry_gear_1_gold_t0_s3.webp',
+    'goldT1-0': '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s0.webp',
+    'goldT1-1': '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s1.webp',
+    'goldT1-2': '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s2.webp',
+    'goldT1-3': '/gear/pieces/infantry-1/infantry_gear_1_gold_t1_s3.webp',
+    'goldT2-0': '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s0.webp',
+    'goldT2-1': '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s1.webp',
+    'goldT2-2': '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s2.webp',
+    'goldT2-3': '/gear/pieces/infantry-1/infantry_gear_1_gold_t2_s3.webp',
+    'goldT3-0': '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s0.webp',
+    'goldT3-1': '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s1.webp',
+    'goldT3-2': '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s2.webp',
+    'goldT3-3': '/gear/pieces/infantry-1/infantry_gear_1_gold_t3_s3.webp',
+    'red-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s0.webp',
+    'red-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s1.webp',
+    'red-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s2.webp',
+    'red-3': '/gear/pieces/infantry-1/infantry_gear_1_red_t0_s3.webp',
+    'redT1-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s0.webp',
+    'redT1-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s1.webp',
+    'redT1-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s2.webp',
+    'redT1-3': '/gear/pieces/infantry-1/infantry_gear_1_red_t1_s3.webp',
+    'redT2-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s0.webp',
+    'redT2-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s1.webp',
+    'redT2-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s2.webp',
+    'redT2-3': '/gear/pieces/infantry-1/infantry_gear_1_red_t2_s3.webp',
+    'redT3-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s0.webp',
+    'redT3-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s1.webp',
+    'redT3-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s2.webp',
+    'redT3-3': '/gear/pieces/infantry-1/infantry_gear_1_red_t3_s3.webp',
+    'redT4-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s0.webp',
+    'redT4-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s1.webp',
+    'redT4-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s2.webp',
+    'redT4-3': '/gear/pieces/infantry-1/infantry_gear_1_red_t4_s3.webp',
+    'redT5-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s0.webp',
+    'redT5-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s1.webp',
+    'redT5-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s2.webp',
+    'redT5-3': '/gear/pieces/infantry-1/infantry_gear_1_red_t5_s3.webp',
+    'redT6-0': '/gear/pieces/infantry-1/infantry_gear_1_red_t6_s0.webp',
+    'redT6-1': '/gear/pieces/infantry-1/infantry_gear_1_red_t6_s1.webp',
+    'redT6-2': '/gear/pieces/infantry-1/infantry_gear_1_red_t6_s2.webp',
+  },
+};
 
-type GearTierOrBaseLike = GearTier | 'base';
+export function imageForSlotTierStars(slotId: GearSlotId, tier: GearTier, stars: number): string | undefined {
+  return SLOT_IMAGES[slotId]?.[`${tier}-${stars}`];
+}
