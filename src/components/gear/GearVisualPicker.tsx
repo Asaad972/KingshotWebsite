@@ -156,7 +156,7 @@ export default function GearVisualPicker({
               return (
                 <div key={t} className="flex flex-col gap-1.5">
                   <span className={`text-xs font-semibold ${meta.text}`}>{meta.label}</span>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     {starsForTier(t).map((s) => {
                       const disabled = orderOf(t, s) < minOrder;
                       return (
