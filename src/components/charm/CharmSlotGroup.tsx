@@ -3,6 +3,12 @@
 import type { GearSlotId } from '@/lib/gearData';
 import { CHARM_SLOTS, getCharmLevel } from '@/lib/charmData';
 import CharmLevelDropdown from './CharmLevelDropdown';
+import CharmSlotCard from './CharmSlotCard';
+
+// Testing the gear-style visual picker on this ONE charm only, same as how
+// the gear picker started on Coat before rolling out to every piece -- see
+// CharmSlotCard.tsx. Every other charm keeps the original dropdown pair.
+const TEST_CHARM_ID = 'cap-1';
 
 export default function CharmSlotGroup({
   gearSlotId,
@@ -28,6 +34,21 @@ export default function CharmSlotGroup({
       <div className="flex flex-col gap-2">
         {charms.map((charm) => {
           const current = getCharmLevel(selections[charm.id].currentId);
+
+          if (charm.id === TEST_CHARM_ID) {
+            return (
+              <div key={charm.id} className="flex flex-col items-center gap-1 rounded border border-stone-700 bg-stone-800 p-2">
+                <p className="text-[10px] font-medium text-parchment-400 self-start">{charm.label}</p>
+                <CharmSlotCard
+                  icon={icon}
+                  currentId={selections[charm.id].currentId}
+                  targetId={selections[charm.id].targetId}
+                  onSelectLevel={(mode, levelId) => onSelectLevel(charm.id, mode, levelId)}
+                />
+              </div>
+            );
+          }
+
           return (
             <div key={charm.id} className="grid grid-cols-2 gap-2 rounded border border-stone-700 bg-stone-800 p-2">
               <div className="col-span-2 text-[10px] font-medium text-parchment-400">{charm.label}</div>
