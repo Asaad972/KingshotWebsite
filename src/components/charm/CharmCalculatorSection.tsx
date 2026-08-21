@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { TROOP_LABELS, type GearSlotId, type TroopType } from '@/lib/gearData';
+import { GEAR_SLOTS, TROOP_LABELS, type GearSlotId, type TroopType } from '@/lib/gearData';
 import { CHARM_SLOTS, getCharmLevel } from '@/lib/charmData';
 import { calcCharmPlan, type CharmSelections } from '@/lib/charmCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
@@ -180,20 +180,16 @@ export default function CharmCalculatorSection() {
       {/* Full width so the pictures can be as big as possible; Materials/
           Stats move below instead of squeezing into a side column -- same
           layout change made for the gear picker. */}
-      <div className="dashboard-card p-4 md:p-6 mt-3 flex flex-col gap-8">
-        {TROOP_ORDER.map((troopType) => (
-          <div key={troopType}>
-            <h2 className="card-title mb-3">{TROOP_LABELS[troopType]}</h2>
-            {/* flex-wrap instead of a fixed grid -- each card needs room for
-                its Current -> arrow -> Target row, which a rigid grid-cols-N
-                squeezes below on narrower widths (the same overflow bug the
-                gear picker hit on mobile). Wrapping lets each card keep its
-                natural width and just flow to a new line instead. */}
-            <div className="flex flex-wrap justify-center gap-x-10 gap-y-8">
-              {CHARM_SLOTS.filter((charm) => charm.troopType === troopType).map((charm) => (
+      <div className="dashboard-card p-4 md:p-6 mt-3">
+        {TROOP_ORDER.map((troopType, i) => {
+          const [pieceA, pieceB] = GEAR_SLOTS.filter((s) => s.troopType === troopType);
+          const charmsFor = (gearSlotId: GearSlotId) => CHARM_SLOTS.filter((c) => c.gearSlotId === gearSlotId);
+          const column = (piece: (typeof GEAR_SLOTS)[number]) => (
+            <div className="flex flex-col gap-6">
+              {charmsFor(piece.id).map((charm) => (
                 <CharmSlotCard
                   key={charm.id}
-                  icon={SLOT_ICONS[charm.gearSlotId]}
+                  icon={SLOT_ICONS[piece.id]}
                   currentId={selections[charm.id].currentId}
                   targetId={selections[charm.id].targetId}
                   showHint={charm.id === 'cap-1'}
@@ -201,8 +197,23 @@ export default function CharmCalculatorSection() {
                 />
               ))}
             </div>
-          </div>
-        ))}
+          );
+          return (
+            <div key={troopType} className={i > 0 ? 'mt-8 pt-8 border-t border-stone-700' : ''}>
+              <h2 className="card-title mb-4">{TROOP_LABELS[troopType]}</h2>
+              {/* flex-col on mobile so the two pieces' charms just stack in
+                  one column (two 112px-wide columns side by side don't fit
+                  a phone screen) -- flex-row at sm+ puts them side by side
+                  with a divider line between, matching the piece boundary
+                  that used to be a "Cap"/"Watch" label. */}
+              <div className="flex flex-col sm:flex-row justify-center items-start gap-6 sm:gap-8">
+                {column(pieceA)}
+                <div className="hidden sm:block w-px self-stretch bg-stone-700" />
+                {column(pieceB)}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3 mt-3">

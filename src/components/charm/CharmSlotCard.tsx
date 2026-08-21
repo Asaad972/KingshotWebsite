@@ -67,13 +67,20 @@ export default function CharmSlotCard({
 
   return (
     <div className="flex flex-col items-center gap-1">
-      {showHint && (
-        <div className="flex items-center justify-center gap-4">
-          <PickerHint text="Click here to choose your current level" tone="gold" />
-          <div className="w-12 shrink-0" />
-          <PickerHint text="Click here to choose your target level" tone="cyan" mirrored />
-        </div>
-      )}
+      {/* Reserve this row's height on desktop even for cards that don't
+          show the hint -- otherwise the hinted card grows taller than its
+          neighbors and the Current/Target rows fall out of alignment (same
+          issue fixed on GearSlotCard.tsx). Skipped on mobile's single-
+          column stack, which has no cross-column alignment to keep. */}
+      <div
+        className={
+          showHint ? 'flex items-center justify-center gap-4' : 'hidden items-center justify-center gap-4 sm:flex sm:invisible'
+        }
+      >
+        <PickerHint text="Click here to choose your current level" tone="gold" />
+        <div className="w-12 shrink-0" />
+        <PickerHint text="Click here to choose your target level" tone="cyan" mirrored />
+      </div>
 
       <div className="flex items-center justify-center gap-4 py-1">
         <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
