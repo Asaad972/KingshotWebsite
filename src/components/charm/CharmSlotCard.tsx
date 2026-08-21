@@ -17,20 +17,42 @@ function UpgradeArrow() {
   );
 }
 
+/** Same curved "look here" arrow as the gear picker's hint -- see
+ * GearSlotCard.tsx's HintArrow. */
+function HintArrow({ mirrored = false }: { mirrored?: boolean }) {
+  return (
+    <svg viewBox="0 0 32 16" className={`h-5 w-8 rotate-90 ${mirrored ? '-scale-x-100' : ''}`}>
+      <path d="M2 9c8-4 16-4 24-1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M19 3.5 27 8l-6.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+}
+
+function PickerHint({ text, tone, mirrored }: { text: string; tone: 'gold' | 'cyan'; mirrored?: boolean }) {
+  const color = tone === 'gold' ? 'text-gold-300' : 'text-cyan-300';
+  return (
+    <div className={`flex w-[84px] flex-col items-center gap-0.5 ${color}`}>
+      <span className="text-center text-[9px] font-semibold leading-tight">{text}</span>
+      <HintArrow mirrored={mirrored} />
+    </div>
+  );
+}
+
 /** Charm's version of GearSlotCard -- tap either picture to open that
- * side's picker directly. Test build for ONE charm slot first (see
- * CharmSlotGroup.tsx) before rolling out to all 18, same as how the gear
- * picker started on Coat only. No real charm art exists yet, so both
- * thumbnails are CharmLevelPlaceholder for now. */
+ * side's picker directly. No real charm art exists yet, so both
+ * thumbnails are CharmLevelPlaceholder for now. `showHint` mirrors gear's
+ * Cap hint: shown permanently on just one charm as a standing explainer. */
 export default function CharmSlotCard({
   icon,
   currentId,
   targetId,
+  showHint = false,
   onSelectLevel,
 }: {
   icon: React.ReactNode;
   currentId: string;
   targetId: string;
+  showHint?: boolean;
   onSelectLevel: (mode: 'current' | 'target', levelId: string) => void;
 }) {
   const [picker, setPicker] = useState<PickerTarget>(null);
@@ -45,6 +67,14 @@ export default function CharmSlotCard({
 
   return (
     <div className="flex flex-col items-center gap-1">
+      {showHint && (
+        <div className="flex items-center justify-center gap-3">
+          <PickerHint text="Click here to choose your current level" tone="gold" />
+          <div className="w-10 shrink-0" />
+          <PickerHint text="Click here to choose your target level" tone="cyan" mirrored />
+        </div>
+      )}
+
       <div className="flex items-center justify-center gap-3 py-1">
         <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
           <CharmLevelPlaceholder icon={icon} order={current?.order ?? 0} size={72} />

@@ -1,13 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { GEAR_SLOTS, TROOP_LABELS, type GearSlotId, type TroopType } from '@/lib/gearData';
+import { TROOP_LABELS, type GearSlotId, type TroopType } from '@/lib/gearData';
 import { CHARM_SLOTS, getCharmLevel } from '@/lib/charmData';
 import { calcCharmPlan, type CharmSelections } from '@/lib/charmCalc';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { useProfiles } from '@/lib/useProfiles';
 import ProfileBar from '@/components/shared/ProfileBar';
-import CharmSlotGroup from './CharmSlotGroup';
+import CharmSlotCard from './CharmSlotCard';
 import CharmLevelDropdown from './CharmLevelDropdown';
 import CharmMaterialsPanel from './CharmMaterialsPanel';
 import CharmTroopStatsPanel from './CharmTroopStatsPanel';
@@ -178,19 +178,25 @@ export default function CharmCalculatorSection() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start mt-3">
-        <div className="flex flex-col gap-4">
+        <div className="dashboard-card p-4 md:p-6 flex flex-col gap-6">
           {TROOP_ORDER.map((troopType) => (
             <div key={troopType}>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gold-300 mb-2">{TROOP_LABELS[troopType]}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {GEAR_SLOTS.filter((slot) => slot.troopType === troopType).map((slot) => (
-                  <CharmSlotGroup
-                    key={slot.id}
-                    gearSlotId={slot.id}
-                    gearSlotLabel={slot.label}
-                    icon={SLOT_ICONS[slot.id]}
-                    selections={selections}
-                    onSelectLevel={handleSelectLevel}
+              <h2 className="card-title mb-3">{TROOP_LABELS[troopType]}</h2>
+              {/* flex-wrap instead of a fixed grid -- each card needs ~208px
+                  for its Current -> arrow -> Target row, which a rigid
+                  grid-cols-N squeezes below on narrower widths (the same
+                  overflow bug the gear picker hit on mobile). Wrapping lets
+                  each card keep its natural width and just flow to a new
+                  line instead. */}
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-6">
+                {CHARM_SLOTS.filter((charm) => charm.troopType === troopType).map((charm) => (
+                  <CharmSlotCard
+                    key={charm.id}
+                    icon={SLOT_ICONS[charm.gearSlotId]}
+                    currentId={selections[charm.id].currentId}
+                    targetId={selections[charm.id].targetId}
+                    showHint={charm.id === 'cap-1'}
+                    onSelectLevel={(mode, levelId) => handleSelectLevel(charm.id, mode, levelId)}
                   />
                 ))}
               </div>
