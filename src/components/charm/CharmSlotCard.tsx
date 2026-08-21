@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import type { TroopType } from '@/lib/gearData';
 import { getCharmLevel } from '@/lib/charmData';
-import CharmLevelPlaceholder from './CharmLevelPlaceholder';
+import CharmLevelThumb from './CharmLevelThumb';
 import CharmVisualPicker from './CharmVisualPicker';
 
 type PickerTarget = 'current' | 'target' | null;
@@ -39,16 +40,19 @@ function PickerHint({ text, tone, mirrored }: { text: string; tone: 'gold' | 'cy
 }
 
 /** Charm's version of GearSlotCard -- tap either picture to open that
- * side's picker directly. No real charm art exists yet, so both
- * thumbnails are CharmLevelPlaceholder for now. `showHint` mirrors gear's
- * Cap hint: shown permanently on just one charm as a standing explainer. */
+ * side's picker directly. Real charm art (when a troop type has any) is
+ * per LEVEL, not per slot -- CharmLevelThumb resolves it via `troopType`.
+ * `showHint` mirrors gear's Cap hint: shown permanently on just one charm
+ * as a standing explainer. */
 export default function CharmSlotCard({
+  troopType,
   icon,
   currentId,
   targetId,
   showHint = false,
   onSelectLevel,
 }: {
+  troopType: TroopType;
   icon: React.ReactNode;
   currentId: string;
   targetId: string;
@@ -84,20 +88,21 @@ export default function CharmSlotCard({
 
       <div className="flex items-center justify-center gap-4 py-1">
         <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
-          <CharmLevelPlaceholder icon={icon} order={current?.order ?? 0} size={112} />
+          <CharmLevelThumb troopType={troopType} icon={icon} order={current?.order ?? 0} size={112} />
           <span className="text-sm font-semibold text-parchment-300">{current?.label ?? 'Base'}</span>
         </button>
 
         <UpgradeArrow />
 
         <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
-          <CharmLevelPlaceholder icon={icon} order={target?.order ?? 0} size={112} />
+          <CharmLevelThumb troopType={troopType} icon={icon} order={target?.order ?? 0} size={112} />
           <span className="text-sm font-semibold text-cyan-300">{target?.label ?? 'Base'}</span>
         </button>
       </div>
 
       {picker === 'current' && (
         <CharmVisualPicker
+          troopType={troopType}
           icon={icon}
           title="Current Charm Level"
           onConfirm={(levelId) => confirmLevel('current', levelId)}
@@ -106,6 +111,7 @@ export default function CharmSlotCard({
       )}
       {picker === 'target' && (
         <CharmVisualPicker
+          troopType={troopType}
           icon={icon}
           title="Target Charm Level"
           minOrder={current?.order ?? 0}

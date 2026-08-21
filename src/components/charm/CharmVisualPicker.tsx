@@ -1,20 +1,23 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { TroopType } from '@/lib/gearData';
 import { CHARM_LEVELS } from '@/lib/charmData';
-import CharmLevelPlaceholder from './CharmLevelPlaceholder';
+import CharmLevelThumb from './CharmLevelThumb';
 
 /** Charm's version of GearVisualPicker -- but levels are a flat Base..22
  * track with no Color/Stage axis, so it's a single grid instead of a
  * step-by-step flow. `minOrder` mirrors CharmLevelDropdown's own prop:
  * Target can't be set below Current. */
 export default function CharmVisualPicker({
+  troopType,
   icon,
   title,
   minOrder = 0,
   onConfirm,
   onClose,
 }: {
+  troopType: TroopType;
   icon: React.ReactNode;
   title: string;
   minOrder?: number;
@@ -59,7 +62,7 @@ export default function CharmVisualPicker({
                     : 'border-stone-700 bg-stone-800 hover:border-gold-600'
                 }`}
               >
-                <CharmLevelPlaceholder icon={icon} order={lvl.order} size={56} />
+                <CharmLevelThumb troopType={troopType} icon={icon} order={lvl.order} size={56} />
                 <span className={`text-[10px] font-semibold ${disabled ? 'text-parchment-600' : 'text-parchment-300'}`}>
                   {lvl.order === 0 ? 'Base' : lvl.order}
                 </span>

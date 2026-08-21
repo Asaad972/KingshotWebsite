@@ -189,6 +189,7 @@ export default function CharmCalculatorSection() {
               {charmsFor(piece.id).map((charm) => (
                 <CharmSlotCard
                   key={charm.id}
+                  troopType={troopType}
                   icon={SLOT_ICONS[piece.id]}
                   currentId={selections[charm.id].currentId}
                   targetId={selections[charm.id].targetId}
