@@ -7,6 +7,7 @@ import LocaleGate from '@/components/LocaleGate';
 import SiteHeader from '@/components/SiteHeader';
 import MobileNavigation from '@/components/MobileNavigation';
 import StarfieldBackground from '@/components/StarfieldBackground';
+import SuggestionWidget from '@/components/SuggestionWidget';
 
 const display = Rajdhani({
   subsets: ['latin'],
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <SiteHeader />
             <main className="min-h-[calc(100vh-56px)] pb-16 sm:pb-0">{children}</main>
             <MobileNavigation />
+            <SuggestionWidget />
           </LocaleGate>
 
         </I18nProvider>
