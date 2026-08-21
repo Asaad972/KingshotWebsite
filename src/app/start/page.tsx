@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import BookingPreviewMock from '@/components/start/BookingPreviewMock';
+import SchedulePreviewMock from '@/components/start/SchedulePreviewMock';
 
 function slugify(input: string): string {
   return input
@@ -30,6 +32,7 @@ export default function StartKingdomPage() {
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<CreatedKingdom | null>(null);
   const [copiedBook, setCopiedBook] = useState(false);
+  const [copiedSchedule, setCopiedSchedule] = useState(false);
   const [copiedAdmin, setCopiedAdmin] = useState(false);
   const [savedConfirmed, setSavedConfirmed] = useState(false);
 
@@ -92,14 +95,18 @@ export default function StartKingdomPage() {
   if (created) {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const bookLink = `${origin}/k/${created.slug}/book`;
+    const scheduleLink = `${origin}/k/${created.slug}/schedule`;
     const adminLink = `${origin}/k/${created.slug}/admin/${created.admin_token}`;
 
-    const copy = async (text: string, which: 'book' | 'admin') => {
+    const copy = async (text: string, which: 'book' | 'schedule' | 'admin') => {
       try {
         await navigator.clipboard.writeText(text);
         if (which === 'book') {
           setCopiedBook(true);
           setTimeout(() => setCopiedBook(false), 2000);
+        } else if (which === 'schedule') {
+          setCopiedSchedule(true);
+          setTimeout(() => setCopiedSchedule(false), 2000);
         } else {
           setCopiedAdmin(true);
           setTimeout(() => setCopiedAdmin(false), 2000);
@@ -134,6 +141,21 @@ export default function StartKingdomPage() {
               className="focus-ring shrink-0 rounded-md border border-stone-700 px-3 py-2 text-xs font-semibold text-parchment-200 hover:border-gold-600 transition-colors"
             >
               {copiedBook ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+        </div>
+
+        <div className="dashboard-card p-4 mb-4">
+          <p className="text-xs text-parchment-400 mb-1.5">Schedule link — anyone can check assigned slots (no login needed)</p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 min-w-0 truncate rounded border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-parchment-100">
+              {scheduleLink}
+            </code>
+            <button
+              onClick={() => copy(scheduleLink, 'schedule')}
+              className="focus-ring shrink-0 rounded-md border border-stone-700 px-3 py-2 text-xs font-semibold text-parchment-200 hover:border-gold-600 transition-colors"
+            >
+              {copiedSchedule ? 'Copied!' : 'Copy'}
             </button>
           </div>
         </div>
@@ -178,14 +200,21 @@ export default function StartKingdomPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-10">
+    <div className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="text-xl font-semibold text-parchment-100 mb-1">Set up your kingdom</h1>
-      <p className="text-sm text-parchment-400 mb-6">
-        Get your own castle-appointment booking page in a few seconds — a link to share with your players, and a
-        private admin link for you.
+      <p className="text-sm text-parchment-400 mb-8">
+        Get your own castle-appointment booking page in a few seconds — a link to share with your players, a public
+        schedule link anyone can check, and a private admin link for you.
       </p>
 
-      <form onSubmit={handleSubmit} className="dashboard-card p-5 flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mb-10">
+        <p className="label-eyebrow">See what it looks like first</p>
+        <SchedulePreviewMock />
+        <BookingPreviewMock />
+      </div>
+
+      <h2 className="card-title mb-4">Create your kingdom</h2>
+      <form onSubmit={handleSubmit} className="dashboard-card p-5 flex flex-col gap-4 max-w-lg">
         <label className="block">
           <span className="text-sm text-parchment-300 mb-1 block">Kingdom name</span>
           <input
