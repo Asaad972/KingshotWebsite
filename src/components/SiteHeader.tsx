@@ -34,9 +34,9 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-stone-700 bg-stone-950/95">
       <div className="gradient-bar" aria-hidden />
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+      <div className="px-4 h-14 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 focus-ring rounded-md shrink-0 min-w-0">
-          <span className="font-display text-gradient text-xs sm:text-base font-bold tracking-wide whitespace-nowrap truncate">
+          <span className="font-display title-glow-gold text-xs sm:text-base font-bold tracking-wide whitespace-nowrap truncate">
             Kingshot Nerds HQ<span className="hidden sm:inline"> · King Hero</span>
           </span>
         </Link>

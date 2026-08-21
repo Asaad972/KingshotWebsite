@@ -42,48 +42,10 @@ function ListIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3.5 2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function GiftIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <rect x="4" y="9" width="16" height="11" rx="1.5" strokeLinejoin="round" />
-      <path d="M4 13h16M12 9v11" strokeLinecap="round" />
-      <path d="M12 9c0-2.5-1.5-4-3-4S6.5 6.5 8 8.5c.7.9 2 .5 4 .5Z" strokeLinejoin="round" />
-      <path d="M12 9c0-2.5 1.5-4 3-4s2.5 1.5 1 3.5c-.7.9-2 .5-4 .5Z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function ArrowIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 shrink-0">
       <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function TroopIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z" strokeLinejoin="round" />
-      <path d="M9 12.5l2 2 4-4.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CrownIcon() {
-  return (
-    <svg {...ICON_PROPS} className="h-5 w-5">
-      <path d="M4 18h16l-1.5-9-4 4-2.5-6-2.5 6-4-4L4 18Z" strokeLinejoin="round" strokeLinecap="round" />
-      <path d="M4 18h16" strokeLinecap="round" />
     </svg>
   );
 }
@@ -133,19 +95,34 @@ export default function QuickLinksGrid({
       title: 'Set Up Your Own Kingdom',
       subtitle: 'Get a free booking link + admin link, ready in seconds',
       tone: 'gold',
-      icon: <CrownIcon />,
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/explore/kingdom.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
     { href: '/book', title: bookTitle, subtitle: bookSubtitle, tone: 'gold', icon: <CalendarIcon /> },
     { href: '/schedule', title: scheduleTitle, subtitle: scheduleSubtitle, tone: 'cyan', icon: <ListIcon /> },
-    { href: '/rally-timer', title: rallyTimerTitle, subtitle: rallyTimerSubtitle, tone: 'gold', icon: <ClockIcon /> },
-    { href: '/gift-codes', title: giftCodesTitle, subtitle: giftCodesSubtitle, tone: 'cyan', icon: <GiftIcon /> },
+    {
+      href: '/rally-timer',
+      title: rallyTimerTitle,
+      subtitle: rallyTimerSubtitle,
+      tone: 'gold',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/explore/rally-timer.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
+    {
+      href: '/gift-codes',
+      title: giftCodesTitle,
+      subtitle: giftCodesSubtitle,
+      tone: 'cyan',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/explore/gift.png" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
     {
       href: '/gear-calculator',
       title: gearCalculatorTitle,
       subtitle: gearCalculatorSubtitle,
       tone: 'gold',
       // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
-      icon: <img src="/gear/materials/satin.jpg" alt="" className="h-full w-full rounded-xl object-cover" />,
+      icon: <img src="/gear/pieces/infantry-1/infantry_gear_1_red_t6_s0.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
     {
       href: '/charm-calculator',
@@ -163,7 +140,14 @@ export default function QuickLinksGrid({
       // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
       icon: <img src="/heroGear/pieces/helm.png" alt="" className="h-full w-full rounded-xl object-cover" />,
     },
-    { href: '/troop-calculator', title: troopCalculatorTitle, subtitle: troopCalculatorSubtitle, tone: 'cyan', icon: <TroopIcon /> },
+    {
+      href: '/troop-calculator',
+      title: troopCalculatorTitle,
+      subtitle: troopCalculatorSubtitle,
+      tone: 'cyan',
+      // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
+      icon: <img src="/explore/troop.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
     {
       href: '/research-tree',
       title: researchTreeTitle,
