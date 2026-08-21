@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { tierMeta, getGearLevel, type GearSlotId, type GearTier } from '@/lib/gearData';
-import { GEAR_COLOR_ORDER, GEAR_COLOR_LABEL, tiersForColor, starsForTier, type GearColorId } from '@/lib/gearPieceImages';
+import { GEAR_COLOR_ORDER, GEAR_COLOR_LABEL, tiersForColor, starsForTier, hasRealPhotos, type GearColorId } from '@/lib/gearPieceImages';
 import GearTierThumb from './GearTierThumb';
 
 type Step = 'color' | 'tier' | 'stars' | 'combo';
@@ -51,10 +51,12 @@ export default function GearVisualPicker({
   onConfirm: (tier: GearTier, stars: number) => void;
   onClose: () => void;
 }) {
-  // Testing a 2-tap version (Color -> one combined Stage+Stars grid) on
-  // Coat only, since that's the one piece with real photos to judge it
-  // against -- everything else keeps the original 3-step flow for now.
-  const combinedGrid = slotId === 'coat';
+  // The 2-tap version (Color -> one combined Stage+Stars grid) tested well
+  // on Coat, so it's now the default for any piece with real photos to show
+  // in it -- pieces still waiting on photos (all placeholder tiles) keep
+  // the original 3-step flow, since a grid of identical placeholder icons
+  // wouldn't help anyone find Gold T2 3-star any faster.
+  const combinedGrid = hasRealPhotos(slotId);
 
   const [step, setStep] = useState<Step>('color');
   const [color, setColor] = useState<GearColorId | null>(null);
