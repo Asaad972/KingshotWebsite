@@ -107,7 +107,7 @@ export default function GearSlotCard({
           ) : (
             <GearTierPlaceholder icon={icon} tier="base" stars={0} size={112} />
           )}
-          <span className="text-sm font-semibold text-parchment-300">{summaryLabel(current)}</span>
+          <span className="text-sm font-bold text-parchment-200">{summaryLabel(current)}</span>
         </button>
 
         <UpgradeArrow />
@@ -118,7 +118,7 @@ export default function GearSlotCard({
           ) : (
             <GearTierPlaceholder icon={icon} tier="base" stars={0} size={112} />
           )}
-          <span className="text-sm font-semibold text-cyan-300">{summaryLabel(target)}</span>
+          <span className="text-sm font-bold text-cyan-300">{summaryLabel(target)}</span>
         </button>
       </div>
 

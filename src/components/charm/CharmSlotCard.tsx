@@ -89,14 +89,14 @@ export default function CharmSlotCard({
       <div className="flex items-center justify-center gap-4 py-1">
         <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
           <CharmLevelThumb troopType={troopType} icon={icon} order={current?.order ?? 0} size={92} />
-          <span className="text-sm font-semibold text-parchment-300">{current?.label ?? 'Base'}</span>
+          <span className="text-sm font-bold text-parchment-200">{current?.label ?? 'Base'}</span>
         </button>
 
         <UpgradeArrow />
 
         <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
           <CharmLevelThumb troopType={troopType} icon={icon} order={target?.order ?? 0} size={92} />
-          <span className="text-sm font-semibold text-cyan-300">{target?.label ?? 'Base'}</span>
+          <span className="text-sm font-bold text-cyan-300">{target?.label ?? 'Base'}</span>
         </button>
       </div>
 

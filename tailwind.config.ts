@@ -5,15 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark navy / charcoal dashboard backgrounds
+        // Dark navy / charcoal dashboard backgrounds -- lifted a bit
+        // lighter across the board per feedback that the site read as too
+        // dark, while keeping the same charcoal-navy hue family.
         stone: {
-          950: '#080b12',
-          900: '#0d121b',
-          850: '#111723',
-          800: '#161e2c',
-          700: '#1f2a3c',
-          600: '#2b384e',
-          500: '#425065',
+          950: '#0d1119',
+          900: '#131a26',
+          850: '#182030',
+          800: '#1e2738',
+          700: '#283449',
+          600: '#374863',
+          500: '#4f617a',
         },
         // Warm royal-gold accent family -- the primary accent token,
         // paired with `cyan` below for gradients.
