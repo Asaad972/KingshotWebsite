@@ -9,8 +9,8 @@ type PickerTarget = 'current' | 'target' | null;
 
 function UpgradeArrow() {
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-gold-300">
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-gold-300">
         <path d="M5 12h14M13 6l6 6-6 6" />
       </svg>
     </div>
@@ -68,24 +68,24 @@ export default function CharmSlotCard({
   return (
     <div className="flex flex-col items-center gap-1">
       {showHint && (
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-4">
           <PickerHint text="Click here to choose your current level" tone="gold" />
-          <div className="w-10 shrink-0" />
+          <div className="w-12 shrink-0" />
           <PickerHint text="Click here to choose your target level" tone="cyan" mirrored />
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-3 py-1">
-        <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
-          <CharmLevelPlaceholder icon={icon} order={current?.order ?? 0} size={72} />
-          <span className="text-[11px] font-semibold text-parchment-300">{current?.label ?? 'Base'}</span>
+      <div className="flex items-center justify-center gap-4 py-1">
+        <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
+          <CharmLevelPlaceholder icon={icon} order={current?.order ?? 0} size={112} />
+          <span className="text-sm font-semibold text-parchment-300">{current?.label ?? 'Base'}</span>
         </button>
 
         <UpgradeArrow />
 
-        <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1 rounded-xl">
-          <CharmLevelPlaceholder icon={icon} order={target?.order ?? 0} size={72} />
-          <span className="text-[11px] font-semibold text-cyan-300">{target?.label ?? 'Base'}</span>
+        <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
+          <CharmLevelPlaceholder icon={icon} order={target?.order ?? 0} size={112} />
+          <span className="text-sm font-semibold text-cyan-300">{target?.label ?? 'Base'}</span>
         </button>
       </div>
 

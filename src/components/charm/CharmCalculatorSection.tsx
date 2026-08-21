@@ -177,37 +177,37 @@ export default function CharmCalculatorSection() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start mt-3">
-        <div className="dashboard-card p-4 md:p-6 flex flex-col gap-6">
-          {TROOP_ORDER.map((troopType) => (
-            <div key={troopType}>
-              <h2 className="card-title mb-3">{TROOP_LABELS[troopType]}</h2>
-              {/* flex-wrap instead of a fixed grid -- each card needs ~208px
-                  for its Current -> arrow -> Target row, which a rigid
-                  grid-cols-N squeezes below on narrower widths (the same
-                  overflow bug the gear picker hit on mobile). Wrapping lets
-                  each card keep its natural width and just flow to a new
-                  line instead. */}
-              <div className="flex flex-wrap justify-center gap-x-6 gap-y-6">
-                {CHARM_SLOTS.filter((charm) => charm.troopType === troopType).map((charm) => (
-                  <CharmSlotCard
-                    key={charm.id}
-                    icon={SLOT_ICONS[charm.gearSlotId]}
-                    currentId={selections[charm.id].currentId}
-                    targetId={selections[charm.id].targetId}
-                    showHint={charm.id === 'cap-1'}
-                    onSelectLevel={(mode, levelId) => handleSelectLevel(charm.id, mode, levelId)}
-                  />
-                ))}
-              </div>
+      {/* Full width so the pictures can be as big as possible; Materials/
+          Stats move below instead of squeezing into a side column -- same
+          layout change made for the gear picker. */}
+      <div className="dashboard-card p-4 md:p-6 mt-3 flex flex-col gap-8">
+        {TROOP_ORDER.map((troopType) => (
+          <div key={troopType}>
+            <h2 className="card-title mb-3">{TROOP_LABELS[troopType]}</h2>
+            {/* flex-wrap instead of a fixed grid -- each card needs room for
+                its Current -> arrow -> Target row, which a rigid grid-cols-N
+                squeezes below on narrower widths (the same overflow bug the
+                gear picker hit on mobile). Wrapping lets each card keep its
+                natural width and just flow to a new line instead. */}
+            <div className="flex flex-wrap justify-center gap-x-10 gap-y-8">
+              {CHARM_SLOTS.filter((charm) => charm.troopType === troopType).map((charm) => (
+                <CharmSlotCard
+                  key={charm.id}
+                  icon={SLOT_ICONS[charm.gearSlotId]}
+                  currentId={selections[charm.id].currentId}
+                  targetId={selections[charm.id].targetId}
+                  showHint={charm.id === 'cap-1'}
+                  onSelectLevel={(mode, levelId) => handleSelectLevel(charm.id, mode, levelId)}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
-        <div className="flex flex-col gap-3">
-          <CharmMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} scoreGained={plan.scoreGained} />
-          <CharmTroopStatsPanel troopStats={plan.troopStats} />
-        </div>
+      <div className="grid sm:grid-cols-2 gap-3 mt-3">
+        <CharmMaterialsPanel required={plan.materials} owned={owned} onChangeOwned={handleChangeOwned} scoreGained={plan.scoreGained} />
+        <CharmTroopStatsPanel troopStats={plan.troopStats} />
       </div>
     </div>
   );
