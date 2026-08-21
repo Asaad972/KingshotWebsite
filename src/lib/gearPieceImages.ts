@@ -218,10 +218,9 @@ const SLOT_IMAGES: Partial<Record<GearSlotId, Partial<Record<string, string>>>> 
     'redT6-1': '/gear/pieces/infantry-2/infantry_gear_2_red_t6_s1.webp',
     'redT6-2': '/gear/pieces/infantry-2/infantry_gear_2_red_t6_s2.webp',
   },
-  // Belt's photo set is missing a few combos (Purple T1 1-star, Gold T2
-  // 1-3 star, all of Gold T3) -- those specific cells fall back to the
-  // placeholder tile same as any other unphotographed combo, everything
-  // else here is real.
+  // Belt's photo set is missing one combo (Purple T1 1-star) -- that one
+  // cell falls back to the placeholder tile same as any other
+  // unphotographed combo, everything else here is real.
   belt: {
     'blue-0': '/gear/pieces/archery-1/archery_gear_1_blue_t0_s0.webp',
     'blue-1': '/gear/pieces/archery-1/archery_gear_1_blue_t0_s1.webp',
@@ -236,6 +235,13 @@ const SLOT_IMAGES: Partial<Record<GearSlotId, Partial<Record<string, string>>>> 
     'goldT1-2': '/gear/pieces/archery-1/archery_gear_1_gold_t1_s2.webp',
     'goldT1-3': '/gear/pieces/archery-1/archery_gear_1_gold_t1_s3.webp',
     'goldT2-0': '/gear/pieces/archery-1/archery_gear_1_gold_t2_s0.webp',
+    'goldT2-1': '/gear/pieces/archery-1/archery_gear_1_gold_t2_s1.webp',
+    'goldT2-2': '/gear/pieces/archery-1/archery_gear_1_gold_t2_s2.webp',
+    'goldT2-3': '/gear/pieces/archery-1/archery_gear_1_gold_t2_s3.webp',
+    'goldT3-0': '/gear/pieces/archery-1/archery_gear_1_gold_t3_s0.webp',
+    'goldT3-1': '/gear/pieces/archery-1/archery_gear_1_gold_t3_s1.webp',
+    'goldT3-2': '/gear/pieces/archery-1/archery_gear_1_gold_t3_s2.webp',
+    'goldT3-3': '/gear/pieces/archery-1/archery_gear_1_gold_t3_s3.webp',
     'green-0': '/gear/pieces/archery-1/archery_gear_1_green_t0_s0.webp',
     'green-1': '/gear/pieces/archery-1/archery_gear_1_green_t0_s1.webp',
     'purple-0': '/gear/pieces/archery-1/archery_gear_1_purple_t0_s0.webp',
