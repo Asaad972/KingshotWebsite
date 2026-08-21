@@ -10,7 +10,7 @@ import GearSlotCard from './GearSlotCard';
 import GearLevelDropdown from './GearLevelDropdown';
 import GearMaterialsPanel from './GearMaterialsPanel';
 import GearTroopStatsPanel from './GearTroopStatsPanel';
-import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon } from './GearIcons';
+import { CapIcon, WatchIcon, CoatIcon, PantsIcon, BeltIcon, StaffIcon, CrownIcon } from './GearIcons';
 
 interface SavedState {
   selections: GearSelections;
@@ -168,17 +168,20 @@ export default function GearCalculatorSection() {
           {renderSlot('staff')}
         </div>
 
-        {/* Desktop/tablet (>=640px): 3 slots per side, split by a divider
-            line -- same style as the charm picker's piece divider, no
-            center emblem this time. */}
-        <div className="hidden sm:flex items-start justify-center gap-8 lg:gap-16 max-w-4xl mx-auto py-4">
-          <div className="flex flex-col gap-6">
+        {/* Desktop/tablet (>=640px): 3 slots per side around a center
+            emblem, matching the in-game layout -- plus a horizontal divider
+            between each pair (Cap/Watch | Coat/Pants | Belt/Staff), same
+            line style as the charm picker's divider. */}
+        <div className="hidden sm:flex items-center justify-center gap-8 lg:gap-16 max-w-4xl mx-auto py-4">
+          <div className="flex flex-col gap-6 divide-y divide-stone-700 [&>*:not(:first-child)]:pt-6">
             {renderSlot('cap')}
             {renderSlot('coat')}
             {renderSlot('belt')}
           </div>
-          <div className="w-px self-stretch bg-stone-700" />
-          <div className="flex flex-col gap-6">
+          <div className="h-24 w-24 shrink-0 text-gold-400/60 self-center">
+            <CrownIcon />
+          </div>
+          <div className="flex flex-col gap-6 divide-y divide-stone-700 [&>*:not(:first-child)]:pt-6">
             {renderSlot('watch')}
             {renderSlot('pants')}
             {renderSlot('staff')}
