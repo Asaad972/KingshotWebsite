@@ -81,13 +81,23 @@ export default function GearSlotCard({
 
   return (
     <div className="flex flex-col items-center gap-1">
-      {showHint && (
-        <div className="flex items-center justify-center gap-4">
-          <PickerHint text="Click here to choose your current gear" tone="gold" />
-          <div className="w-12 shrink-0" />
-          <PickerHint text="Click here to choose your target gear" tone="cyan" mirrored />
-        </div>
-      )}
+      {/* Reserve this row's height on desktop even for pieces that don't
+          show the hint -- otherwise Cap's card grows taller than its
+          neighbor and the Current/Target rows fall out of alignment across
+          the two equipment columns. `invisible` keeps the layout box
+          without painting it; on mobile the non-hint pieces skip the
+          reserved gap entirely since that single-column stack has no
+          alignment to keep, while Cap's real hint still shows on every
+          screen size. */}
+      <div
+        className={
+          showHint ? 'flex items-center justify-center gap-4' : 'hidden items-center justify-center gap-4 sm:flex sm:invisible'
+        }
+      >
+        <PickerHint text="Click here to choose your current gear" tone="gold" />
+        <div className="w-12 shrink-0" />
+        <PickerHint text="Click here to choose your target gear" tone="cyan" mirrored />
+      </div>
 
       {/* Current -> Target, the whole point made visible at a glance */}
       <div className="flex items-center justify-center gap-4 py-1">
