@@ -246,7 +246,10 @@ export type KingdomRanks = Record<string, KingdomRankBoard>;
 /** Player-scoped leaderboard types kingshotstats.com tracks per kingdom
  * (found via their own kingdom page's "Rankings" tab). Excludes the two
  * alliance-scoped boards (Alliance Power/Kills) -- different row shape,
- * not needed for a per-governor leaderboard. */
+ * not needed for a per-governor leaderboard. Also excludes types 9/10
+ * (Pet Power, Master Power) -- their own data for those two boards is
+ * unreliable (many players share exact-duplicate scores, e.g. Master
+ * Power), so they're left out until that's fixed upstream. */
 export const PLAYER_LEADERBOARD_TYPES: { type: string; label: string }[] = [
   { type: '3', label: 'Personal Power' },
   { type: '4', label: 'Kill Count' },
@@ -254,8 +257,6 @@ export const PLAYER_LEADERBOARD_TYPES: { type: string; label: string }[] = [
   { type: '6', label: 'Rebel Conquest' },
   { type: '7', label: 'Single Hero Power' },
   { type: '8', label: 'Hero Total Power' },
-  { type: '9', label: 'Pet Power' },
-  { type: '10', label: 'Master Power' },
   { type: '20', label: 'Mystic Trial' },
 ];
 
