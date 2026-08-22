@@ -42,6 +42,26 @@ function ListIcon() {
   );
 }
 
+function SwordsIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M6 4 20 18M8.5 4 6 6.5 4 4.5 5.5 3 8.5 4Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 4 4 18M15.5 4 18 6.5 20 4.5 18.5 3 15.5 4Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 18v2h2M18 18v2h-2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TrophyIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 14v3M9 20h6M9.5 20c0-1.7.7-2.6 2.5-3 1.8.4 2.5 1.3 2.5 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function ArrowIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 shrink-0">
@@ -179,6 +199,20 @@ export default function QuickLinksGrid({
       tone: 'cyan',
       // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail in a 44px box, next/image is overkill
       icon: <img src="/masters/valora.webp" alt="" className="h-full w-full rounded-xl object-cover" />,
+    },
+    {
+      href: '/kvk-history',
+      title: 'KvK History',
+      subtitle: 'Real Kingdom vs Kingdom match records -- prep and castle results',
+      tone: 'gold',
+      icon: <SwordsIcon />,
+    },
+    {
+      href: '/kingdom-leaderboard',
+      title: 'Kingdom Power Leaderboard',
+      subtitle: 'Real, live governor rankings -- power, kills, mystic trial, and more',
+      tone: 'cyan',
+      icon: <TrophyIcon />,
     },
   ];
 
