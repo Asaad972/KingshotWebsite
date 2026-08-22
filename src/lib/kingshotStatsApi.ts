@@ -37,6 +37,54 @@ export interface KingdomStatsHealth {
   tone: string;
 }
 
+export interface KingdomStatsAlliance {
+  aid: number;
+  abbr: string;
+  name: string;
+  member_count: number;
+  member_max: number;
+  power: number;
+  game_power_rank: number | null;
+  leader_name: string | null;
+  leader_uid: number | null;
+  language_label: string | null;
+  flag_url: string | null;
+  rank: number;
+}
+
+export interface KingdomTgTier {
+  label: string;
+  count: number;
+}
+
+export interface KingdomPyramid {
+  tg: KingdomTgTier[];
+  top1_share: number;
+  top10_share: number;
+  top20_share: number;
+  shielded: number;
+  shielded_pct: number;
+  burning: number;
+  burning_pct: number;
+}
+
+export interface KingdomNewGovernor {
+  uid: number;
+  nick_name: string;
+  aid: number | null;
+  alliance_abbr: string | null;
+  power: number;
+  avatar_url: string | null;
+  label: string;
+  ago: string;
+}
+
+export interface KingdomAggregateTotal {
+  type: number;
+  label: string;
+  total: number;
+}
+
 export interface KingdomStats {
   kid: number;
   rank: number;
@@ -50,12 +98,16 @@ export interface KingdomStats {
   opened_on: string | null;
   age_days: number | null;
   players: KingdomStatsPlayer[];
+  alliances: KingdomStatsAlliance[];
+  pyramid: KingdomPyramid | null;
+  newThisWeek: KingdomNewGovernor[];
+  aggregateTotals: KingdomAggregateTotal[];
 }
 
 /** A kingdom's live power leaderboard, or null if kingshotstats.com has no
  * data for it (not an error -- some kingdoms just aren't tracked yet). */
 export async function fetchKingdomStats(kingdomId: number): Promise<KingdomStats | null> {
-  const res = await fetch(`${API_BASE}/kingdoms/${kingdomId}?players=50&alliances=1`, {
+  const res = await fetch(`${API_BASE}/kingdoms/${kingdomId}?players=50&alliances=100`, {
     headers: REQUEST_HEADERS,
     next: { revalidate: 900 },
   });
@@ -63,7 +115,20 @@ export async function fetchKingdomStats(kingdomId: number): Promise<KingdomStats
 
   const json = await res.json();
   if (!json.ok) return null;
-  return json as KingdomStats;
+
+  // pyramid/week/ingame_totals are already fully precomputed on their end
+  // (TG breakdown, top-N power-share, shielded %, this week's new
+  // governors, kingdom-wide stat sums) -- no need to derive any of this
+  // client-side from the raw player list.
+  return {
+    ...json,
+    alliances: json.alliances ?? [],
+    pyramid: json.pyramid ?? null,
+    newThisWeek: Array.isArray(json.week) ? json.week : [],
+    aggregateTotals: Array.isArray(json.ingame_totals)
+      ? json.ingame_totals.map((t: Record<string, unknown>) => ({ type: t.type, label: t.label, total: t.total }))
+      : [],
+  } as KingdomStats;
 }
 
 export interface TopKingdom {
@@ -496,5 +561,68 @@ export async function fetchAllianceProfile(aid: number): Promise<AllianceProfile
     manifesto: a.manifesto ?? null,
     flag_url: a.flag_url ?? null,
     members,
+  };
+}
+
+/** One office slot in a kingdom's King/Ministers/Offenders panel -- vacant
+ * offices carry no player fields at all, only the office's own identity. */
+export interface KingdomOfficeHolder {
+  office_id: number;
+  role: string;
+  kind: string;
+  kind_label: string;
+  icon_url: string | null;
+  vacant: boolean;
+  uid: number | null;
+  nick_name: string | null;
+  power: number | null;
+  stove_lv: number | null;
+  alliance_abbr: string | null;
+  avatar_url: string | null;
+}
+
+export interface KingdomAppointments {
+  kid: number;
+  king: KingdomOfficeHolder | null;
+  ministers: KingdomOfficeHolder[];
+  offenders: KingdomOfficeHolder[];
+}
+
+function parseOfficeHolder(raw: Record<string, unknown>): KingdomOfficeHolder {
+  return {
+    office_id: raw.office_id as number,
+    role: raw.role as string,
+    kind: raw.kind as string,
+    kind_label: raw.kind_label as string,
+    icon_url: (raw.icon_url as string) ?? null,
+    vacant: !!raw.vacant,
+    uid: (raw.uid as number) ?? null,
+    nick_name: (raw.nick_name as string) ?? null,
+    power: (raw.power as number) ?? null,
+    stove_lv: (raw.stove_lv as number) ?? null,
+    alliance_abbr: (raw.alliance_abbr as string) ?? null,
+    avatar_url: (raw.avatar_url as string) ?? null,
+  };
+}
+
+/** A kingdom's King / Ministers / Offenders appointments -- who (if anyone)
+ * currently holds each office. Read-only GET; their own site auto-triggers
+ * a refresh job when this is stale, but we never call that -- same
+ * plain-cache treatment as every other read in this file. */
+export async function fetchKingdomAppointments(kingdomId: number): Promise<KingdomAppointments | null> {
+  const res = await fetch(`${API_BASE}/kingdoms/${kingdomId}/appointments`, {
+    headers: REQUEST_HEADERS,
+    next: { revalidate: 900 },
+  });
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+
+  const json = await res.json();
+  if (!json.ok) return null;
+
+  return {
+    kid: json.kid,
+    king: json.king ? parseOfficeHolder(json.king) : null,
+    ministers: Array.isArray(json.ministers) ? json.ministers.map(parseOfficeHolder) : [],
+    offenders: Array.isArray(json.offenders) ? json.offenders.map(parseOfficeHolder) : [],
   };
 }

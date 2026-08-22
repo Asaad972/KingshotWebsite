@@ -2,12 +2,24 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { resolveAvatarUrl, PLAYER_LEADERBOARD_TYPES, type KingdomStats, type KingdomRanks } from '@/lib/kingshotStatsApi';
+import {
+  resolveAvatarUrl,
+  PLAYER_LEADERBOARD_TYPES,
+  type KingdomStats,
+  type KingdomRanks,
+  type KingdomAppointments,
+} from '@/lib/kingshotStatsApi';
 import GovernorProfileModal from './GovernorProfileModal';
 import AllianceProfileModal from './AllianceProfileModal';
 import TopKingdomsSection from './TopKingdomsSection';
+import KingdomThroneSection from './KingdomThroneSection';
 
 type Status = 'idle' | 'loading' | 'error' | 'not_found' | 'ready';
+
+// Not one of kingshotstats.com's own board type ids -- a synthetic tab we
+// add on top so the alliance leaderboard (stats.alliances, already fetched
+// alongside players) gets the same tab-switching UI as everything else.
+const ALLIANCE_METRIC = 'alliances';
 
 const powerFormatter = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 2 });
 
@@ -38,21 +50,29 @@ function useKingdomLookup(defaultKingdom?: number) {
   const [kingdomId, setKingdomId] = useState<number | null>(null);
   const [stats, setStats] = useState<KingdomStats | null>(null);
   const [ranks, setRanks] = useState<KingdomRanks | null>(null);
+  const [appointments, setAppointments] = useState<KingdomAppointments | null>(null);
   const [status, setStatus] = useState<Status>('idle');
 
-  const search = async (id: number) => {
-    setStatus('loading');
-    setKingdomId(id);
-    setRanks(null);
+  // `silent` powers the auto-refresh interval below -- same fetch, but
+  // doesn't touch `status` or clear ranks/appointments first, so a
+  // background refresh updates the numbers in place instead of flashing
+  // the whole panel back to a loading state every 90 seconds.
+  const fetchAll = async (id: number, opts?: { silent?: boolean }) => {
+    if (!opts?.silent) {
+      setStatus('loading');
+      setKingdomId(id);
+      setRanks(null);
+      setAppointments(null);
+    }
     try {
       const res = await fetch(`/api/kingdom-stats?kingdom=${id}`);
       const data = await res.json();
       if (!data.success) {
-        setStatus(data.reason === 'not_found' ? 'not_found' : 'error');
+        if (!opts?.silent) setStatus(data.reason === 'not_found' ? 'not_found' : 'error');
         return;
       }
       setStats(data.stats);
-      setStatus('ready');
+      if (!opts?.silent) setStatus('ready');
       // Fetched separately and allowed to fail quietly -- the main
       // power leaderboard above already works without it, this only
       // adds the extra metric tabs when it succeeds.
@@ -60,15 +80,35 @@ function useKingdomLookup(defaultKingdom?: number) {
         .then((r) => r.json())
         .then((d) => d.success && setRanks(d.boards))
         .catch(() => {});
+      // Same fire-and-forget treatment for the King/Ministers/Offenders
+      // panel -- it's a secondary, togglable view, not core to the page.
+      fetch(`/api/kingdom-appointments?kingdom=${id}`)
+        .then((r) => r.json())
+        .then((d) => d.success && setAppointments(d.appointments))
+        .catch(() => {});
     } catch {
-      setStatus('error');
+      if (!opts?.silent) setStatus('error');
     }
   };
+
+  const search = (id: number) => fetchAll(id);
+
+  // Keeps the currently-viewed kingdom's numbers current without the user
+  // having to re-search -- kingshotstats.com's own data changes over the
+  // course of a session (power, activity, new governors), and this is a
+  // dashboard people plausibly leave open.
+  useEffect(() => {
+    if (kingdomId == null || status !== 'ready') return;
+    const interval = setInterval(() => fetchAll(kingdomId, { silent: true }), 90_000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kingdomId, status]);
 
   const clear = () => {
     setKingdomId(null);
     setStats(null);
     setRanks(null);
+    setAppointments(null);
     setStatus('idle');
   };
 
@@ -77,7 +117,7 @@ function useKingdomLookup(defaultKingdom?: number) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { kingdomId, stats, ranks, status, search, clear };
+  return { kingdomId, stats, ranks, appointments, status, search, clear };
 }
 
 /** Stat tile that bolds/colors gold when this side beats the other side
@@ -88,6 +128,21 @@ function StatTile({ label, value, tone, winning }: { label: string; value: strin
     <div>
       <p className={`text-[11px] font-semibold uppercase tracking-wide ${tone}`}>{label}</p>
       <p className={`text-lg font-bold tabular-nums ${winning ? 'text-gold-300' : 'text-parchment-100'}`}>{value}</p>
+    </div>
+  );
+}
+
+/** How much of the kingdom's total power sits with its top N players --
+ * kingshotstats.com precomputes this (pyramid.top10_share etc.), so this
+ * just visualizes it as a filled track instead of a bare percentage. */
+function PowerShareBar({ label, pct }: { label: string; pct: number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-14 shrink-0 text-[11px] font-semibold text-parchment-400">{label}</span>
+      <div className="h-1.5 flex-1 rounded-full bg-stone-800 overflow-hidden">
+        <div className="h-full rounded-full bg-gradient-to-r from-gold-600 to-cyan-500" style={{ width: `${Math.min(100, pct)}%` }} />
+      </div>
+      <span className="w-12 shrink-0 text-right text-[11px] font-bold text-parchment-200 tabular-nums">{pct}%</span>
     </div>
   );
 }
@@ -123,30 +178,45 @@ function KingdomPanel({
   const beats = (key: 'power' | 'top_power' | 'player_count' | 'alliance_count') =>
     compareAgainst ? stats[key] > compareAgainst[key] : undefined;
 
-  const board = metricType !== '3' ? ranks?.[metricType] : null;
-  const metricLabel = PLAYER_LEADERBOARD_TYPES.find((t) => t.type === metricType)?.label ?? 'Personal Power';
+  const isAllianceView = metricType === ALLIANCE_METRIC;
+  const board = !isAllianceView && metricType !== '3' ? ranks?.[metricType] : null;
+  const metricLabel = isAllianceView
+    ? 'Alliances'
+    : (PLAYER_LEADERBOARD_TYPES.find((t) => t.type === metricType)?.label ?? 'Personal Power');
+  const entityLabel = isAllianceView ? 'alliances' : 'players';
 
-  const rows: DisplayRow[] = board
-    ? board.rows.map((r) => ({
-        key: r.uid,
-        rank: r.rank,
-        nick_name: r.nick_name,
-        avatar_url: r.avatar_url,
-        allianceLabel: r.alliance_abbr ? `[${r.alliance_abbr}]` : 'No alliance',
-        aid: r.aid,
-        valueLabel: formatBoardValue(metricType, r.score),
-        subLabel: r.tg_label ?? `Lv${r.stove_lv}`,
+  const rows: DisplayRow[] = isAllianceView
+    ? stats.alliances.map((a) => ({
+        key: a.aid,
+        rank: a.game_power_rank ?? a.rank,
+        nick_name: `[${a.abbr}] ${a.name}`,
+        avatar_url: a.flag_url,
+        allianceLabel: a.leader_name ? `Led by ${a.leader_name}` : '',
+        aid: null,
+        valueLabel: formatPower(a.power),
+        subLabel: `${a.member_count}/${a.member_max}`,
       }))
-    : stats.players.map((p) => ({
-        key: p.uid,
-        rank: p.rank,
-        nick_name: p.nick_name,
-        avatar_url: p.avatar_url,
-        allianceLabel: p.alliance_abbr ? `[${p.alliance_abbr}] ${p.alliance_name}` : 'No alliance',
-        aid: p.aid,
-        valueLabel: formatPower(p.power),
-        subLabel: p.tg_label ?? `Lv${p.stove_lv}`,
-      }));
+    : board
+      ? board.rows.map((r) => ({
+          key: r.uid,
+          rank: r.rank,
+          nick_name: r.nick_name,
+          avatar_url: r.avatar_url,
+          allianceLabel: r.alliance_abbr ? `[${r.alliance_abbr}]` : 'No alliance',
+          aid: r.aid,
+          valueLabel: formatBoardValue(metricType, r.score),
+          subLabel: r.tg_label ?? `Lv${r.stove_lv}`,
+        }))
+      : stats.players.map((p) => ({
+          key: p.uid,
+          rank: p.rank,
+          nick_name: p.nick_name,
+          avatar_url: p.avatar_url,
+          allianceLabel: p.alliance_abbr ? `[${p.alliance_abbr}] ${p.alliance_name}` : 'No alliance',
+          aid: p.aid,
+          valueLabel: formatPower(p.power),
+          subLabel: p.tg_label ?? `Lv${p.stove_lv}`,
+        }));
 
   return (
     <div className="flex flex-col gap-3">
@@ -189,24 +259,83 @@ function KingdomPanel({
             winning={beats('alliance_count')}
           />
         </div>
+        {stats.aggregateTotals.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1 border-t border-stone-800">
+            {stats.aggregateTotals.map((t) => (
+              <span key={t.type} className="chip !text-[11px]">
+                {t.label}: <span className="font-bold text-parchment-100">{formatPower(t.total)}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
+
+      {stats.pyramid && (
+        <div className="dashboard-card p-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <PowerShareBar label="Top 1" pct={stats.pyramid.top1_share} />
+            <PowerShareBar label="Top 10" pct={stats.pyramid.top10_share} />
+            <PowerShareBar label="Top 20" pct={stats.pyramid.top20_share} />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-parchment-500">
+            <span className="chip !border-cyan-500/40 !text-cyan-300">🛡 {stats.pyramid.shielded_pct}% shielded</span>
+            {stats.pyramid.burning > 0 && (
+              <span className="chip !border-ember-500/40 !text-ember-500">🔥 {stats.pyramid.burning_pct}% burning</span>
+            )}
+            {stats.pyramid.tg.map((tier) => (
+              <span key={tier.label} className="chip">
+                {tier.label} × {tier.count}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {stats.newThisWeek.length > 0 && (
+        <div className="dashboard-card p-3 flex flex-col gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-parchment-400">New this week</p>
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin pb-1">
+            {stats.newThisWeek.map((g) => {
+              const src = resolveAvatarUrl(g.avatar_url);
+              return (
+                <button
+                  key={g.uid}
+                  type="button"
+                  onClick={() => onSelectPlayer(g.uid)}
+                  className="focus-ring shrink-0 flex flex-col items-center gap-1 rounded border border-stone-700 bg-stone-950 px-2 py-1.5 hover:border-gold-600 transition-colors w-20"
+                >
+                  {src ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={src} alt="" className="h-8 w-8 rounded object-cover" />
+                  ) : (
+                    <span className="h-8 w-8 rounded bg-stone-800" aria-hidden />
+                  )}
+                  <p className="text-[11px] font-semibold text-parchment-100 truncate w-full text-center">{g.nick_name}</p>
+                  <p className="text-[10px] text-parchment-500">{g.ago}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <p className="text-xs text-parchment-500 px-1">
-          Top {Math.min(playerLimit, rows.length)} players by {metricLabel}
+          Top {Math.min(playerLimit, rows.length)} {entityLabel} by {metricLabel}
         </p>
         {rows.slice(0, playerLimit).map((row) => {
           const src = resolveAvatarUrl(row.avatar_url);
+          const handleRowClick = () => (isAllianceView ? onSelectAlliance(row.key) : onSelectPlayer(row.key));
           return (
             <div
               key={row.key}
               role="button"
               tabIndex={0}
-              onClick={() => onSelectPlayer(row.key)}
+              onClick={handleRowClick}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  onSelectPlayer(row.key);
+                  handleRowClick();
                 }
               }}
               className="focus-ring dashboard-card p-2.5 flex items-center gap-3 w-full text-left hover:border-gold-600/50 transition-colors cursor-pointer"
@@ -255,6 +384,7 @@ export default function KingdomLeaderboardSection({ defaultKingdom }: { defaultK
   const [compareInput, setCompareInput] = useState('');
   const [showCompare, setShowCompare] = useState(false);
   const [showTopKingdoms, setShowTopKingdoms] = useState(false);
+  const [showThrone, setShowThrone] = useState(false);
   const [metricType, setMetricType] = useState('3');
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [selectedAid, setSelectedAid] = useState<number | null>(null);
@@ -409,7 +539,42 @@ export default function KingdomLeaderboardSection({ defaultKingdom }: { defaultK
                 {t.label}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setMetricType(ALLIANCE_METRIC)}
+              className={`focus-ring shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                metricType === ALLIANCE_METRIC
+                  ? 'border-gold-500 bg-gold-500/15 text-gold-300'
+                  : 'border-stone-700 text-parchment-400 hover:border-gold-600/60'
+              }`}
+            >
+              Alliances
+            </button>
+            {primary.appointments && (
+              <button
+                type="button"
+                onClick={() => setShowThrone((v) => !v)}
+                className={`focus-ring shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  showThrone
+                    ? 'border-gold-500 bg-gold-500/15 text-gold-300'
+                    : 'border-stone-700 text-parchment-400 hover:border-gold-600/60'
+                }`}
+              >
+                Kingdom Throne
+              </button>
+            )}
           </div>
+
+          {showThrone && primary.appointments && (
+            <div className="dashboard-card p-3">
+              <KingdomThroneSection
+                king={primary.appointments.king}
+                ministers={primary.appointments.ministers}
+                offenders={primary.appointments.offenders}
+                onSelectPlayer={setSelectedUid}
+              />
+            </div>
+          )}
 
           <div className={isComparing ? 'grid grid-cols-1 lg:grid-cols-2 gap-4' : ''}>
             <KingdomPanel
