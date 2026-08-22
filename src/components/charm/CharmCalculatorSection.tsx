@@ -185,7 +185,13 @@ export default function CharmCalculatorSection() {
           const [pieceA, pieceB] = GEAR_SLOTS.filter((s) => s.troopType === troopType);
           const charmsFor = (gearSlotId: GearSlotId) => CHARM_SLOTS.filter((c) => c.gearSlotId === gearSlotId);
           const column = (piece: (typeof GEAR_SLOTS)[number]) => (
-            <div className="flex flex-col gap-6">
+            // w-full on mobile: the two pieces stack into what should read
+            // as one continuous column, but they're actually two separate
+            // flex items -- without a shared width, whichever one contains
+            // Cap's wider hint card sizes its own column wider than the
+            // other, throwing their centers out of line with each other
+            // even though both start flush at the container's left edge.
+            <div className="flex w-full sm:w-auto flex-col items-center gap-6">
               {charmsFor(piece.id).map((charm) => (
                 <CharmSlotCard
                   key={charm.id}
