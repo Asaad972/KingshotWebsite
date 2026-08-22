@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { resolveAvatarUrl, PLAYER_LEADERBOARD_TYPES, type KingdomStats, type KingdomRanks } from '@/lib/kingshotStatsApi';
 import GovernorProfileModal from './GovernorProfileModal';
+import AllianceProfileModal from './AllianceProfileModal';
 import TopKingdomsSection from './TopKingdomsSection';
 
 type Status = 'idle' | 'loading' | 'error' | 'not_found' | 'ready';
@@ -97,6 +98,7 @@ interface DisplayRow {
   nick_name: string;
   avatar_url: string | null;
   allianceLabel: string;
+  aid: number | null;
   valueLabel: string;
   subLabel: string;
 }
@@ -108,6 +110,7 @@ function KingdomPanel({
   playerLimit,
   compareAgainst,
   onSelectPlayer,
+  onSelectAlliance,
 }: {
   stats: KingdomStats;
   ranks: KingdomRanks | null;
@@ -115,6 +118,7 @@ function KingdomPanel({
   playerLimit: number;
   compareAgainst?: KingdomStats;
   onSelectPlayer: (uid: number) => void;
+  onSelectAlliance: (aid: number) => void;
 }) {
   const beats = (key: 'power' | 'top_power' | 'player_count' | 'alliance_count') =>
     compareAgainst ? stats[key] > compareAgainst[key] : undefined;
@@ -129,6 +133,7 @@ function KingdomPanel({
         nick_name: r.nick_name,
         avatar_url: r.avatar_url,
         allianceLabel: r.alliance_abbr ? `[${r.alliance_abbr}]` : 'No alliance',
+        aid: r.aid,
         valueLabel: formatBoardValue(metricType, r.score),
         subLabel: r.tg_label ?? `Lv${r.stove_lv}`,
       }))
@@ -138,6 +143,7 @@ function KingdomPanel({
         nick_name: p.nick_name,
         avatar_url: p.avatar_url,
         allianceLabel: p.alliance_abbr ? `[${p.alliance_abbr}] ${p.alliance_name}` : 'No alliance',
+        aid: p.aid,
         valueLabel: formatPower(p.power),
         subLabel: p.tg_label ?? `Lv${p.stove_lv}`,
       }));
@@ -192,11 +198,18 @@ function KingdomPanel({
         {rows.slice(0, playerLimit).map((row) => {
           const src = resolveAvatarUrl(row.avatar_url);
           return (
-            <button
+            <div
               key={row.key}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => onSelectPlayer(row.key)}
-              className="focus-ring dashboard-card p-2.5 flex items-center gap-3 w-full text-left hover:border-gold-600/50 transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectPlayer(row.key);
+                }
+              }}
+              className="focus-ring dashboard-card p-2.5 flex items-center gap-3 w-full text-left hover:border-gold-600/50 transition-colors cursor-pointer"
             >
               <span className="w-6 shrink-0 text-center text-xs font-bold text-parchment-500 tabular-nums">{row.rank}</span>
               {src ? (
@@ -207,13 +220,26 @@ function KingdomPanel({
               )}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-parchment-100 truncate">{row.nick_name}</p>
-                <p className="text-xs text-parchment-500 truncate">{row.allianceLabel}</p>
+                {row.aid ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectAlliance(row.aid!);
+                    }}
+                    className="focus-ring text-xs text-parchment-500 hover:text-gold-300 hover:underline truncate transition-colors"
+                  >
+                    {row.allianceLabel}
+                  </button>
+                ) : (
+                  <p className="text-xs text-parchment-500 truncate">{row.allianceLabel}</p>
+                )}
               </div>
               <div className="shrink-0 text-right">
                 <p className="text-sm font-bold text-gold-300 tabular-nums">{row.valueLabel}</p>
                 <p className="text-[11px] text-parchment-500">{row.subLabel}</p>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -231,6 +257,7 @@ export default function KingdomLeaderboardSection({ defaultKingdom }: { defaultK
   const [showTopKingdoms, setShowTopKingdoms] = useState(false);
   const [metricType, setMetricType] = useState('3');
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
+  const [selectedAid, setSelectedAid] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -392,6 +419,7 @@ export default function KingdomLeaderboardSection({ defaultKingdom }: { defaultK
               playerLimit={isComparing ? 15 : 50}
               compareAgainst={isComparing ? compare.stats! : undefined}
               onSelectPlayer={setSelectedUid}
+              onSelectAlliance={setSelectedAid}
             />
             {isComparing && (
               <KingdomPanel
@@ -401,6 +429,7 @@ export default function KingdomLeaderboardSection({ defaultKingdom }: { defaultK
                 playerLimit={15}
                 compareAgainst={primary.stats}
                 onSelectPlayer={setSelectedUid}
+                onSelectAlliance={setSelectedAid}
               />
             )}
           </div>
@@ -408,6 +437,7 @@ export default function KingdomLeaderboardSection({ defaultKingdom }: { defaultK
       )}
 
       <GovernorProfileModal uid={selectedUid} onClose={() => setSelectedUid(null)} />
+      <AllianceProfileModal aid={selectedAid} onClose={() => setSelectedAid(null)} />
     </div>
   );
 }

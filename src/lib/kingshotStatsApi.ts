@@ -231,6 +231,7 @@ export interface KingdomRankRow {
   tg_label: string | null;
   avatar_url: string | null;
   alliance_abbr: string | null;
+  aid: number | null;
   rank: number;
   score: number;
 }
@@ -417,4 +418,83 @@ export async function triggerPlayerRefresh(uid: number): Promise<PlayerProfile |
   const json = await res.json();
   if (!json.player) return null;
   return parsePlayerProfile(json.player);
+}
+
+export interface AllianceMember {
+  uid: number;
+  nick_name: string;
+  power: number;
+  stove_lv: number;
+  kills: number | null;
+  alliance_rank_label: string | null;
+  avatar_url: string | null;
+}
+
+export interface AllianceProfile {
+  aid: number;
+  kid: number;
+  name: string;
+  abbr: string;
+  leader_uid: number;
+  leader_name: string;
+  count: number;
+  member_max: number;
+  power: number;
+  power_rank: number | null;
+  language_label: string | null;
+  notice: string | null;
+  manifesto: string | null;
+  flag_url: string | null;
+  members: AllianceMember[];
+}
+
+/**
+ * An alliance's roster + info -- same read-only, cached-on-their-end
+ * treatment as fetchPlayerProfile. Their response embeds full per-member
+ * player records (`members`), but only the fields this feature actually
+ * displays are pulled out here -- clicking a member reuses
+ * GovernorProfileModal (fetched fresh by uid), so the roster row itself
+ * doesn't need heroes/trials/etc.
+ */
+export async function fetchAllianceProfile(aid: number): Promise<AllianceProfile | null> {
+  const res = await fetch(`${API_BASE}/alliances/${aid}`, {
+    headers: REQUEST_HEADERS,
+    next: { revalidate: 300 },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+
+  const raw = await res.json();
+  if (!raw.ok || !raw.alliance) return null;
+  const a = raw.alliance;
+
+  const members: AllianceMember[] = (Array.isArray(raw.members) ? raw.members : [])
+    .map((m: Record<string, unknown>) => ({
+      uid: m.uid as number,
+      nick_name: m.nick_name as string,
+      power: m.power as number,
+      stove_lv: m.stove_lv as number,
+      kills: (m.kills as number) ?? null,
+      alliance_rank_label: (m.alliance_rank_label as string) ?? null,
+      avatar_url: (m.avatar_url as string) ?? null,
+    }))
+    .sort((x: AllianceMember, y: AllianceMember) => y.power - x.power);
+
+  return {
+    aid: a.aid,
+    kid: a.kid,
+    name: a.name,
+    abbr: a.abbr,
+    leader_uid: a.leader_uid,
+    leader_name: a.leader_name,
+    count: a.count,
+    member_max: a.member_max,
+    power: a.power,
+    power_rank: a.power_rank ?? null,
+    language_label: a.language_label ?? null,
+    notice: a.notice ?? null,
+    manifesto: a.manifesto ?? null,
+    flag_url: a.flag_url ?? null,
+    members,
+  };
 }

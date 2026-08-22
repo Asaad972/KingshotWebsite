@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { KingdomMapData, MapAlliance, MapCity } from '@/lib/kingshotStatsApi';
 import KingdomMapCanvas from './KingdomMapCanvas';
 import GovernorProfileModal from './GovernorProfileModal';
+import AllianceProfileModal from './AllianceProfileModal';
 
 type Status = 'loading' | 'error' | 'not_found' | 'ready';
 type RefreshState = 'idle' | 'requesting' | 'polling' | 'blocked' | 'error';
@@ -19,6 +20,7 @@ export default function KingdomMapSection({ defaultKingdom }: { defaultKingdom: 
   const [nameQuery, setNameQuery] = useState('');
   const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
+  const [selectedAid, setSelectedAid] = useState<number | null>(null);
   const [allianceFilter, setAllianceFilter] = useState<string | null>(null);
 
   const [refreshState, setRefreshState] = useState<RefreshState>('idle');
@@ -181,20 +183,44 @@ export default function KingdomMapSection({ defaultKingdom }: { defaultKingdom: 
             {(governorMatches.length > 0 || allianceMatches.length > 0) && (
               <div className="absolute z-20 mt-1 w-full dashboard-card p-1.5 flex flex-col gap-0.5 max-h-64 overflow-y-auto">
                 {allianceMatches.map((a) => (
-                  <button
+                  <div
                     key={a.aid}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       setAllianceFilter(a.abbr);
                       setFocusPoint({ x: a.cx, y: a.cy });
                       setNameQuery('');
                     }}
-                    className="focus-ring rounded px-2 py-1.5 text-left text-sm hover:bg-stone-800 transition-colors"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setAllianceFilter(a.abbr);
+                        setFocusPoint({ x: a.cx, y: a.cy });
+                        setNameQuery('');
+                      }
+                    }}
+                    className="focus-ring rounded px-2 py-1.5 flex items-center justify-between gap-2 text-left text-sm hover:bg-stone-800 transition-colors cursor-pointer"
                   >
-                    <span className="chip !border-cyan-500/50 !text-cyan-300 mr-1.5">Alliance</span>
-                    <span className="text-parchment-100 font-semibold">[{a.abbr}]</span>{' '}
-                    <span className="text-parchment-500">{a.name} · {a.city_count} cities</span>
-                  </button>
+                    <span className="min-w-0 truncate">
+                      <span className="chip !border-cyan-500/50 !text-cyan-300 mr-1.5">Alliance</span>
+                      <span className="text-parchment-100 font-semibold">[{a.abbr}]</span>{' '}
+                      <span className="text-parchment-500">
+                        {a.name} · {a.city_count} cities
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedAid(a.aid);
+                        setNameQuery('');
+                      }}
+                      className="focus-ring shrink-0 rounded border border-stone-700 px-2 py-0.5 text-[11px] text-parchment-400 hover:border-gold-600 hover:text-gold-300 transition-colors"
+                    >
+                      View
+                    </button>
+                  </div>
                 ))}
                 {governorMatches.map((c) => (
                   <button
@@ -281,6 +307,7 @@ export default function KingdomMapSection({ defaultKingdom }: { defaultKingdom: 
       )}
 
       <GovernorProfileModal uid={selectedUid} onClose={() => setSelectedUid(null)} />
+      <AllianceProfileModal aid={selectedAid} onClose={() => setSelectedAid(null)} />
     </div>
   );
 }
