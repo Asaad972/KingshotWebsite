@@ -244,46 +244,25 @@ export default function Sidebar() {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Edge-swipe to open on mobile: start the touch within a strip near the
-  // edge the drawer emerges from (start-side -- left in LTR, right in RTL)
-  // and drag toward the middle of the screen. Desktop's sidebar is already
-  // always visible, so this only listens below the sm breakpoint.
-  useEffect(() => {
-    if (mobileOpen) return;
-    const EDGE_ZONE = 28;
-    const OPEN_THRESHOLD = 60;
-    const MAX_OFF_AXIS = 60;
-    let startX = 0;
-    let startY = 0;
-    let tracking = false;
+  const edgeTouchStart = useRef<{ x: number; y: number } | null>(null);
+  const OPEN_THRESHOLD = 60;
+  const MAX_OFF_AXIS = 60;
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (window.innerWidth >= 640) return;
-      const isRTL = document.documentElement.dir === 'rtl';
-      const t = e.touches[0];
-      const distanceFromStartEdge = isRTL ? window.innerWidth - t.clientX : t.clientX;
-      tracking = distanceFromStartEdge <= EDGE_ZONE;
-      startX = t.clientX;
-      startY = t.clientY;
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      if (!tracking) return;
-      tracking = false;
-      const isRTL = document.documentElement.dir === 'rtl';
-      const t = e.changedTouches[0];
-      const dx = t.clientX - startX;
-      const dy = Math.abs(t.clientY - startY);
-      const openedToward = isRTL ? -dx : dx;
-      if (openedToward > OPEN_THRESHOLD && dy < MAX_OFF_AXIS) setMobileOpen(true);
-    };
-
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    return () => {
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchend', onTouchEnd);
-    };
-  }, [mobileOpen]);
+  const onEdgeTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    edgeTouchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onEdgeTouchEnd = (e: React.TouchEvent) => {
+    const start = edgeTouchStart.current;
+    edgeTouchStart.current = null;
+    if (!start) return;
+    const isRTL = document.documentElement.dir === 'rtl';
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = Math.abs(t.clientY - start.y);
+    const openedToward = isRTL ? -dx : dx;
+    if (openedToward > OPEN_THRESHOLD && dy < MAX_OFF_AXIS) setMobileOpen(true);
+  };
 
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
@@ -355,12 +334,32 @@ export default function Sidebar() {
         </div>
       </header>
 
+      {/* Mobile: invisible edge strip that owns the open-swipe gesture.
+          touchAction: 'pan-y' is what actually stops the conflict this is
+          here to fix -- without it, the browser's own edge-swipe-back
+          gesture (Safari/Chrome mobile both have one) fires at the same
+          time as our JS handler, since our touchstart/touchend listeners
+          can't preventDefault() a gesture the browser's compositor already
+          started recognizing. Scoping it to this thin strip (rather than
+          touch-action: pan-y on the whole page) keeps horizontal scrolling
+          working everywhere else, e.g. wide tables. */}
+      {!mobileOpen && (
+        <div
+          className="sm:hidden fixed inset-y-0 start-0 z-40 w-7"
+          style={{ touchAction: 'pan-y' }}
+          onTouchStart={onEdgeTouchStart}
+          onTouchEnd={onEdgeTouchEnd}
+          aria-hidden
+        />
+      )}
+
       {/* Mobile: off-canvas drawer */}
       {mobileOpen && (
         <div className="sm:hidden fixed inset-0 z-50 flex" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-black/70" aria-hidden />
           <div
             className="relative flex flex-col w-72 max-w-[85vw] h-full bg-stone-950 border-e border-stone-700 shadow-xl"
+            style={{ touchAction: 'pan-y' }}
             onClick={(e) => e.stopPropagation()}
             onTouchStart={(e) => {
               drawerTouchStartX.current = e.touches[0].clientX;
