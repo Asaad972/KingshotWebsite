@@ -39,3 +39,32 @@ export async function checkRateLimit(key: string, windowSeconds: number, maxCoun
     return { allowed: true, remaining: maxCount };
   }
 }
+
+/**
+ * A true elapsed-time-since-last-claim cooldown (see
+ * supabase/map-refresh-cooldown-schema.sql), atomically claimed so two
+ * near-simultaneous requests can't both win -- unlike checkRateLimit's
+ * calendar-aligned fixed windows, this can't let two calls through only
+ * seconds apart. Deliberately fails CLOSED (returns false) on any error:
+ * checkRateLimit fails open because a broken limiter should never block a
+ * real user, but this one exists specifically to honor a promise made to
+ * a third-party site owner about not hammering their infrastructure --
+ * here an uncertain state should block the trigger, not allow it.
+ */
+export async function tryClaimMapRefresh(kingdomId: number, cooldownSeconds: number): Promise<boolean> {
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.rpc('try_claim_map_refresh', {
+      p_kingdom_id: kingdomId,
+      p_cooldown_seconds: cooldownSeconds,
+    });
+    if (error) {
+      console.error('map refresh cooldown claim failed', error);
+      return false;
+    }
+    return data === true;
+  } catch (err) {
+    console.error('map refresh cooldown claim threw', err);
+    return false;
+  }
+}

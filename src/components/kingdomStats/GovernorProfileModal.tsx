@@ -6,29 +6,47 @@ import type { PlayerProfile } from '@/lib/kingshotStatsApi';
 
 type Status = 'loading' | 'error' | 'ready';
 
+function loadProfile(uid: number): Promise<PlayerProfile | null> {
+  return fetch(`/api/player-profile?uid=${uid}`)
+    .then((res) => res.json())
+    .then((data) => (data.success ? (data.profile as PlayerProfile) : null));
+}
+
 /** Opened by clicking a governor's name anywhere on a kingdom leaderboard
  * -- fetches that one profile and shows it as a popup. Closed = uid is
  * null, so the parent just needs one piece of state to drive this. */
 export default function GovernorProfileModal({ uid, onClose }: { uid: number | null; onClose: () => void }) {
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (uid == null) return;
     setProfile(null);
     setStatus('loading');
-    fetch(`/api/player-profile?uid=${uid}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.success) {
+    loadProfile(uid)
+      .then((p) => {
+        if (!p) {
           setStatus('error');
           return;
         }
-        setProfile(data.profile);
+        setProfile(p);
         setStatus('ready');
       })
       .catch(() => setStatus('error'));
   }, [uid]);
+
+  const handleRefresh = async () => {
+    if (uid == null || refreshing) return;
+    setRefreshing(true);
+    try {
+      const res = await fetch(`/api/player-profile/refresh?uid=${uid}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) setProfile(data.profile);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (uid == null) return null;
 
@@ -52,7 +70,15 @@ export default function GovernorProfileModal({ uid, onClose }: { uid: number | n
             </button>
           </div>
         )}
-        {status === 'ready' && profile && <GovernorProfileCard profile={profile} onClose={onClose} closeLabel="✕" />}
+        {status === 'ready' && profile && (
+          <GovernorProfileCard
+            profile={profile}
+            onClose={onClose}
+            closeLabel="✕"
+            onRefresh={handleRefresh}
+            refreshing={refreshing}
+          />
+        )}
       </div>
     </div>
   );

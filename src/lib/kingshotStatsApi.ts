@@ -155,21 +155,15 @@ export interface PlayerProfile {
  * instantaneous -- an intentional trade-off to stay light on a resource
  * we don't have an explicit agreement to hit harder.
  */
-export async function fetchPlayerProfile(uid: number): Promise<PlayerProfile | null> {
-  const res = await fetch(`${API_BASE}/players/${uid}`, {
-    headers: REQUEST_HEADERS,
-    next: { revalidate: 300 },
-  });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
-
-  const raw = await res.json();
+/** Shared between the plain GET and the live-refresh POST -- both return
+ * the same raw player shape, just at different freshness. */
+function parsePlayerProfile(raw: Record<string, unknown>): PlayerProfile {
   // trails_json (the 6 Trial Tower stages) comes back as a JSON-encoded
   // string, not a nested object -- parsed defensively since it's an
   // undocumented field shape.
   let trials: TrialTower[] = [];
   try {
-    const parsed = JSON.parse(raw.trails_json ?? '{}');
+    const parsed = JSON.parse((raw.trails_json as string) ?? '{}');
     trials = Object.values(parsed as Record<string, { tower_id: number; name: string; stage: number; rank: number | null }>)
       .map((t) => ({ tower_id: t.tower_id, name: t.name, stage: t.stage, rank: t.rank }))
       .sort((a, b) => a.tower_id - b.tower_id);
@@ -209,6 +203,17 @@ export async function fetchPlayerProfile(uid: number): Promise<PlayerProfile | n
   }
 
   return { ...raw, trials, heroes } as PlayerProfile;
+}
+
+export async function fetchPlayerProfile(uid: number): Promise<PlayerProfile | null> {
+  const res = await fetch(`${API_BASE}/players/${uid}`, {
+    headers: REQUEST_HEADERS,
+    next: { revalidate: 300 },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+
+  return parsePlayerProfile(await res.json());
 }
 
 /** kingshotstats.com's player avatars/CDN paths are sometimes returned
@@ -271,4 +276,144 @@ export async function fetchKingdomIngameRanks(kingdomId: number): Promise<Kingdo
   const json = await res.json();
   if (!json.ok || !json.boards) throw new Error('kingshotstats.com API returned an unexpected response shape');
   return json.boards as KingdomRanks;
+}
+
+export interface MapCity {
+  uid: number;
+  fid: number;
+  nick_name: string;
+  power: number;
+  stove_lv: number;
+  tg: string | null;
+  kills: number | null;
+  mystic_trial: number | null;
+  aid: number | null;
+  alliance_abbr: string | null;
+  alliance_name: string | null;
+  x: number;
+  y: number;
+  avatar_url: string | null;
+  city_skin_icon: string | null;
+  city_skin_name: string | null;
+  shield_active: boolean | null;
+  shield_label: string | null;
+  burn_active: boolean | null;
+  burn_label: string | null;
+}
+
+export interface MapAlliance {
+  aid: number;
+  abbr: string;
+  name: string;
+  city_count: number;
+  cx: number;
+  cy: number;
+  power_sum: number;
+}
+
+export interface KingdomMapData {
+  kid: number;
+  bounds: { min: number; max: number };
+  cities: MapCity[];
+  alliances: MapAlliance[];
+}
+
+/**
+ * A kingdom's real city positions/power/alliance -- the exact data their
+ * own `/map` page renders onto its canvas, found by reading their public
+ * `static/map.js` rather than guessing. Deliberately capped at a lower
+ * limit than their max (2000, not 50000): comfortably covers a real
+ * kingdom's size with headroom, without defaulting to the largest number
+ * just because the API allows it.
+ */
+export async function fetchKingdomMap(kingdomId: number, opts?: { bypassCache?: boolean }): Promise<KingdomMapData> {
+  const res = await fetch(
+    `${API_BASE}/map?kid=${kingdomId}&layers=cities&limit=2000`,
+    opts?.bypassCache
+      ? { headers: REQUEST_HEADERS, cache: 'no-store' }
+      : { headers: REQUEST_HEADERS, next: { revalidate: 900 } }
+  );
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+
+  const json = await res.json();
+  if (!Array.isArray(json.cities) || !Array.isArray(json.alliances) || !json.bounds) {
+    throw new Error('kingshotstats.com API returned an unexpected response shape');
+  }
+  return json as KingdomMapData;
+}
+
+export interface MapUpdateJob {
+  request_token: string | null;
+}
+
+export interface MapUpdateStatus {
+  status: string; // e.g. 'queued' | 'running' | 'done' | ...
+  progress_pct: number | null;
+  queue_position: number | null;
+  cooldown_remaining_sec: number | null;
+  updates_paused?: boolean;
+}
+
+/**
+ * Triggers a live re-scan of a kingdom's map against the real game
+ * servers. UNLIKE every other function in this file, this has an actual
+ * side effect on kingshotstats.com's infrastructure -- only called with
+ * the site owner's explicit go-ahead ("yes we can trigger it but not to
+ * spam it"), and only ever from the rate-limited /api/kingdom-map/refresh
+ * route, which enforces a shared per-kingdom cooldown so it can't be
+ * triggered repeatedly regardless of how many visitors click it.
+ */
+export async function triggerMapUpdate(kingdomId: number): Promise<MapUpdateJob> {
+  const res = await fetch(`${API_BASE}/map/update?kid=${kingdomId}`, {
+    method: 'POST',
+    headers: REQUEST_HEADERS,
+  });
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+
+  const json = await res.json();
+  // The exact field name wasn't confirmed against a live response before
+  // shipping (each real trigger costs a real scan, so we don't fire extra
+  // ones just to check a field name) -- logged once here so the first
+  // real trigger's server log reveals the true shape if this guess is
+  // wrong, without needing another live call to find out.
+  console.log('triggerMapUpdate response:', JSON.stringify(json));
+  const token = json.request_token ?? json.token ?? json.data?.request_token ?? null;
+  return { request_token: token };
+}
+
+/** Polls the progress of a triggerMapUpdate job. Read-only -- safe to
+ * call as often as the UI needs while a job is running. */
+export async function fetchMapUpdateStatus(kingdomId: number, token: string): Promise<MapUpdateStatus> {
+  const res = await fetch(`${API_BASE}/map/update/status?kid=${kingdomId}&token=${encodeURIComponent(token)}`, {
+    headers: REQUEST_HEADERS,
+  });
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+  return (await res.json()) as MapUpdateStatus;
+}
+
+/**
+ * Triggers a live re-scan of one governor's profile against the real game
+ * servers -- the side-effecting counterpart to fetchPlayerProfile's plain
+ * GET. Like triggerMapUpdate, this is only called with the site owner's
+ * explicit go-ahead; unlike the map trigger, the scan is scoped to a
+ * single player rather than a whole kingdom, so no cooldown gate is
+ * applied here.
+ *
+ * Confirmed by watching kingshotstats.com's own "Refresh this profile"
+ * button fire a real request (its `?force=0` query param and response
+ * shape aren't documented anywhere, so this was checked directly rather
+ * than guessed). Unlike the map's trigger, it's synchronous -- the scan
+ * happens inline and the updated player record comes back in the same
+ * response, no job token or polling involved.
+ */
+export async function triggerPlayerRefresh(uid: number): Promise<PlayerProfile | null> {
+  const res = await fetch(`${API_BASE}/players/${uid}/refresh?force=0`, {
+    method: 'POST',
+    headers: REQUEST_HEADERS,
+  });
+  if (!res.ok) throw new Error(`kingshotstats.com API returned ${res.status}`);
+
+  const json = await res.json();
+  if (!json.player) return null;
+  return parsePlayerProfile(json.player);
 }

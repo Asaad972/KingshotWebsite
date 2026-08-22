@@ -62,6 +62,15 @@ function TrophyIcon() {
   );
 }
 
+function MapIcon() {
+  return (
+    <svg {...ICON_PROPS} className="h-5 w-5">
+      <path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 4v14M15 6v14" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function ArrowIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 shrink-0">
@@ -213,6 +222,13 @@ export default function QuickLinksGrid({
       subtitle: 'Real, live governor rankings -- power, kills, mystic trial, and more',
       tone: 'cyan',
       icon: <TrophyIcon />,
+    },
+    {
+      href: '/kingdom-map',
+      title: 'Kingdom Map',
+      subtitle: 'Real, live city positions and alliance territory',
+      tone: 'gold',
+      icon: <MapIcon />,
     },
   ];
 

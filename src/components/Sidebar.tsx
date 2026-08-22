@@ -79,6 +79,15 @@ function TrophyIcon() {
   );
 }
 
+function MapIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-full w-full">
+      <path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 4v14M15 6v14" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 
 interface NavItem {
   href: string;
@@ -133,6 +142,7 @@ function useNavSections(): NavSection[] {
         { href: '/gift-codes', label: t('home.giftCodesNav'), icon: photo('/explore/gift.png') },
         { href: '/kvk-history', label: 'KvK History', icon: <SwordsIcon /> },
         { href: '/kingdom-leaderboard', label: 'Power Leaderboard', icon: <TrophyIcon /> },
+        { href: '/kingdom-map', label: 'Kingdom Map', icon: <MapIcon /> },
       ],
     },
   ];

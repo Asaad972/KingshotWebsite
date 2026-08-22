@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { resolveAvatarUrl, PLAYER_LEADERBOARD_TYPES, type KingdomStats, type KingdomRanks } from '@/lib/kingshotStatsApi';
 import GovernorProfileModal from './GovernorProfileModal';
@@ -152,11 +153,19 @@ function KingdomPanel({
               {stats.age_days != null && ` · ${Math.round(stats.age_days)} days old`}
             </p>
           </div>
-          {stats.health && (
-            <span className={`chip ${HEALTH_TONE[stats.health.tone] ?? ''}`}>
-              {stats.health.grade} · {stats.health.label}
-            </span>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {stats.health && (
+              <span className={`chip ${HEALTH_TONE[stats.health.tone] ?? ''}`}>
+                {stats.health.grade} · {stats.health.label}
+              </span>
+            )}
+            <Link
+              href={`/kingdom-map?kingdom=${stats.kid}`}
+              className="focus-ring rounded border border-stone-700 px-2.5 py-1 text-xs font-semibold text-parchment-300 hover:border-cyan-500 hover:text-cyan-300 transition-colors"
+            >
+              View Map
+            </Link>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <StatTile label="Total Power" value={formatPower(stats.power)} tone="text-cyan-400" winning={beats('power')} />

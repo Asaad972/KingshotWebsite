@@ -27,10 +27,14 @@ export default function GovernorProfileCard({
   profile,
   onClose,
   closeLabel = 'Close',
+  onRefresh,
+  refreshing,
 }: {
   profile: PlayerProfile;
   onClose?: () => void;
   closeLabel?: string;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const avatarSrc = resolveAvatarUrl(profile.upload_image ? `/cdn/avatar/${profile.upload_image}` : null);
 
@@ -180,7 +184,19 @@ export default function GovernorProfileCard({
         </div>
       )}
 
-      <p className="text-[11px] text-parchment-500">may lag behind the live game</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] text-parchment-500">may lag behind the live game</p>
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={refreshing}
+            className="focus-ring shrink-0 rounded border border-stone-700 px-2.5 py-1 text-xs font-semibold text-parchment-300 hover:border-cyan-500 hover:text-cyan-300 transition-colors disabled:opacity-50"
+          >
+            {refreshing ? 'Refreshing…' : 'Refresh'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
