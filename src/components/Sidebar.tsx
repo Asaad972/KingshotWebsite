@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
@@ -223,6 +223,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const drawerTouchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     setCollapsed(localStorage.getItem(COLLAPSE_KEY) === '1');
@@ -242,6 +243,47 @@ export default function Sidebar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Edge-swipe to open on mobile: start the touch within a strip near the
+  // edge the drawer emerges from (start-side -- left in LTR, right in RTL)
+  // and drag toward the middle of the screen. Desktop's sidebar is already
+  // always visible, so this only listens below the sm breakpoint.
+  useEffect(() => {
+    if (mobileOpen) return;
+    const EDGE_ZONE = 28;
+    const OPEN_THRESHOLD = 60;
+    const MAX_OFF_AXIS = 60;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (window.innerWidth >= 640) return;
+      const isRTL = document.documentElement.dir === 'rtl';
+      const t = e.touches[0];
+      const distanceFromStartEdge = isRTL ? window.innerWidth - t.clientX : t.clientX;
+      tracking = distanceFromStartEdge <= EDGE_ZONE;
+      startX = t.clientX;
+      startY = t.clientY;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!tracking) return;
+      tracking = false;
+      const isRTL = document.documentElement.dir === 'rtl';
+      const t = e.changedTouches[0];
+      const dx = t.clientX - startX;
+      const dy = Math.abs(t.clientY - startY);
+      const openedToward = isRTL ? -dx : dx;
+      if (openedToward > OPEN_THRESHOLD && dy < MAX_OFF_AXIS) setMobileOpen(true);
+    };
+
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [mobileOpen]);
 
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
@@ -320,6 +362,17 @@ export default function Sidebar() {
           <div
             className="relative flex flex-col w-72 max-w-[85vw] h-full bg-stone-950 border-e border-stone-700 shadow-xl"
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => {
+              drawerTouchStartX.current = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              if (drawerTouchStartX.current == null) return;
+              const isRTL = document.documentElement.dir === 'rtl';
+              const dx = e.changedTouches[0].clientX - drawerTouchStartX.current;
+              const closedToward = isRTL ? dx > 0 : dx < 0;
+              if (closedToward && Math.abs(dx) > 60) setMobileOpen(false);
+              drawerTouchStartX.current = null;
+            }}
           >
             <div className="flex items-center justify-between gap-2 px-3 h-14 border-b border-stone-700 shrink-0">
               <span className="font-display title-glow-gold text-sm font-bold tracking-wide truncate">Kingshot Nerds HQ</span>
