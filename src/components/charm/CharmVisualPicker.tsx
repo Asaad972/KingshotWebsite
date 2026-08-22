@@ -62,7 +62,7 @@ export default function CharmVisualPicker({
                     : 'border-stone-700 bg-stone-800 hover:border-gold-600'
                 }`}
               >
-                <CharmLevelThumb troopType={troopType} icon={icon} order={lvl.order} size={56} />
+                <CharmLevelThumb troopType={troopType} icon={icon} order={lvl.order} sizeClass="w-11 h-11 sm:w-14 sm:h-14" />
                 <span className={`text-[10px] font-semibold ${disabled ? 'text-parchment-600' : 'text-parchment-300'}`}>
                   {lvl.order === 0 ? 'Base' : lvl.order}
                 </span>

@@ -8,22 +8,22 @@
 export default function CharmLevelPlaceholder({
   icon,
   order,
-  size = 64,
+  sizeClass = 'w-16 h-16',
   className = '',
 }: {
   icon: React.ReactNode;
   /** 0 = Base (not started), 1-22 = the charm's level. */
   order: number;
-  size?: number;
+  /** Tailwind width/height classes -- see ClippedCharmImage's sizeClass. */
+  sizeClass?: string;
   className?: string;
 }) {
   const leveled = order > 0;
   return (
     <div
-      className={`relative shrink-0 rounded-xl border-2 flex flex-col items-center justify-center gap-1 ${
+      className={`relative shrink-0 rounded-xl border-2 flex flex-col items-center justify-center gap-1 ${sizeClass} ${
         leveled ? 'bg-gold-500/10 border-gold-500/40' : 'bg-stone-900 border-stone-700'
       } ${className}`}
-      style={{ width: size, height: size }}
     >
       <span className={`h-2/5 w-2/5 ${leveled ? 'text-gold-300' : 'text-parchment-500'}`}>{icon}</span>
       {leveled && <span className="text-xs font-bold text-gold-200 leading-none">{order}</span>}

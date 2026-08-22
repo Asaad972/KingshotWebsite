@@ -12,17 +12,18 @@ export default function CharmLevelThumb({
   troopType,
   icon,
   order,
-  size,
+  sizeClass,
 }: {
   troopType: TroopType;
   icon: React.ReactNode;
   order: number;
-  size: number;
+  /** Tailwind width/height classes -- see ClippedCharmImage's sizeClass. */
+  sizeClass: string;
 }) {
   const img = order > 0 ? imageForCharmLevel(troopType, order) : undefined;
   return img ? (
-    <ClippedCharmImage src={img} alt={`Level ${order}`} size={size} />
+    <ClippedCharmImage src={img} alt={`Level ${order}`} sizeClass={sizeClass} />
   ) : (
-    <CharmLevelPlaceholder icon={icon} order={order} size={size} />
+    <CharmLevelPlaceholder icon={icon} order={order} sizeClass={sizeClass} />
   );
 }

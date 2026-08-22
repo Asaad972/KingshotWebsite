@@ -13,19 +13,19 @@ import Image from 'next/image';
 export default function ClippedCharmImage({
   src,
   alt,
-  size = 64,
+  sizeClass = 'w-16 h-16',
   className = '',
 }: {
   src: string;
   alt: string;
-  size?: number;
+  /** Tailwind width/height classes -- a plain string (not a numeric size)
+   * so callers can give it responsive breakpoints, e.g. "w-16 h-16 sm:w-24
+   * sm:h-24" for smaller-on-phone-only sizing. */
+  sizeClass?: string;
   className?: string;
 }) {
   return (
-    <div
-      className={`relative shrink-0 overflow-hidden rounded-xl bg-stone-950 ${className}`}
-      style={{ width: size, height: size }}
-    >
+    <div className={`relative shrink-0 overflow-hidden rounded-xl bg-stone-950 ${sizeClass} ${className}`}>
       <Image src={src} alt={alt} fill unoptimized className="object-cover scale-[1.04]" />
     </div>
   );

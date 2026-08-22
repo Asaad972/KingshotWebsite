@@ -10,8 +10,8 @@ type PickerTarget = 'current' | 'target' | null;
 
 function UpgradeArrow() {
   return (
-    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-gold-300">
+    <div className="flex h-8 w-8 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/40 shadow-[0_0_12px_rgba(240,180,41,0.15)]">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-gold-300">
         <path d="M5 12h14M13 6l6 6-6 6" />
       </svg>
     </div>
@@ -86,16 +86,16 @@ export default function CharmSlotCard({
         <PickerHint text="Click here to choose your target level" tone="cyan" mirrored />
       </div>
 
-      <div className="flex items-center justify-center gap-4 py-1">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 py-1">
         <button type="button" onClick={() => setPicker('current')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
-          <CharmLevelThumb troopType={troopType} icon={icon} order={current?.order ?? 0} size={92} />
+          <CharmLevelThumb troopType={troopType} icon={icon} order={current?.order ?? 0} sizeClass="w-16 h-16 sm:w-[92px] sm:h-[92px]" />
           <span className="text-sm font-bold text-parchment-200">{current?.label ?? 'Base'}</span>
         </button>
 
         <UpgradeArrow />
 
         <button type="button" onClick={() => setPicker('target')} className="focus-ring flex flex-col items-center gap-1.5 rounded-xl">
-          <CharmLevelThumb troopType={troopType} icon={icon} order={target?.order ?? 0} size={92} />
+          <CharmLevelThumb troopType={troopType} icon={icon} order={target?.order ?? 0} sizeClass="w-16 h-16 sm:w-[92px] sm:h-[92px]" />
           <span className="text-sm font-bold text-cyan-300">{target?.label ?? 'Base'}</span>
         </button>
       </div>

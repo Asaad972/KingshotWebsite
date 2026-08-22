@@ -184,48 +184,6 @@ function NodeCircleHint({ text }: { text: string }) {
   );
 }
 
-/** Mobile prototype: a compact horizontal "- value +" row -- testing
- * whether stacking Current/Target VERTICALLY (using the space below the
- * node, where the pill already lives) works on phones where the desktop
- * NodeStepper's left/right flanking doesn't fit. Root node only, one
- * side at a time, to try the feel before deciding anything further. */
-function NodeStepperRow({
-  label,
-  value,
-  tone,
-  onInc,
-  onDec,
-  incDisabled,
-  decDisabled,
-}: {
-  label: string;
-  value: number;
-  tone: 'gold' | 'cyan';
-  onInc: () => void;
-  onDec: () => void;
-  incDisabled: boolean;
-  decDisabled: boolean;
-}) {
-  const btnClass =
-    'focus-ring flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-stone-600 bg-stone-900 text-xs font-bold text-parchment-200 disabled:opacity-30';
-  return (
-    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-      <button type="button" onClick={onDec} disabled={decDisabled} className={btnClass} aria-label={`Decrease ${label}`}>
-        −
-      </button>
-      <span
-        key={value}
-        className={`target-pop w-5 text-center text-xs font-bold tabular-nums ${tone === 'gold' ? 'text-gold-300' : 'text-cyan-300'}`}
-      >
-        {value}
-      </span>
-      <button type="button" onClick={onInc} disabled={incDisabled} className={btnClass} aria-label={`Increase ${label}`}>
-        +
-      </button>
-    </div>
-  );
-}
-
 function useCompact(): boolean {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
@@ -353,7 +311,6 @@ export default function ResearchTreeFlow({
           const isRootTech = tech.id === rows[0]?.[0]?.id;
           const showSteppers = !compact;
           const showHint = showSteppers && isRootTech;
-          const showMobileStepperRows = compact && isRootTech;
 
           return (
             <div
@@ -483,41 +440,6 @@ export default function ResearchTreeFlow({
                     compact={compact}
                   />
                 );
-
-                if (showMobileStepperRows) {
-                  return (
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="relative">
-                        <NodeStepperRow
-                          label={t('calc.current')}
-                          value={state.current}
-                          tone="gold"
-                          onInc={() => onStep(tech.id, 'current', 1)}
-                          onDec={() => onStep(tech.id, 'current', -1)}
-                          incDisabled={state.current >= tech.maxLevel}
-                          decDisabled={state.current <= 0}
-                        />
-                        <NodeStepperHint side="left" tone="gold" text={t('researchTree.hintTapSetCurrent')} compact />
-                      </div>
-                      <div className="relative">
-                        <NodeStepperRow
-                          label={t('calc.target')}
-                          value={state.target}
-                          tone="cyan"
-                          onInc={() => onStep(tech.id, 'target', 1)}
-                          onDec={() => onStep(tech.id, 'target', -1)}
-                          incDisabled={state.target >= tech.maxLevel}
-                          decDisabled={state.target <= state.current}
-                        />
-                        <NodeStepperHint side="right" tone="cyan" text={t('researchTree.hintTapSetTarget')} compact />
-                      </div>
-                      <div className="relative mt-0.5">
-                        {pillButton}
-                        {pillHint}
-                      </div>
-                    </div>
-                  );
-                }
 
                 return (
                   <div className="relative">
