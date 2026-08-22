@@ -386,46 +386,56 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Mobile: off-canvas drawer */}
-      {mobileOpen && (
-        <div className="sm:hidden fixed inset-0 z-50 flex" onClick={() => setMobileOpen(false)}>
-          <div className="absolute inset-0 bg-black/70" aria-hidden />
-          <div
-            className="relative flex flex-col w-72 max-w-[85vw] h-full bg-stone-950 border-e border-stone-700 shadow-xl"
-            style={{ touchAction: 'pan-y' }}
-            onClick={(e) => e.stopPropagation()}
-            onTouchStart={(e) => {
-              drawerTouchStartX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={(e) => {
-              if (drawerTouchStartX.current == null) return;
-              const isRTL = document.documentElement.dir === 'rtl';
-              const dx = e.changedTouches[0].clientX - drawerTouchStartX.current;
-              const closedToward = isRTL ? dx > 0 : dx < 0;
-              if (closedToward && Math.abs(dx) > 60) setMobileOpen(false);
-              drawerTouchStartX.current = null;
-            }}
-          >
-            <div className="flex items-center justify-between gap-2 px-3 h-14 border-b border-stone-700 shrink-0">
-              <span className="font-display title-glow-gold text-sm font-bold tracking-wide truncate">Kingshot Nerds HQ</span>
-              <button
-                type="button"
-                onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
-                className="focus-ring flex h-8 w-8 shrink-0 items-center justify-center rounded border border-stone-700 text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3">
-              <SidebarContent collapsed={false} onNavigate={() => setMobileOpen(false)} />
-            </div>
-            <div className="p-3 border-t border-stone-700 shrink-0">
-              <LanguageSwitcher collapsed={false} />
-            </div>
+      {/* Mobile: off-canvas drawer. Always mounted (rather than conditionally
+          rendered) and toggled with a transform + opacity transition -- the
+          old version mounted the whole subtree (icons, images, translations)
+          from scratch on every open, which is what made opening it feel like
+          it paused for a beat instead of sliding in immediately. */}
+      <div
+        className={`sm:hidden fixed inset-0 z-50 flex transition-opacity duration-200 ${
+          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setMobileOpen(false)}
+        aria-hidden={!mobileOpen}
+      >
+        <div className="absolute inset-0 bg-black/70" aria-hidden />
+        <div
+          className={`relative flex flex-col w-72 max-w-[85vw] h-full bg-stone-950 border-e border-stone-700 shadow-xl transition-transform duration-200 ease-out will-change-transform ${
+            mobileOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
+          }`}
+          style={{ touchAction: 'pan-y' }}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => {
+            drawerTouchStartX.current = e.touches[0].clientX;
+          }}
+          onTouchEnd={(e) => {
+            if (drawerTouchStartX.current == null) return;
+            const isRTL = document.documentElement.dir === 'rtl';
+            const dx = e.changedTouches[0].clientX - drawerTouchStartX.current;
+            const closedToward = isRTL ? dx > 0 : dx < 0;
+            if (closedToward && Math.abs(dx) > 60) setMobileOpen(false);
+            drawerTouchStartX.current = null;
+          }}
+        >
+          <div className="flex items-center justify-between gap-2 px-3 h-14 border-b border-stone-700 shrink-0">
+            <span className="font-display title-glow-gold text-sm font-bold tracking-wide truncate">Kingshot Nerds HQ</span>
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              className="focus-ring flex h-8 w-8 shrink-0 items-center justify-center rounded border border-stone-700 text-parchment-300 hover:border-ember-500/60 hover:text-ember-500 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3">
+            <SidebarContent collapsed={false} onNavigate={() => setMobileOpen(false)} />
+          </div>
+          <div className="p-3 border-t border-stone-700 shrink-0">
+            <LanguageSwitcher collapsed={false} />
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

@@ -101,6 +101,11 @@ export default function KingdomMapCanvas({
   const [hovered, setHovered] = useState<MapCity | null>(null);
   const [hoverScreen, setHoverScreen] = useState({ x: 0, y: 0 });
   const dragRef = useRef<{ startX: number; startY: number; moved: number; startWorld: { x: number; y: number } } | null>(null);
+  // Active touch points by pointerId, for pinch-to-zoom -- a second finger
+  // touching down hands off from single-finger pan to pinch entirely (same
+  // pattern as the rally timer's isometric map).
+  const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
   const maxPower = useRef(0);
   const rafPending = useRef(false);
   const hoveredRef = useRef<MapCity | null>(null);
@@ -311,10 +316,28 @@ export default function KingdomMapCanvas({
     scheduleDraw();
   };
 
+  const pinchDistance = (): number => {
+    const pts = Array.from(activePointers.current.values());
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  };
+
+  const pinchMidpoint = (): { x: number; y: number } => {
+    const pts = Array.from(activePointers.current.values());
+    return { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = e.target as HTMLCanvasElement;
     canvas.setPointerCapture(e.pointerId);
     const rect = canvas.getBoundingClientRect();
+    activePointers.current.set(e.pointerId, { x: e.clientX - rect.left, y: e.clientY - rect.top });
+    if (activePointers.current.size === 2) {
+      // A second finger just landed -- drop whatever single-finger pan was
+      // mid-flight and switch to pinch entirely.
+      dragRef.current = null;
+      pinchRef.current = { startDist: pinchDistance() || 1, startZoom: cameraRef.current.zoom };
+      return;
+    }
     // Record which WORLD point is under the cursor right now -- panning
     // then just has to keep solving for whatever center keeps that same
     // point under the (moving) cursor, using screenToWorld's own formula
@@ -328,6 +351,17 @@ export default function KingdomMapCanvas({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (activePointers.current.has(e.pointerId)) {
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      activePointers.current.set(e.pointerId, { x: e.clientX - rect.left, y: e.clientY - rect.top });
+    }
+    if (activePointers.current.size === 2 && pinchRef.current) {
+      const scale = pinchDistance() / pinchRef.current.startDist;
+      const targetZoom = clampZoom(pinchRef.current.startZoom * scale);
+      const mid = pinchMidpoint();
+      zoomAt(mid.x, mid.y, targetZoom / cameraRef.current.zoom);
+      return;
+    }
     const drag = dragRef.current;
     if (drag) {
       drag.moved = Math.max(drag.moved, Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY));
@@ -364,7 +398,9 @@ export default function KingdomMapCanvas({
     }
   };
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const endPointer = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    activePointers.current.delete(e.pointerId);
+    if (activePointers.current.size < 2) pinchRef.current = null;
     const drag = dragRef.current;
     dragRef.current = null;
     if (!drag) return;
@@ -403,7 +439,8 @@ export default function KingdomMapCanvas({
         style={{ width: size.width, height: size.height, touchAction: 'none' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
+        onPointerUp={endPointer}
+        onPointerCancel={endPointer}
         onPointerLeave={() => {
           hoveredRef.current = null;
           setHovered(null);
