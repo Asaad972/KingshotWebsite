@@ -59,6 +59,27 @@ function HamburgerIcon() {
   );
 }
 
+function SwordsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-full w-full">
+      <path d="M6 4 20 18M8.5 4 6 6.5 4 4.5 5.5 3 8.5 4Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 4 4 18M15.5 4 18 6.5 20 4.5 18.5 3 15.5 4Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 18v2h2M18 18v2h-2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TrophyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-full w-full">
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 14v3M9 20h6M9.5 20c0-1.7.7-2.6 2.5-3 1.8.4 2.5 1.3 2.5 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+
 interface NavItem {
   href: string;
   label: string;
@@ -110,6 +131,8 @@ function useNavSections(): NavSection[] {
       items: [
         { href: '/rally-timer', label: t('home.rallyTimerNav'), icon: photo('/explore/rally-timer.webp') },
         { href: '/gift-codes', label: t('home.giftCodesNav'), icon: photo('/explore/gift.png') },
+        { href: '/kvk-history', label: 'KvK History', icon: <SwordsIcon /> },
+        { href: '/kingdom-leaderboard', label: 'Power Leaderboard', icon: <TrophyIcon /> },
       ],
     },
   ];
