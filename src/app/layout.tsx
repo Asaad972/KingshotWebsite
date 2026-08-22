@@ -4,8 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { I18nProvider } from '@/lib/i18n';
 import LocaleGate from '@/components/LocaleGate';
-import SiteHeader from '@/components/SiteHeader';
-import MobileNavigation from '@/components/MobileNavigation';
+import Sidebar from '@/components/Sidebar';
 import StarfieldBackground from '@/components/StarfieldBackground';
 import SuggestionWidget from '@/components/SuggestionWidget';
 
@@ -56,12 +55,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StarfieldBackground />
         <I18nProvider>
           <LocaleGate>
-            <SiteHeader />
-            <main className="min-h-[calc(100vh-56px)] pb-16 sm:pb-0">{children}</main>
-            <MobileNavigation />
+            <Sidebar />
+            <main className="sidebar-offset min-h-[calc(100vh-56px)] sm:min-h-screen">{children}</main>
             <SuggestionWidget />
           </LocaleGate>
-
         </I18nProvider>
         <Analytics />
       </body>

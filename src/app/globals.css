@@ -5,6 +5,9 @@
 :root {
   --font-display: 'Rajdhani', sans-serif;
   --font-body: 'Inter', sans-serif;
+  /* Matches Sidebar's default (not collapsed) width -- avoids a flash from
+     the wrong margin before Sidebar's effect corrects it on mount. */
+  --sidebar-width: 16rem;
 }
 
 html {
@@ -14,6 +17,16 @@ html {
 body {
   @apply bg-stone-950 text-parchment-100;
   min-height: 100vh;
+}
+
+/* Set by Sidebar.tsx to its current rail/panel width (or 0 on admin pages,
+   which render their own AdminSidebar instead) -- only applies at sm+
+   since the sidebar is an off-canvas overlay on mobile, not a push panel. */
+@media (min-width: 640px) {
+  .sidebar-offset {
+    margin-inline-start: var(--sidebar-width);
+    transition: margin-inline-start 200ms ease;
+  }
 }
 
 /* RTL-aware direction is set via the `dir` attribute on <html>, Tailwind's

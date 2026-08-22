@@ -42,7 +42,7 @@ export default function SuggestionWidget() {
   };
 
   return (
-    <div className="fixed bottom-20 end-4 z-50 sm:bottom-4">
+    <div className="fixed bottom-4 end-4 z-50">
       {open && (
         <div className="mb-2 w-72 dashboard-card p-3.5 shadow-lg">
           {status === 'sent' ? (
